@@ -13,7 +13,7 @@
 
 /* Cards fade out toward the left and right edges */
 .mc-track { position: absolute; inset: 0; perspective: 1400px; transform-style: preserve-3d; -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); }
-.mc-card { position: absolute; left: 50%; top: calc(50% - var(--row-lift, 20px) - var(--card-h) / 2); transform-origin: 50% 0; width: var(--card-w); height: var(--card-h); border-radius: 16px; overflow: hidden; border: 0; padding: 0; color: #fff; background: var(--blue-dark); cursor: inherit; will-change: transform, filter; }
+.mc-card { position: absolute; left: 50%; top: calc(50% - var(--row-lift, 20px) - var(--card-h) / 2); transform-origin: 50% 0; width: var(--card-w); height: var(--card-h); border-radius: 10px; overflow: hidden; border: 0; padding: 0; color: #fff; background: var(--blue-dark); cursor: inherit; will-change: transform, filter; }
 .mc-card .tile-img, .mc-card .tile-alt { position: absolute; inset: 0; transition: opacity .7s ease; }
 .mc-card .tile-img { background: radial-gradient(60% 40% at 50% 36%, rgba(255,255,255,.3), transparent 70%), linear-gradient(160deg, var(--a), var(--b)); }
 .mc-card .tile-img::after { content: ""; position: absolute; left: 50%; top: 22%; width: 34%; aspect-ratio: 1 / 2.1; transform: translateX(-50%); border-radius: 999px 999px 10px 10px; background: rgba(255,255,255,.2); }
@@ -28,7 +28,7 @@
 .mc-filters { margin-top: 0; pointer-events: auto; justify-content: flex-end; }
 .mc-bottom { left: var(--gutter); right: var(--gutter); bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
 .mc-title-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.mc-title { font-family: var(--mono); font-weight: 400; text-transform: uppercase; font-size: clamp(32px, 5vw, 72px); letter-spacing: 0.02em; line-height: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-title { font-family: var(--mono); font-weight: 400; text-transform: uppercase; font-size: clamp(32px, 4.3vw, 62px); letter-spacing: 0.02em; line-height: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mc-progress { display: flex; align-items: center; gap: 12px; flex-shrink: 0; padding-bottom: 8px; }
 .mc-bar { position: relative; width: 120px; height: 1px; background: var(--line); }
 .mc-bar i { position: absolute; left: 0; top: -1px; height: 3px; width: 0; background: var(--white); transition: width .4s ease; }
@@ -45,7 +45,7 @@
   .mc-filters .chip { flex-shrink: 0; }
   .mc-bottom { flex-direction: column; align-items: flex-start; gap: 12px; bottom: 32px; }
   .mc-title { font-size: clamp(30px, 10vw, 44px); max-width: 100%; }
-  .mc-card { border-radius: 14px; }
+  .mc-card { border-radius: 8px; }
 }
 
 /* WebGL layer: draws the bending cards; the DOM cards stay as invisible hit areas */

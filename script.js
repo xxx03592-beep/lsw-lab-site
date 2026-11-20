@@ -79,10 +79,11 @@ document.querySelectorAll('.section .container > *, .stat, .card, .play-step').f
 });
 
 // Background tint follows scroll: blends between palette stops from top to bottom of the page
+// Left / middle / right of the page gradient at the top, middle and bottom of the page
 const PALETTE = [
-  { bg: '#D8D4E0', aura: ['#BCC4F6', '#AEEBD6', '#C2ACF4', '#F6BCDD', '#D9A6F3'] }, // lavender / mint
-  { bg: '#E0D6DE', aura: ['#F6BCDD', '#C9C2F7', '#B4E6DA', '#F7D3B6', '#E1AEEB'] }, // rose / peach
-  { bg: '#D4DCE2', aura: ['#AEE3EB', '#C2ACF4', '#F3C2E2', '#B9CDF7', '#B6EBC9'] }, // sky / sea-green
+  ['#EEC3E1', '#E3DAE4', '#C6CAF2'], // pink / periwinkle
+  ['#C9E6DE', '#E2DCE4', '#E9C4E4'], // mint / rose
+  ['#C8D2F4', '#E0DCE6', '#DCC6F2'], // sky / violet
 ];
 const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const mix = (a, b, t) => 'rgb(' + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t)).join(',') + ')';
@@ -96,8 +97,7 @@ function tint() {
   const i = Math.min(PALETTE.length - 2, Math.floor(pos));
   const t = pos - i;
   const [from, to] = [PALETTE[i], PALETTE[i + 1]];
-  rootStyle.setProperty('--bg', mix(from.bg, to.bg, t));
-  from.aura.forEach((c, k) => rootStyle.setProperty('--aura-' + (k + 1), mix(c, to.aura[k], t)));
+  ['--bg-l', '--bg-c', '--bg-r'].forEach((name, k) => rootStyle.setProperty(name, mix(from[k], to[k], t)));
 }
 addEventListener('scroll', () => { if (!tintQueued) { tintQueued = true; requestAnimationFrame(tint); } }, { passive: true });
 tint();

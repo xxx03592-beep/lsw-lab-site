@@ -186,7 +186,7 @@ function initGL() {
   stageEl.prepend(canvas);
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true }); // transparent: the page gradient shows behind
   } catch (err) {
     canvas.remove();
     return null;
@@ -195,7 +195,6 @@ function initGL() {
   renderer.setPixelRatio(dpr);
   const camera = new THREE.PerspectiveCamera(12, 1, 1, 50000); // long lens, flat tiles
   const target = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  const c = (v) => new THREE.Color(v);
   const lens = new THREE.ShaderMaterial({
     vertexShader: LENS_VERT,
     fragmentShader: LENS_FRAG,
@@ -209,13 +208,7 @@ function initGL() {
       uBend: { value: -1 }, // same pull as the gallery
       uRimMode: { value: 1 }, // lens only at the top and bottom, where tiles leave the screen
       uBand: { value: 0.08 }, // thin band: the middle stays straight, tiles bend only as they leave
-      uBase: { value: c('#CBC6D0') },
-      uGlowA: { value: c('#F3B3CF') },
-      uGlowB: { value: c('#9FE3CF') },
-      uGlowC: { value: c('#A9C2F2') },
-      uGlowD: { value: c('#D3BAF4') },
-      uSideL: { value: c('#8FE3C4') }, uSideL2: { value: c('#A9C8F5') }, // left edge: mint ↔ sky
-      uSideR: { value: c('#F2A9D2') }, uSideR2: { value: c('#C7A6F6') }, // right edge: pink ↔ violet
+      uBgL: { value: new THREE.Color() }, uBgC: { value: new THREE.Color() }, uBgR: { value: new THREE.Color() }, // unused here: no edge tint in column mode
     },
   });
   const post = new THREE.Scene();

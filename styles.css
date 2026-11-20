@@ -25,12 +25,18 @@
   --sans: "KHTeka", system-ui, -apple-system, sans-serif;
   --mono: "KHTekaMono", "KHTeka", ui-monospace, Menlo, Consolas, monospace;
   --gutter: clamp(16px, 4vw, 48px);
+  /* Page background: left → middle → right gradient; script.js shifts the three colours as the page scrolls */
+  --bg-l: #EEC3E1;
+  --bg-c: #E3DAE4;
+  --bg-r: #C6CAF2;
+  --page-bg: linear-gradient(90deg, var(--bg-l), var(--bg-c) 50%, var(--bg-r));
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; scrollbar-gutter: stable; } /* same header position with or without a scrollbar */
 body {
-  background: var(--bg, var(--blue));
+  background: var(--page-bg);
+  background-attachment: fixed;
   color: var(--white);
   font-family: var(--sans);
   font-size: 15px;
@@ -80,6 +86,8 @@ h3 { font-size: 22px; font-weight: 500; line-height: 1.15; letter-spacing: -0.01
 
 /* Header: transparent, menu in a staggered cluster around the centered wordmark (exp.fiddle.digital layout) */
 .header { position: sticky; top: 0; z-index: 50; height: 72px; pointer-events: none; }
+/* Same gradient as the page behind the menu, fading out below it, so content scrolling up dissolves before it meets the menu */
+.header::before { content: ""; position: absolute; inset: 0 0 -24px; z-index: -1; background: var(--page-bg); -webkit-mask-image: linear-gradient(to bottom, #000 66px, transparent 100%); mask-image: linear-gradient(to bottom, #000 66px, transparent 100%); }
 .header-inner { display: grid; grid-template-columns: minmax(0, 1fr) 101px 200px 101px minmax(0, 1fr); grid-template-rows: 24px 24px; padding-top: 18px; }
 .nav { display: contents; }
 .nav a, .logo, .nav-toggle { pointer-events: auto; }
@@ -284,7 +292,7 @@ blockquote { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; letter-spac
   .header-inner { display: flex; align-items: center; justify-content: center; height: 72px; padding: 0 var(--gutter); }
   .logo-mark { font-size: 30px; }
   .nav-toggle { display: block; position: absolute; right: var(--gutter); top: 18px; }
-  .nav { display: flex; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; padding: 8px var(--gutter) 24px; background: var(--blue); border-bottom: 1px solid var(--line); pointer-events: auto; opacity: 0; visibility: hidden; transform: translateY(-8px); transition: opacity .25s, transform .25s, visibility .25s; }
+  .nav { display: flex; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; padding: 8px var(--gutter) 24px; background: var(--page-bg); border-bottom: 1px solid var(--line); pointer-events: auto; opacity: 0; visibility: hidden; transform: translateY(-8px); transition: opacity .25s, transform .25s, visibility .25s; }
   .nav a { justify-content: flex-start; padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
   .nav-open .nav { opacity: 1; visibility: visible; transform: none; }
 }
@@ -316,21 +324,6 @@ blockquote { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; letter-spac
 .ticker-group { display: inline-flex; align-items: center; gap: 32px; padding-right: 32px; font-family: var(--mono); font-weight: 400; font-size: 10px; letter-spacing: .25em; text-transform: uppercase; color: rgba(16, 18, 20, .7); }
 .ticker-group > span { display: inline-flex; align-items: center; gap: 32px; }
 .ticker-group i { font-style: normal; color: var(--white); }
-
-/* Page aura: pastel light drifting round the screen edge, the middle stays plain */
-.page-aura { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; -webkit-mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 25%, #000 90%); mask-image: radial-gradient(ellipse 72% 68% at 50% 50%, transparent 25%, #000 90%); }
-.page-aura span { position: absolute; width: 60vmax; height: 60vmax; border-radius: 50%; filter: blur(100px); opacity: .95; animation: aura-drift 28s ease-in-out infinite alternate; }
-.page-aura span:nth-child(1) { background: var(--aura-1, #BCC4F6); left: -25vmax; top: -25vmax; }
-.page-aura span:nth-child(2) { background: var(--aura-2, #AEEBD6); right: -25vmax; top: -15vmax; animation-duration: 34s; animation-delay: -8s; }
-.page-aura span:nth-child(3) { background: var(--aura-3, #C2ACF4); left: -20vmax; bottom: -28vmax; animation-duration: 31s; animation-delay: -15s; }
-.page-aura span:nth-child(4) { background: var(--aura-4, #F6BCDD); right: -22vmax; bottom: -26vmax; animation-duration: 38s; animation-delay: -4s; }
-.page-aura span:nth-child(5) { background: var(--aura-5, #D9A6F3); left: 25vmax; bottom: -38vmax; animation-duration: 36s; animation-delay: -20s; }
-@keyframes aura-drift {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(14vmax, 8vmax) scale(1.15); }
-  100% { transform: translate(-6vmax, 16vmax) scale(.95); }
-}
-@media (prefers-reduced-motion: reduce) { .page-aura span { animation: none; } }
 
 /* Process / playbook: 4 steps in a hairline grid, then a one-line CTA strip */
 .playbook { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 48px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); counter-reset: none; }

@@ -27,9 +27,11 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 const pad = (n) => String(n).padStart(2, '0');
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-// Motion and layout tuning
-const EMPHASIS = 0.28;   // cards away from the centre lose up to 28% of their height
-const ROW_LIFT = -12;    // row sits this far above the stage centre, px (negative = below)
+// Motion and layout tuning. Card proportions follow the reference (exp.fiddle.digital
+// at 1440×900): 266×400 cards (2:3), 9px apart, top edge 21.6% down the screen.
+const EMPHASIS = 0.17;   // cards away from the centre lose up to 17% of their height
+const ASPECT = 2 / 3;    // card width / height
+let rowLift = 0;         // row centre sits this far above the stage centre, px
 const FRICTION = 6;      // velocity decay per second
 const WHEEL_GAIN = 7;    // px/s added per unit of wheel delta (was 16, then 11; lowered for a calmer scroll)
 const MAX_SPEED = 9000;  // px/s
@@ -64,17 +66,15 @@ function measure() {
   const w = stage.clientWidth;
   const h = stage.clientHeight;
   const mobile = w < 760;
-  cardW = mobile ? w * 0.9 : clamp(w * 0.328, 340, 630); // 1.5x again, capped by maxH
-  cardH = (cardW * 16) / 9; // portrait 9:16
-  const maxH = h * (mobile ? 0.64 : 0.71); // tallest that clears the filters and title
-  if (cardH > maxH) { cardH = maxH; cardW = (cardH * 9) / 16; }
-  cardW = Math.round(cardW);
+  cardH = mobile ? Math.min((w * 0.72) / ASPECT, h * 0.5) : Math.min(h * 0.444, (w * 0.185) / ASPECT);
+  cardW = Math.round(cardH * ASPECT);
   cardH = Math.round(cardH);
-  stride = cardW + (mobile ? 18 : 22);
+  stride = cardW + (mobile ? 8 : 9);
   half = w / 2;
+  rowLift = h / 2 - (h * (mobile ? 0.22 : 0.216) + cardH / 2);
   stage.style.setProperty('--card-h', cardH + 'px');
   stage.style.setProperty('--card-w', cardW + 'px');
-  stage.style.setProperty('--row-lift', ROW_LIFT + 'px');
+  stage.style.setProperty('--row-lift', rowLift + 'px');
 }
 
 // Build the cards
@@ -189,7 +189,7 @@ function initGL() {
   if (!window.THREE) return null;
   let renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('mc-canvas'), antialias: true });
+    renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('mc-canvas'), antialias: true, alpha: true });
   } catch (err) {
     return null;
   }
@@ -198,7 +198,6 @@ function initGL() {
   // Long lens (12°) so the cards look flat, like the reference
   const camera = new THREE.PerspectiveCamera(12, 1, 1, 50000);
   const target = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat });
-  const hex = (v) => new THREE.Color(v);
   const lens = new THREE.ShaderMaterial({
     vertexShader: LENS_VERT,
     fragmentShader: LENS_FRAG,
@@ -212,13 +211,7 @@ function initGL() {
       uBend: { value: -1 }, // pull in: cards bulge toward the viewer
       uRimMode: { value: 0 }, // lens along the whole screen edge
       uBand: { value: 0.34 },
-      uBase: { value: hex('#CBC6D0') },
-      uGlowA: { value: hex('#F3B3CF') },
-      uGlowB: { value: hex('#9FE3CF') },
-      uGlowC: { value: hex('#A9C2F2') },
-      uGlowD: { value: hex('#D3BAF4') },
-      uSideL: { value: hex('#8FE3C4') }, uSideL2: { value: hex('#A9C8F5') }, // left edge: mint ↔ sky
-      uSideR: { value: hex('#F2A9D2') }, uSideR2: { value: hex('#C7A6F6') }, // right edge: pink ↔ violet
+      uBgL: { value: new THREE.Color() }, uBgC: { value: new THREE.Color() }, uBgR: { value: new THREE.Color() },
     },
   });
   const post = new THREE.Scene();
@@ -270,13 +263,13 @@ function makeTexture(ad) {
   const key = ad.cover + ':' + cardH; // by image (two projects share the title "Multiple"); badge size depends on card height
   if (textures.has(key)) return textures.get(key);
   const c = document.createElement('canvas');
-  c.width = 540;
+  c.width = 640; // 2:3, same as the card
   c.height = 960;
   const g = c.getContext('2d');
   const tex = new THREE.CanvasTexture(c);
   tex.minFilter = THREE.LinearFilter;
   tex.generateMipmaps = false;
-  // Badge sits inside the 1.2x zoom crop (visible texels: x 45..495, y 80..880).
+  // Badge sits inside the 1.2x zoom crop (visible texels: x 53..587, y 80..880).
   // k keeps it the same on-screen size as on the original 373px-tall card,
   // however large the card is drawn.
   const k = 373 / (cardH || 373);
@@ -286,18 +279,18 @@ function makeTexture(ad) {
     if (pic) {
       // Thumbnail shown whole (no crop): a blurred copy fills the card, the sharp
       // picture is fitted inside the part of the texture the card shows when it
-      // stands at full height in the middle (x 45..495, y 80..880 = exactly 9:16)
+      // stands at full height in the middle (x 53..587, y 80..880)
       g.save();
       g.filter = 'blur(26px) saturate(1.1) brightness(.92)';
       drawCover(g, pic, pw, ph, c.width, c.height);
       g.restore();
-      const s = Math.min(450 / pw, 800 / ph);
-      g.drawImage(pic, 270 - (pw * s) / 2, 480 - (ph * s) / 2, pw * s, ph * s);
+      const s = Math.min(534 / pw, 800 / ph);
+      g.drawImage(pic, 320 - (pw * s) / 2, 480 - (ph * s) / 2, pw * s, ph * s);
     }
     const label = '▦ ' + ad.count;
     g.font = `500 ${30 * k}px "KHTekaMono", monospace`;
     const bh = 56 * k, bw = g.measureText(label).width + 40 * k;
-    const bx = 495 - 51 * k - bw, by = 80 + 32 * k;
+    const bx = 587 - 51 * k - bw, by = 80 + 32 * k;
     g.fillStyle = 'rgba(16,18,20,.45)';
     roundRect(g, bx, by, bw, bh, bh / 2);
     g.fill();
@@ -341,7 +334,7 @@ function glBuild() {
       uniforms: {
         uTex: { value: makeTexture(items[Number(el.dataset.i)]) },
         uSize: { value: new THREE.Vector2(cardW, cardH) },
-        uRadius: { value: w < 760 ? 14 : 16 }, // rounded corners, px
+        uRadius: { value: w < 760 ? 8 : 10 }, // rounded corners, px
         uParallax: { value: 0 },
         uCrop: { value: 1 },
       },
@@ -363,6 +356,19 @@ function glBuild() {
 // ---------------------------------------------------------------------------
 let lastFrame = performance.now();
 const startTime = lastFrame;
+
+// The lens tints edge cards with the page gradient; follow it as script.js shifts it on scroll
+const rootCss = getComputedStyle(document.documentElement);
+let bgKey = '';
+function syncBg(u) {
+  const v = ['--bg-l', '--bg-c', '--bg-r'].map((n) => rootCss.getPropertyValue(n).trim());
+  const key = v.join();
+  if (key === bgKey) return;
+  bgKey = key;
+  u.uBgL.value.setStyle(v[0]);
+  u.uBgC.value.setStyle(v[1]);
+  u.uBgR.value.setStyle(v[2]);
+}
 
 let onScreen = true;
 let looping = true;
@@ -394,7 +400,7 @@ function frame(now) {
   const raw = reduceMotion ? 0 : Math.pow(Math.min(Math.abs(vel) / 2600, 1), 0.75);
   energy += (raw - energy) * (1 - Math.exp(-(raw > energy ? 8 : 6) * dt));
 
-  const top = ROW_LIFT + cardH / 2; // shared top line, in GL units (y up)
+  const top = rowLift + cardH / 2; // shared top line, in GL units (y up)
   const stretch = 1 + 0.1 * energy;  // slight horizontal stretch with speed
   cards.forEach((el, k) => {
     const x = wrapped(k);
@@ -420,6 +426,7 @@ function frame(now) {
 
   if (gl) {
     const { renderer, lens } = gl;
+    syncBg(lens.uniforms);
     lens.uniforms.uTime.value = reduceMotion ? 0 : (now - startTime) / 1000;
     lens.uniforms.uEnergy.value = energy;
     renderer.setRenderTarget(gl.target);
