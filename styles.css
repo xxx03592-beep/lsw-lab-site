@@ -1,3 +1,25 @@
+@font-face {
+  font-family: "Helveticaneue";
+  src: url("fonts/HelveticaNeue.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Helveticaneue";
+  src: url("fonts/HelveticaNeue-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Abcwhytemono";
+  src: url("fonts/ABCWhyteMono-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --blue: #D8D4E0;
   --blue-dark: #C9C3D6;
@@ -5,8 +27,8 @@
   --line: rgba(16, 18, 20, 0.18);
   --card: rgba(16, 18, 20, 0.05);
   --dim: rgba(16, 18, 20, 0.55);
-  --sans: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
-  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  --sans: "Helveticaneue", Arial, sans-serif;
+  --mono: "Abcwhytemono", Arial, sans-serif;
   --gutter: clamp(16px, 4vw, 48px);
 }
 

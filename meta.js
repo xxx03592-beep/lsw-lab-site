@@ -288,7 +288,7 @@ function makeTexture(ad) {
       g.drawImage(pic, 270 - (pw * s) / 2, 480 - (ph * s) / 2, pw * s, ph * s);
     }
     const label = '▦ ' + ad.count;
-    g.font = `500 ${30 * k}px "JetBrains Mono", monospace`;
+    g.font = `500 ${30 * k}px "Abcwhytemono", Arial, sans-serif`;
     const bh = 56 * k, bw = g.measureText(label).width + 40 * k;
     const bx = 495 - 51 * k - bw, by = 80 + 32 * k;
     g.fillStyle = 'rgba(16,18,20,.45)';

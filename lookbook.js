@@ -247,7 +247,7 @@ function makeTexture(tile) {
       g.arc(cv.width - 52, 52, 30, 0, Math.PI * 2);
       g.fill();
       g.fillStyle = '#fff';
-      g.font = '500 26px "JetBrains Mono", monospace';
+      g.font = '500 26px "Abcwhytemono", Arial, sans-serif';
       g.textAlign = 'center';
       g.textBaseline = 'middle';
       g.fillText('▶', cv.width - 50, 53);
