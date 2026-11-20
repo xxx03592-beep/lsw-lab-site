@@ -180,26 +180,17 @@ h3 { font-size: 22px; font-weight: 500; line-height: 1.15; letter-spacing: -0.01
 .btn-blue { background: var(--blue); color: var(--white); border-color: var(--blue); }
 .btn-blue:hover { background: transparent; color: var(--blue); }
 
-/* Exhibit B: infinite ad marquee, pauses on hover, faded edges */
-.work-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 56px; }
-.view-all { display: inline-flex; gap: 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(16, 18, 20, .3); opacity: .7; transition: opacity .2s, border-color .2s; }
-.view-all:hover { opacity: 1; border-color: var(--blue); }
-.ad-marquee { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
-.ad-track { display: flex; width: max-content; animation: ad-marquee 70s linear infinite; }
-.ad-marquee:hover .ad-track { animation-play-state: paused; }
-.ad-group { display: flex; gap: 16px; padding-right: 16px; }
-@keyframes ad-marquee { to { transform: translateX(-50%); } }
-.ad-tile { position: relative; display: block; flex-shrink: 0; width: 320px; aspect-ratio: 9 / 16; overflow: hidden; border-radius: 16px; color: #fff; background: var(--blue-dark); } /* same corners as the Lookbook cards */
-/* Picture fills the whole tile (cover), no bands above or below */
-.ad-img { position: absolute; inset: 0; background-position: center; background-size: cover; transition: transform .7s ease; }
-.ad-tile:hover .ad-img { transform: scale(1.04); }
-/* Which page the tile opens: Lookbook or Meta Ad */
-.ad-kind { position: absolute; top: 12px; left: 12px; z-index: 2; display: flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 999px; background: rgba(255, 255, 255, .88); color: #101214; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
-.ad-badge { position: absolute; top: 12px; right: 12px; z-index: 2; display: flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 999px; background: rgba(16, 18, 20, .5); backdrop-filter: blur(6px); font-size: 10px; }
-.ad-cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: flex; flex-direction: column; gap: 4px; padding: 56px 20px 20px; background: linear-gradient(to top, rgba(16, 18, 20, .85), rgba(16, 18, 20, .4) 55%, transparent); }
-.ad-cap .mono { opacity: .75; letter-spacing: .2em; }
-.ad-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-#work .cases { margin-top: 64px; }
+/* Lookbook grid gallery (exp.fiddle.digital style) */
+.work-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 48px; }
+.lb-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.lb-card { position: relative; display: block; aspect-ratio: 3 / 4; overflow: hidden; border-radius: 8px; background: #e8e5e0; }
+.lb-card-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s ease; }
+.lb-card:hover .lb-card-img { transform: scale(1.03); }
+.lb-card::after { content: ""; position: absolute; inset: 0 0 auto; height: 80px; z-index: 1; background: linear-gradient(to bottom, rgba(16, 18, 20, .45), transparent); pointer-events: none; }
+.lb-card-title { position: absolute; top: 16px; left: 16px; z-index: 2; font-size: 11px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.35); }
+.lb-card-count { position: absolute; top: 16px; right: 16px; z-index: 2; font-size: 10px; letter-spacing: .08em; color: rgba(255,255,255,.7); text-shadow: 0 1px 4px rgba(0,0,0,.35); }
+@media (max-width: 960px) { .lb-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 540px) { .lb-grid { grid-template-columns: 1fr; gap: 12px; } .lb-card-title { font-size: 10px; top: 12px; left: 12px; } .lb-card-count { top: 12px; right: 12px; } }
 .reveal.from-left { transform: translateX(-28px); }
 .reveal.from-left.in { transform: none; }
 
@@ -285,8 +276,7 @@ blockquote { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; letter-spac
 .reveal.in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; }
-  .marquee-track, .live, .ad-track, .ticker-track { animation: none; }
-  .ad-marquee { overflow-x: auto; }
+  .marquee-track, .live, .ticker-track { animation: none; }
 }
 
 /* Tablet */
@@ -327,9 +317,6 @@ blockquote { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; letter-spac
   .cockpit-row > :last-child { grid-column: 1 / -1; }
   .counter-sm { font-size: 24px; }
   .work-head { flex-direction: column; align-items: flex-start; margin-bottom: 40px; }
-  .ad-group { gap: 12px; padding-right: 12px; }
-  .ad-tile { width: 220px; border-radius: 14px; }
-  .ad-cap { padding: 40px 16px 16px; }
   .faq summary { font-size: 17px; }
 }
 

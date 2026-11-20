@@ -50,49 +50,26 @@ document.querySelectorAll('.play').forEach((b) =>
   })
 );
 
-// Exhibit B tiles from site-data.js: every Lookbook project (opens meta-ad-creatives.html)
-// alternating with Meta ads, the first two of each folder (open lookbook.html). Each link
-// names the item so that page opens its viewer on it.
-const adGroup = document.querySelector('.ad-group');
-if (adGroup && typeof LOOKBOOK_SETS !== 'undefined') {
-  const span = (cls, text = '') => Object.assign(document.createElement('span'), { className: cls, textContent: text });
-  const tile = ({ href, img, kind, sub, name, badge }) => {
-    const a = Object.assign(document.createElement('a'), { href, className: 'ad-tile' });
-    const pic = span('ad-img');
-    pic.style.backgroundImage = `url("${img}")`;
-    const cap = span('ad-cap');
-    cap.append(span('mono small', `${kind} · ${sub}`), span('ad-name', name));
-    a.append(pic, span('ad-kind mono', kind));
-    if (badge) a.append(span('ad-badge mono', badge));
-    a.append(cap);
-    a.setAttribute('aria-label', `${kind}: ${sub} ${name}`);
-    return a;
-  };
-  const looks = LOOKBOOK_SETS.map((set, i) => tile({
-    href: `meta-ad-creatives.html?open=${i}`, img: set.cover, kind: 'Lookbook',
-    sub: set.brand, name: set.title, badge: '▦ ' + set.images.length,
-  }));
-  const metas = [];
-  for (let n = 0; n < 2; n++) META_COLUMNS.forEach((col, c) => {
-    const src = col.items[n];
-    if (typeof src === 'string') metas.push(tile({
-      href: `lookbook.html?col=${c}&n=${n + 1}`, img: src, kind: 'Meta Ad',
-      sub: col.label, name: 'No. ' + String(n + 1).padStart(2, '0'),
-    }));
+// Lookbook grid on the main page: one card per LOOKBOOK_SETS project
+const lbGrid = document.getElementById('lb-grid');
+if (lbGrid && typeof LOOKBOOK_SETS !== 'undefined') {
+  LOOKBOOK_SETS.forEach((set, i) => {
+    const a = Object.assign(document.createElement('a'), {
+      href: `meta-ad-creatives.html?open=${i}`,
+      className: 'lb-card',
+    });
+    const img = Object.assign(document.createElement('img'), {
+      src: set.cover, alt: `${set.brand} – ${set.title}`, className: 'lb-card-img', loading: 'lazy',
+    });
+    const title = Object.assign(document.createElement('span'), {
+      className: 'lb-card-title', textContent: `${set.brand} — ${set.title}`,
+    });
+    const count = Object.assign(document.createElement('span'), {
+      className: 'lb-card-count mono', textContent: `${set.images.length} images`,
+    });
+    a.append(img, title, count);
+    lbGrid.appendChild(a);
   });
-  for (let i = 0; i < Math.max(looks.length, metas.length); i++) {
-    if (looks[i]) adGroup.append(looks[i]);
-    if (metas[i]) adGroup.append(metas[i]);
-  }
-}
-
-// Exhibit B marquee: duplicate the tile group so translateX(-50%) loops seamlessly
-const adTrack = document.querySelector('.ad-track');
-if (adTrack) {
-  const clone = adTrack.firstElementChild.cloneNode(true);
-  clone.setAttribute('aria-hidden', 'true');
-  clone.querySelectorAll('a').forEach((a) => a.setAttribute('tabindex', '-1'));
-  adTrack.appendChild(clone);
 }
 
 // Receipts "As of" label: current month in Seoul time, e.g. "As of October 2026"
