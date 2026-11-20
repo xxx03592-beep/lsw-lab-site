@@ -1,6 +1,12 @@
-// Announcement bar close
+// Announcement bar close; its height is kept in --announce-h so the lookbook slider fits the first screen
+const announce = document.getElementById('announce');
+const setAnnounceH = () => document.documentElement.style.setProperty('--announce-h', announce.offsetHeight + 'px');
+setAnnounceH();
+addEventListener('resize', setAnnounceH);
 document.querySelector('.announce-close').addEventListener('click', () => {
-  document.getElementById('announce').classList.add('hidden');
+  announce.classList.add('hidden');
+  setAnnounceH();
+  dispatchEvent(new Event('resize')); // slider re-measures
 });
 
 // Mobile nav toggle

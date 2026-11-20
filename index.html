@@ -70,8 +70,10 @@
   }
   </script>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="lookbook.css">
+  <link rel="stylesheet" href="meta.css">
 </head>
-<body>
+<body class="has-mc">
 
 <!-- Pastel light drifting round the screen edge (fixed, behind the page) -->
 <div class="page-aura" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
@@ -101,6 +103,28 @@
 </header>
 
 <main>
+
+<!-- Lookbook slider (same gallery as the Lookbook page): drag, swipe or arrow keys -->
+<section class="mc-stage mc-embed" id="mc-stage" tabindex="0" aria-roledescription="carousel" aria-label="Lookbook">
+  <div class="mc-glow" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="mc-top">
+    <p class="mono">Lookbook · <span id="mc-total">18</span> projects</p>
+  </div>
+  <canvas class="mc-canvas" id="mc-canvas" aria-hidden="true"></canvas>
+  <div class="mc-track" id="mc-track"></div>
+  <div class="mc-bottom">
+    <div class="mc-title-wrap">
+      <p class="mono small" id="mc-cat">6A</p>
+      <p class="mc-title" id="mc-title" aria-live="polite">6A on Beach</p>
+    </div>
+    <div class="mc-progress mono">
+      <span id="mc-index">01</span>
+      <span class="mc-bar"><i id="mc-fill"></i></span>
+      <span id="mc-count">18</span>
+    </div>
+  </div>
+  <p class="mc-hint mono small" aria-hidden="true">Drag to move · click to open it</p>
+</section>
 
 <!-- Hero -->
 <section class="hero" id="hero">
@@ -292,7 +316,21 @@
   </div>
 </footer>
 
+<!-- Lookbook viewer -->
+<div class="lightbox" id="lightbox" hidden>
+  <button class="lb-close" aria-label="Close">×</button>
+  <button class="lb-nav lb-prev" aria-label="Previous">←</button>
+  <figure class="lb-figure">
+    <div class="lb-frame" id="lb-frame"><span class="play-icon" hidden>▶</span></div>
+    <figcaption class="mono"><span id="lb-name"></span><span id="lb-count"></span></figcaption>
+  </figure>
+  <button class="lb-nav lb-next" aria-label="Next">→</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="lens-shader.js"></script>
 <script src="site-data.js"></script>
 <script src="script.js"></script>
+<script src="meta.js"></script>
 </body>
 </html>

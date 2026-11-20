@@ -2,6 +2,8 @@
 .mc-page { overflow: hidden; height: 100dvh; }
 .mc-stage { position: fixed; inset: 72px 0 0 0; overflow: hidden; outline: none; cursor: grab; touch-action: none; user-select: none; }
 .mc-stage.is-dragging { cursor: grabbing; }
+/* Home page: the same gallery as the first screen, in the page flow; vertical swipes still scroll the page */
+.mc-stage.mc-embed { position: relative; inset: auto; height: calc(100svh - 72px - var(--announce-h, 0px)); min-height: 520px; touch-action: pan-y; }
 
 /* Soft blurred colour fields behind the cards */
 .mc-glow span { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .55; }
@@ -33,11 +35,11 @@
 .mc-hint { left: 50%; bottom: 10px; transform: translateX(-50%); opacity: .6; }
 
 /* Lightbox matches the 9:16 cards */
-.mc-page .lb-figure { width: auto; }
-.mc-page .lb-frame { aspect-ratio: 9 / 16; height: calc(100dvh - 64px); max-height: none; }
+:is(.mc-page, .has-mc) .lb-figure { width: auto; }
+:is(.mc-page, .has-mc) .lb-frame { aspect-ratio: 9 / 16; height: calc(100dvh - 64px); max-height: none; }
 
 @media (max-width: 760px) {
-  .mc-page .lb-frame { height: auto; width: min(calc(100vw - 24px), calc((100dvh - 230px) * 9 / 16)); }
+  :is(.mc-page, .has-mc) .lb-frame { height: auto; width: min(calc(100vw - 24px), calc((100dvh - 230px) * 9 / 16)); }
   .mc-top { flex-direction: column; align-items: flex-start; top: 14px; }
   .mc-filters { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 4px; scrollbar-width: none; }
   .mc-filters .chip { flex-shrink: 0; }
@@ -52,12 +54,12 @@
 .gl-on .mc-glow { display: none; }
 
 /* Reference look on this page (header matches the other pages) */
-.mc-page main .mono, .mc-page .lightbox .mono { font-weight: 400; letter-spacing: 0.04em; }
-.mc-page .lightbox { background: #cbc6d0; } /* opaque: the viewer covers the whole screen */
-.mc-page .play-icon { background: var(--white); color: var(--blue); }
-.mc-page .mc-glow span:nth-child(1) { background: #F3B3CF; }
-.mc-page .mc-glow span:nth-child(2) { background: #9FE3CF; }
-.mc-page .mc-glow span:nth-child(3) { background: #A9C2F2; opacity: .5; }
+.mc-page main .mono, .mc-embed .mono, :is(.mc-page, .has-mc) .lightbox .mono { font-weight: 400; letter-spacing: 0.04em; }
+:is(.mc-page, .has-mc) .lightbox { background: #cbc6d0; } /* opaque: the viewer covers the whole screen */
+:is(.mc-page, .has-mc) .play-icon { background: var(--white); color: var(--blue); }
+.mc-glow span:nth-child(1) { background: #F3B3CF; }
+.mc-glow span:nth-child(2) { background: #9FE3CF; }
+.mc-glow span:nth-child(3) { background: #A9C2F2; opacity: .5; }
 .mc-card .tile-img.has-photo { background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #cfc9d6; } /* whole thumbnail, no crop */
 .mc-card .tile-img.has-photo::after { display: none; }
-.mc-page main .mc-hint { letter-spacing: 0.02em; } /* same as the Meta Ad Creatives page hint */
+.mc-page main .mc-hint, .mc-embed .mc-hint { letter-spacing: 0.02em; } /* same as the Meta Ad Creatives page hint */

@@ -1,14 +1,21 @@
+// Own scope: on the home page this runs next to script.js
+(() => {
+const stage = document.getElementById('mc-stage');
+// Embedded at the top of the home page: the page keeps its vertical scroll, the nav belongs to script.js
+const embedded = stage.classList.contains('mc-embed');
+
 // Mobile nav toggle
-const toggle = document.querySelector('.nav-toggle');
-toggle.addEventListener('click', () => {
-  const open = document.body.classList.toggle('nav-open');
-  toggle.setAttribute('aria-expanded', open);
-});
+if (!embedded) {
+  const toggle = document.querySelector('.nav-toggle');
+  toggle.addEventListener('click', () => {
+    const open = document.body.classList.toggle('nav-open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+}
 
 // Cards from site-data.js: one per project; its images open in the viewer
 const ADS = LOOKBOOK_SETS.map((set) => ({ cat: set.brand.toLowerCase(), label: set.brand, title: set.title, count: set.images.length, images: set.images, cover: set.cover }));
 
-const stage = document.getElementById('mc-stage');
 const track = document.getElementById('mc-track');
 const titleEl = document.getElementById('mc-title');
 const catEl = document.getElementById('mc-cat');
@@ -229,7 +236,7 @@ function makeLabel(ad) {
   c.width = cardW * 2;
   c.height = LABEL_H * 2;
   const g = c.getContext('2d');
-  g.font = '400 22px "IBM Plex Mono", monospace';
+  g.font = '400 22px "KHTekaMono", monospace';
   if ('letterSpacing' in g) g.letterSpacing = '1px';
   g.fillStyle = 'rgba(16,18,20,.72)';
   g.textBaseline = 'middle';
@@ -357,7 +364,10 @@ function glBuild() {
 let lastFrame = performance.now();
 const startTime = lastFrame;
 
+let onScreen = true;
+let looping = true;
 function frame(now) {
+  if (!onScreen) { looping = false; return; }
   const dt = Math.min((now - lastFrame) / 1000, 0.05);
   lastFrame = now;
 
@@ -433,9 +443,11 @@ function frame(now) {
 // Input: wheel, drag/swipe, keys, tap
 // ---------------------------------------------------------------------------
 stage.addEventListener('wheel', (e) => {
+  const sideways = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+  if (embedded && !sideways) return; // vertical wheel scrolls the home page
   e.preventDefault();
   // Vertical wheel and horizontal trackpad swipes both move the row sideways
-  const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+  const d = sideways ? e.deltaX : e.deltaY;
   vel = clamp(vel + (e.deltaMode === 1 ? d * 30 : d) * WHEEL_GAIN, -MAX_SPEED, MAX_SPEED);
   settle = null;
   resting = false;
@@ -545,21 +557,34 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') step(1);
 });
 
-// Rebuild on resize, keeping the same card in the centre
+// Rebuild when the stage changes size (not on mobile URL-bar resizes), keeping the same card in the centre
+let builtSize = '';
+const stageSize = () => stage.clientWidth + 'x' + stage.clientHeight;
 window.addEventListener('resize', () => {
+  if (stageSize() === builtSize) return;
+  builtSize = stageSize();
   const at = Math.round(pos / stride);
   build();
   pos = at * stride;
 });
 
 build();
+builtSize = stageSize();
 // Opened from a home-page tile (?open=<project index>): centre that card and open its viewer
-const startAt = new URLSearchParams(location.search).get('open');
+const startAt = embedded ? null : new URLSearchParams(location.search).get('open');
 if (startAt !== null && items[Number(startAt)]) {
   pos = Number(startAt) * stride;
   openBox(Number(startAt));
 }
 // Redraw card badges once the mono font has loaded
 if (gl && document.fonts) document.fonts.ready.then(() => { textures.clear(); glBuild(); });
-stage.focus({ preventScroll: true });
+if (!embedded) stage.focus({ preventScroll: true });
+// Stop drawing while the home-page slider is scrolled out of view
+if (embedded && 'IntersectionObserver' in window) {
+  new IntersectionObserver(([entry]) => {
+    onScreen = entry.isIntersecting;
+    if (onScreen && !looping) { looping = true; lastFrame = performance.now(); requestAnimationFrame(frame); }
+  }).observe(stage);
+}
 requestAnimationFrame(frame);
+})();
