@@ -79,11 +79,13 @@ document.querySelectorAll('.section .container > *, .stat, .card, .play-step').f
 });
 
 // Background tint follows scroll: blends between palette stops from top to bottom of the page
-// Left / middle / right of the page gradient at the top, middle and bottom of the page
+// Page background (styles.css --page-bg) at the top, middle and bottom of the page:
+// base, then the left / right / top / bottom edge colours. The first stop is sampled from the reference.
+const BG_VARS = ['--bg-base', '--bg-l', '--bg-r', '--bg-t', '--bg-b'];
 const PALETTE = [
-  ['#EEC3E1', '#E3DAE4', '#C6CAF2'], // pink / periwinkle
-  ['#C9E6DE', '#E2DCE4', '#E9C4E4'], // mint / rose
-  ['#C8D2F4', '#E0DCE6', '#DCC6F2'], // sky / violet
+  ['#C6C1D0', '#ECC6D6', '#C6CCF4', '#CBC3F3', '#A1DCEC'], // pink / periwinkle, cyan below
+  ['#C7C2CF', '#B4E3D3', '#EEC2DC', '#E3C4EC', '#C3C3F4'], // mint / pink, lavender below
+  ['#C4C3D1', '#C2CCF6', '#DBC2F2', '#B8E1D9', '#F0C7D8'], // sky / violet, rose below
 ];
 const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const mix = (a, b, t) => 'rgb(' + hex(a).map((v, i) => Math.round(v + (hex(b)[i] - v) * t)).join(',') + ')';
@@ -97,7 +99,7 @@ function tint() {
   const i = Math.min(PALETTE.length - 2, Math.floor(pos));
   const t = pos - i;
   const [from, to] = [PALETTE[i], PALETTE[i + 1]];
-  ['--bg-l', '--bg-c', '--bg-r'].forEach((name, k) => rootStyle.setProperty(name, mix(from[k], to[k], t)));
+  BG_VARS.forEach((name, k) => rootStyle.setProperty(name, mix(from[k], to[k], t)));
 }
 addEventListener('scroll', () => { if (!tintQueued) { tintQueued = true; requestAnimationFrame(tint); } }, { passive: true });
 tint();

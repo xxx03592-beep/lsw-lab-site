@@ -21,7 +21,7 @@ uniform float uCalm; // half the centre card's width, in screen-width units
 uniform float uBend; // -1 pulls the picture in (gallery), +1 pushes it out so it curves away from the viewer
 uniform float uRimMode; // 0: lens along the whole screen edge, 1: top and bottom edges only
 uniform float uBand;    // depth of the glass band from the edge, in screen-height units
-uniform vec3 uBgL, uBgC, uBgR; // the page gradient (--bg-l / --bg-c / --bg-r)
+uniform vec3 uBgL, uBgC, uBgR; // page background: left band, base, right band (--bg-l / --bg-base / --bg-r)
 varying vec2 vUv;
 
 // Signed distance to the screen's rounded outline, in screen-height units
@@ -35,9 +35,13 @@ float noise(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-// Same horizontal gradient as the CSS page background
+// The left/right edge bands of the CSS page background (styles.css --page-bg):
+// weight (1 - x/20vw)³
 vec3 pageBg(float x) {
-  return x < 0.5 ? mix(uBgL, uBgC, x * 2.0) : mix(uBgC, uBgR, x * 2.0 - 1.0);
+  float band = 0.2;
+  float wl = pow(1.0 - clamp(x / band, 0.0, 1.0), 3.0);
+  float wr = pow(1.0 - clamp((1.0 - x) / band, 0.0, 1.0), 3.0);
+  return mix(mix(uBgC, uBgR, wr), uBgL, wl);
 }
 
 void main() {

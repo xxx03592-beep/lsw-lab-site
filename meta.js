@@ -27,10 +27,10 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
 const pad = (n) => String(n).padStart(2, '0');
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-// Motion and layout tuning. Card proportions follow the reference (exp.fiddle.digital
-// at 1440×900): 266×400 cards (2:3), 9px apart, top edge 21.6% down the screen.
+// Motion and layout tuning. Card proportions follow the reference (exp.fiddle.digital,
+// measured at 1440×900 and 1890×892): the centre card is 44.2% of the window height, 0.673 wide:tall, 9px apart.
 const EMPHASIS = 0.4;    // a card at the stage edge loses 40% of its height
-const ASPECT = 2 / 3;    // card width / height
+const ASPECT = 0.673;    // card width / height
 let rowLift = 0;         // row centre sits this far above the stage centre, px
 const FRICTION = 6;      // velocity decay per second
 const WHEEL_GAIN = 7;    // px/s added per unit of wheel delta (was 16, then 11; lowered for a calmer scroll)
@@ -70,7 +70,8 @@ function measure() {
   const menuBottom = mobile ? 72 : 66;
   const titleTop = bottomEl.offsetTop;
   const space = titleTop - menuBottom;
-  cardH = mobile ? Math.min((w * 0.72) / ASPECT, h * 0.5) : Math.min(h * 0.444, (w * 0.185) / ASPECT);
+  // Sized from the window height (not the stage, which loses the announcement bar on the home page)
+  cardH = mobile ? Math.min((w * 0.72) / ASPECT, h * 0.5) : Math.min(innerHeight * 0.442, (w * 0.185) / ASPECT);
   cardH = Math.min(cardH, space - LABEL_H - 48);
   cardW = Math.round(cardH * ASPECT);
   cardH = Math.round(cardH);
@@ -358,7 +359,7 @@ const startTime = lastFrame;
 const rootCss = getComputedStyle(document.documentElement);
 let bgKey = '';
 function syncBg(u) {
-  const v = ['--bg-l', '--bg-c', '--bg-r'].map((n) => rootCss.getPropertyValue(n).trim());
+  const v = ['--bg-l', '--bg-base', '--bg-r'].map((n) => rootCss.getPropertyValue(n).trim());
   const key = v.join();
   if (key === bgKey) return;
   bgKey = key;
