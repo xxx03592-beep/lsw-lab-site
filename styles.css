@@ -88,6 +88,8 @@ h3 { font-size: 22px; font-weight: 500; line-height: 1.15; letter-spacing: -0.01
 .header { position: sticky; top: 0; z-index: 50; height: 72px; pointer-events: none; }
 /* Same gradient as the page behind the menu, fading out below it, so content scrolling up dissolves before it meets the menu */
 .header::before { content: ""; position: absolute; inset: 0 0 -24px; z-index: -1; background: var(--page-bg); -webkit-mask-image: linear-gradient(to bottom, #000 66px, transparent 100%); mask-image: linear-gradient(to bottom, #000 66px, transparent 100%); }
+/* Home page: longer fade that reaches further down, so scrolling content goes sooner */
+.has-mc .header::before { inset: 0 0 -80px; -webkit-mask-image: linear-gradient(to bottom, #000 72px, transparent 100%); mask-image: linear-gradient(to bottom, #000 72px, transparent 100%); }
 .header-inner { display: grid; grid-template-columns: minmax(0, 1fr) 101px 200px 101px minmax(0, 1fr); grid-template-rows: 24px 24px; padding-top: 18px; }
 .nav { display: contents; }
 .nav a, .logo, .nav-toggle { pointer-events: auto; }

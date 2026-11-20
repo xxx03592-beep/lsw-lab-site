@@ -21,8 +21,8 @@ const titleEl = document.getElementById('mc-title');
 const catEl = document.getElementById('mc-cat');
 const indexEl = document.getElementById('mc-index');
 const countEl = document.getElementById('mc-count');
-const totalEl = document.getElementById('mc-total');
 const fillEl = document.getElementById('mc-fill');
+const bottomEl = stage.querySelector('.mc-bottom');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const pad = (n) => String(n).padStart(2, '0');
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -66,12 +66,19 @@ function measure() {
   const w = stage.clientWidth;
   const h = stage.clientHeight;
   const mobile = w < 760;
+  // The row (card titles + cards) sits centred between the bottom of the menu and the
+  // top of the bottom-left title block. The stage starts at the top of the header on both pages.
+  const menuBottom = mobile ? 72 : 66;
+  const titleTop = bottomEl.offsetTop;
+  const space = titleTop - menuBottom;
   cardH = mobile ? Math.min((w * 0.72) / ASPECT, h * 0.5) : Math.min(h * 0.444, (w * 0.185) / ASPECT);
+  cardH = Math.min(cardH, space - LABEL_H - 48);
   cardW = Math.round(cardH * ASPECT);
   cardH = Math.round(cardH);
   stride = cardW + (mobile ? 8 : 9);
   half = w / 2;
-  rowLift = h / 2 - (h * (mobile ? 0.22 : 0.216) + cardH / 2);
+  const cardTop = menuBottom + (space - (cardH + LABEL_H + 4)) / 2 + LABEL_H + 4;
+  rowLift = h / 2 - (cardTop + cardH / 2);
   stage.style.setProperty('--card-h', cardH + 'px');
   stage.style.setProperty('--card-w', cardW + 'px');
   stage.style.setProperty('--row-lift', rowLift + 'px');
@@ -99,7 +106,6 @@ function build() {
     track.appendChild(el);
     return el;
   });
-  totalEl.textContent = items.length;
   countEl.textContent = pad(items.length);
   pos = vel = 0;
   settle = null;
@@ -584,7 +590,8 @@ if (startAt !== null && items[Number(startAt)]) {
   openBox(Number(startAt));
 }
 // Redraw card badges once the mono font has loaded
-if (gl && document.fonts) document.fonts.ready.then(() => { textures.clear(); glBuild(); });
+// and re-centre the row, since the bottom title's height changes with the font
+if (document.fonts) document.fonts.ready.then(() => { textures.clear(); const at = Math.round(pos / stride); build(); pos = at * stride; });
 if (!embedded) stage.focus({ preventScroll: true });
 // Stop drawing while the home-page slider is scrolled out of view
 if (embedded && 'IntersectionObserver' in window) {

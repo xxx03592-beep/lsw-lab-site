@@ -23,9 +23,7 @@
 .mc-card .tile-badge { top: 18px; right: 18px; }
 
 /* Overlay UI */
-.mc-top, .mc-bottom, .mc-hint { position: absolute; z-index: 5; pointer-events: none; }
-.mc-top { top: 92px; left: max(var(--gutter), calc((100% - 1360px) / 2 + var(--gutter))); right: var(--gutter); /* label on the .container edge, filters out at the screen edge */ display: flex; justify-content: space-between; align-items: center; gap: 16px; }
-.mc-filters { margin-top: 0; pointer-events: auto; justify-content: flex-end; }
+.mc-bottom, .mc-hint { position: absolute; z-index: 5; pointer-events: none; }
 .mc-bottom { left: var(--gutter); right: var(--gutter); bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
 .mc-title-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .mc-title { font-family: var(--mono); font-weight: 400; text-transform: uppercase; font-size: clamp(32px, 4.3vw, 62px); letter-spacing: 0.02em; line-height: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -40,9 +38,6 @@
 
 @media (max-width: 760px) {
   :is(.mc-page, .has-mc) .lb-frame { height: auto; width: min(calc(100vw - 24px), calc((100dvh - 230px) * 9 / 16)); }
-  .mc-top { flex-direction: column; align-items: flex-start; top: 86px; }
-  .mc-filters { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 4px; scrollbar-width: none; }
-  .mc-filters .chip { flex-shrink: 0; }
   .mc-bottom { flex-direction: column; align-items: flex-start; gap: 12px; bottom: 32px; }
   .mc-title { font-size: clamp(30px, 10vw, 44px); max-width: 100%; }
   .mc-card { border-radius: 8px; }
