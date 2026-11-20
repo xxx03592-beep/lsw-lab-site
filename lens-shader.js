@@ -24,11 +24,15 @@ uniform float uBand;    // depth of the glass band from the edge, in screen-heig
 uniform vec3 uBgL, uBgC, uBgR; // page background: left band, base, right band (--bg-l / --bg-base / --bg-r)
 varying vec2 vUv;
 
-// Signed distance to the screen's rounded outline, in screen-height units
-float screenSd(vec2 p, vec2 halfSize) {
-  float r = 0.14;
-  vec2 q = abs(p) - halfSize + r;
-  return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - r;
+// Distance in from the screen edge, in screen-height units, as a smooth minimum of
+// the distances to the four sides. A plain rounded-box distance has creases along the
+// diagonals from the corners, and the refraction direction taken from it flips there,
+// which slices the picture; this one bends evenly everywhere.
+float rimDistance(vec2 p, vec2 halfSize) {
+  float k = 0.08;
+  float s = exp(-(halfSize.x + p.x) / k) + exp(-(halfSize.x - p.x) / k)
+          + exp(-(halfSize.y + p.y) / k) + exp(-(halfSize.y - p.y) / k);
+  return -k * log(max(s, 1e-30));
 }
 
 float noise(vec2 p) {
@@ -52,26 +56,27 @@ void main() {
   // How far into the glass band we are: 0 in the clean middle, 1 at the rim.
   // uRimMode 0: the whole screen outline (gallery, cards leave at the sides).
   // uRimMode 1: only the top and bottom edges (columns, tiles leave up and down).
-  float inside = -screenSd(p, halfSize);
+  float inside = rimDistance(p, halfSize);
   float rimInside = mix(inside, 0.5 - abs(p.y), uRimMode);
   float band = uBand;
   float mask = 1.0 - smoothstep(0.0, band, rimInside);
 
-  // Direction from the rim toward the middle (gradient of the outline)
+  // Direction from the rim toward the middle (gradient of the smooth rim distance)
   vec2 e = vec2(0.002, 0.0);
-  vec2 g = vec2(screenSd(p + e.xy, halfSize) - screenSd(p - e.xy, halfSize),
-                screenSd(p + e.yx, halfSize) - screenSd(p - e.yx, halfSize));
-  vec2 n = length(g) > 1e-5 ? -normalize(g) : vec2(0.0);
+  vec2 g = vec2(rimDistance(p + e.xy, halfSize) - rimDistance(p - e.xy, halfSize),
+                rimDistance(p + e.yx, halfSize) - rimDistance(p - e.yx, halfSize));
+  vec2 n = length(g) > 1e-5 ? normalize(g) : vec2(0.0);
   n = mix(n, vec2(0.0, -sign(p.y)), uRimMode);
   n.x /= aspect;
 
   vec2 c = vUv - 0.5;
   float distort = 0.32 + 0.3 * uEnergy;
   // Pull toward the centre. Across the centre card the vertical pull ignores x,
-  // so that card's top and bottom edges stay level instead of bowing.
-  float sideWeight = smoothstep(uCalm, uCalm + 0.05, abs(c.x));
+  // so that card's top and bottom edges stay level; the pull fades in gradually
+  // beside it (a short ramp here showed as a vertical seam).
+  float sideWeight = smoothstep(uCalm, uCalm + 0.22, abs(c.x));
   vec2 bend = uBend * c * vec2(dot(c, c), c.y * c.y + c.x * c.x * sideWeight) * distort;
-  vec2 ring = n * sin(mask * 3.14159) * 0.02 * (1.0 + uEnergy); // refraction along the rim
+  vec2 ring = n * sin(mask * 3.14159) * 0.006 * (1.0 + uEnergy); // gentle refraction along the rim
   vec2 uvRaw = vUv + (bend + ring) * mask;
   // Pushing outward samples past the screen edge: show nothing there rather than smearing the edge pixels
   float onScreen = step(0.0, uvRaw.x) * step(uvRaw.x, 1.0) * step(0.0, uvRaw.y) * step(uvRaw.y, 1.0);
