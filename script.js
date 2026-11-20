@@ -56,28 +56,6 @@ document.querySelectorAll('.play').forEach((b) =>
   })
 );
 
-// Lookbook grid on the main page: one card per LOOKBOOK_SETS project
-const lbGrid = document.getElementById('lb-grid');
-if (lbGrid && typeof LOOKBOOK_SETS !== 'undefined') {
-  LOOKBOOK_SETS.forEach((set, i) => {
-    const a = Object.assign(document.createElement('a'), {
-      href: `meta-ad-creatives.html?open=${i}`,
-      className: 'lb-card',
-    });
-    const img = Object.assign(document.createElement('img'), {
-      src: set.cover, alt: `${set.brand} – ${set.title}`, className: 'lb-card-img', loading: 'lazy',
-    });
-    const title = Object.assign(document.createElement('span'), {
-      className: 'lb-card-title', textContent: `${set.brand} — ${set.title}`,
-    });
-    const count = Object.assign(document.createElement('span'), {
-      className: 'lb-card-count mono', textContent: `${set.images.length} images`,
-    });
-    a.append(img, title, count);
-    lbGrid.appendChild(a);
-  });
-}
-
 // Receipts "As of" label: current month in Seoul time, e.g. "As of October 2026"
 const asOf = document.getElementById('as-of');
 if (asOf) {
