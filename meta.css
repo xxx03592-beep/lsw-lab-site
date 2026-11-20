@@ -1,9 +1,9 @@
 /* Meta Ad Creatives: full-screen vertical card gallery */
 .mc-page { overflow: hidden; height: 100dvh; }
-.mc-stage { position: fixed; inset: 72px 0 0 0; overflow: hidden; outline: none; cursor: grab; touch-action: none; user-select: none; }
+.mc-stage { position: fixed; inset: 0; /* full screen: the header sits on the same background */ overflow: hidden; outline: none; cursor: grab; touch-action: none; user-select: none; }
 .mc-stage.is-dragging { cursor: grabbing; }
 /* Home page: the same gallery as the first screen, in the page flow; vertical swipes still scroll the page */
-.mc-stage.mc-embed { position: relative; inset: auto; height: calc(100svh - 72px - var(--announce-h, 0px)); min-height: 520px; touch-action: pan-y; }
+.mc-stage.mc-embed { position: relative; inset: auto; margin-top: -72px; height: calc(100svh - var(--announce-h, 0px)); min-height: 592px; touch-action: pan-y; }
 
 /* Soft blurred colour fields behind the cards */
 .mc-glow span { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .55; }
@@ -24,7 +24,7 @@
 
 /* Overlay UI */
 .mc-top, .mc-bottom, .mc-hint { position: absolute; z-index: 5; pointer-events: none; }
-.mc-top { top: 20px; left: max(var(--gutter), calc((100% - 1360px) / 2 + var(--gutter))); right: var(--gutter); /* label on the .container edge, filters out at the screen edge */ display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.mc-top { top: 92px; left: max(var(--gutter), calc((100% - 1360px) / 2 + var(--gutter))); right: var(--gutter); /* label on the .container edge, filters out at the screen edge */ display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .mc-filters { margin-top: 0; pointer-events: auto; justify-content: flex-end; }
 .mc-bottom { left: var(--gutter); right: var(--gutter); bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
 .mc-title-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
@@ -40,7 +40,7 @@
 
 @media (max-width: 760px) {
   :is(.mc-page, .has-mc) .lb-frame { height: auto; width: min(calc(100vw - 24px), calc((100dvh - 230px) * 9 / 16)); }
-  .mc-top { flex-direction: column; align-items: flex-start; top: 14px; }
+  .mc-top { flex-direction: column; align-items: flex-start; top: 86px; }
   .mc-filters { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 4px; scrollbar-width: none; }
   .mc-filters .chip { flex-shrink: 0; }
   .mc-bottom { flex-direction: column; align-items: flex-start; gap: 12px; bottom: 32px; }

@@ -80,20 +80,18 @@ h3 { font-size: 22px; font-weight: 500; line-height: 1.15; letter-spacing: -0.01
 
 /* Header: transparent, menu in a staggered cluster around the centered wordmark (exp.fiddle.digital layout) */
 .header { position: sticky; top: 0; z-index: 50; height: 72px; pointer-events: none; }
-.header-inner { display: grid; grid-template-columns: minmax(0, 1fr) 101px 101px 200px 101px 101px minmax(0, 1fr); grid-template-rows: 24px 24px; padding-top: 8px; }
+.header-inner { display: grid; grid-template-columns: minmax(0, 1fr) 101px 200px 101px minmax(0, 1fr); grid-template-rows: 24px 24px; padding-top: 18px; }
 .nav { display: contents; }
 .nav a, .logo, .nav-toggle { pointer-events: auto; }
 .nav a { position: relative; z-index: 0; display: flex; align-items: center; justify-content: center; padding: 0 12px; overflow: hidden; font-size: 11.25px; letter-spacing: 0; white-space: nowrap; color: var(--white); transition: color .45s cubic-bezier(.69, 0, 0, 1); }
 .nav a::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--white); scale: 1 0; transform-origin: 50% 100%; transition: scale .6s cubic-bezier(.22, .31, 0, 1); }
 .nav a:hover, .nav a:focus-visible, .nav a[aria-current="page"] { color: #fff; }
 .nav a:hover::before, .nav a:focus-visible::before, .nav a[aria-current="page"]::before { scale: 1; }
-.nav a:nth-child(1) { grid-area: 2 / 1; justify-self: end; min-width: 101px; }
-.nav a:nth-child(2) { grid-area: 1 / 2; }
-.nav a:nth-child(3) { grid-area: 2 / 3; }
-.nav a:nth-child(4) { grid-area: 2 / 5; }
-.nav a:nth-child(5) { grid-area: 1 / 6; }
-.nav a:nth-child(6) { grid-area: 2 / 7; justify-self: start; min-width: 101px; }
-.logo { grid-area: 1 / 4 / 3 / 5; display: flex; align-items: center; justify-content: center; }
+.nav a:nth-child(1) { grid-area: 1 / 1; justify-self: end; min-width: 101px; }
+.nav a:nth-child(2) { grid-area: 2 / 2; }
+.nav a:nth-child(3) { grid-area: 2 / 4; }
+.nav a:nth-child(4) { grid-area: 1 / 5; justify-self: start; min-width: 101px; }
+.logo { grid-area: 1 / 3 / 3 / 4; display: flex; align-items: center; justify-content: center; }
 .logo-mark { font-size: 34px; font-weight: 400; letter-spacing: -0.045em; line-height: 1; -webkit-text-stroke: .9px currentColor; paint-order: stroke fill; }
 .nav-toggle { display: none; background: none; border: 0; width: 36px; height: 36px; cursor: pointer; position: relative; }
 .nav-toggle span { position: absolute; left: 6px; right: 6px; height: 2px; background: var(--white); transition: transform .2s; }
