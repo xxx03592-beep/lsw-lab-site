@@ -1,0 +1,63 @@
+/* Meta Ad Creatives: full-screen vertical card gallery */
+.mc-page { overflow: hidden; height: 100dvh; }
+.mc-stage { position: fixed; inset: 72px 0 0 0; overflow: hidden; outline: none; cursor: grab; touch-action: none; user-select: none; }
+.mc-stage.is-dragging { cursor: grabbing; }
+
+/* Soft blurred colour fields behind the cards */
+.mc-glow span { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .55; }
+.mc-glow span:nth-child(1) { width: 46vw; height: 46vw; left: -12vw; top: -10vw; background: #f6cec1; }
+.mc-glow span:nth-child(2) { width: 40vw; height: 40vw; right: -10vw; top: 20%; background: #f0ad97; }
+.mc-glow span:nth-child(3) { width: 50vw; height: 30vw; left: 25%; bottom: -16vw; background: #fff; opacity: .35; }
+
+/* Cards fade out toward the left and right edges */
+.mc-track { position: absolute; inset: 0; perspective: 1400px; transform-style: preserve-3d; -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); }
+.mc-card { position: absolute; left: 50%; top: calc(50% - var(--row-lift, 20px) - var(--card-h) / 2); transform-origin: 50% 0; width: var(--card-w); height: var(--card-h); border-radius: 16px; overflow: hidden; border: 0; padding: 0; color: #fff; background: var(--blue-dark); cursor: inherit; will-change: transform, filter; }
+.mc-card .tile-img, .mc-card .tile-alt { position: absolute; inset: 0; transition: opacity .7s ease; }
+.mc-card .tile-img { background: radial-gradient(60% 40% at 50% 36%, rgba(255,255,255,.3), transparent 70%), linear-gradient(160deg, var(--a), var(--b)); }
+.mc-card .tile-img::after { content: ""; position: absolute; left: 50%; top: 22%; width: 34%; aspect-ratio: 1 / 2.1; transform: translateX(-50%); border-radius: 999px 999px 10px 10px; background: rgba(255,255,255,.2); }
+.mc-card .tile-alt { opacity: 0; background: linear-gradient(20deg, var(--b), var(--a)); }
+.mc-card .tile-alt::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent 0 14px, rgba(255,255,255,.05) 14px 15px); }
+@media (hover: hover) { .mc-card.is-active:hover .tile-alt { opacity: 1; } }
+.mc-card .tile-badge { top: 18px; right: 18px; }
+
+/* Overlay UI */
+.mc-top, .mc-bottom, .mc-hint { position: absolute; z-index: 5; pointer-events: none; }
+.mc-top { top: 20px; left: max(var(--gutter), calc((100% - 1360px) / 2 + var(--gutter))); right: var(--gutter); /* label on the .container edge, filters out at the screen edge */ display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.mc-filters { margin-top: 0; pointer-events: auto; justify-content: flex-end; }
+.mc-bottom { left: var(--gutter); right: var(--gutter); bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
+.mc-title-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.mc-title { font-family: var(--mono); font-weight: 400; text-transform: uppercase; font-size: clamp(32px, 5vw, 72px); letter-spacing: 0.02em; line-height: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-progress { display: flex; align-items: center; gap: 12px; flex-shrink: 0; padding-bottom: 8px; }
+.mc-bar { position: relative; width: 120px; height: 1px; background: var(--line); }
+.mc-bar i { position: absolute; left: 0; top: -1px; height: 3px; width: 0; background: var(--white); transition: width .4s ease; }
+.mc-hint { left: 50%; bottom: 10px; transform: translateX(-50%); opacity: .6; }
+
+/* Lightbox matches the 9:16 cards */
+.mc-page .lb-figure { width: auto; }
+.mc-page .lb-frame { aspect-ratio: 9 / 16; height: calc(100dvh - 64px); max-height: none; }
+
+@media (max-width: 760px) {
+  .mc-page .lb-frame { height: auto; width: min(calc(100vw - 24px), calc((100dvh - 230px) * 9 / 16)); }
+  .mc-top { flex-direction: column; align-items: flex-start; top: 14px; }
+  .mc-filters { justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 4px; scrollbar-width: none; }
+  .mc-filters .chip { flex-shrink: 0; }
+  .mc-bottom { flex-direction: column; align-items: flex-start; gap: 12px; bottom: 32px; }
+  .mc-title { font-size: clamp(30px, 10vw, 44px); max-width: 100%; }
+  .mc-card { border-radius: 14px; }
+}
+
+/* WebGL layer: draws the bending cards; the DOM cards stay as invisible hit areas */
+.mc-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.gl-on .mc-card { opacity: 0 !important; filter: none !important; }
+.gl-on .mc-glow { display: none; }
+
+/* Reference look on this page (header matches the other pages) */
+.mc-page main .mono, .mc-page .lightbox .mono { font-weight: 400; letter-spacing: 0.04em; }
+.mc-page .lightbox { background: #cbc6d0; } /* opaque: the viewer covers the whole screen */
+.mc-page .play-icon { background: var(--white); color: var(--blue); }
+.mc-page .mc-glow span:nth-child(1) { background: #F3B3CF; }
+.mc-page .mc-glow span:nth-child(2) { background: #9FE3CF; }
+.mc-page .mc-glow span:nth-child(3) { background: #A9C2F2; opacity: .5; }
+.mc-card .tile-img.has-photo { background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #cfc9d6; } /* whole thumbnail, no crop */
+.mc-card .tile-img.has-photo::after { display: none; }
+.mc-page main .mc-hint { letter-spacing: 0.02em; } /* same as the Meta Ad Creatives page hint */
