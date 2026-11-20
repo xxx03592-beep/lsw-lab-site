@@ -29,7 +29,7 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 // Motion and layout tuning. Card proportions follow the reference (exp.fiddle.digital
 // at 1440×900): 266×400 cards (2:3), 9px apart, top edge 21.6% down the screen.
-const EMPHASIS = 0.17;   // cards away from the centre lose up to 17% of their height
+const EMPHASIS = 0.4;    // a card at the stage edge loses 40% of its height
 const ASPECT = 2 / 3;    // card width / height
 let rowLift = 0;         // row centre sits this far above the stage centre, px
 const FRICTION = 6;      // velocity decay per second
@@ -53,14 +53,13 @@ let energy = 0;  // 0..1, drives the lens and stretch
 let dragging = false;
 let active = -1;
 
-// Emphasis: 1 at the centre, easing to 0 at the stage edge. As in the
-// reference, cards keep their width and only lose height, hanging from a
-// shared top line, so the row tapers toward both edges.
-function emphasisAt(x) {
-  const v = 1 - Math.min(Math.abs(x) / half, 1);
-  return v * v * (3 - 2 * v);
+// As in the reference, cards keep their width and only lose height, hanging from
+// a shared top line, so the row tapers toward both edges. The loss grows with the
+// square of the distance: ~5% for the neighbours, ~22% for the next ones out.
+function heightAt(x) {
+  const d = Math.min(Math.abs(x) / half, 1.15);
+  return 1 - EMPHASIS * d * d;
 }
-const heightAt = (x) => 1 - EMPHASIS * (1 - emphasisAt(x));
 
 function measure() {
   const w = stage.clientWidth;
@@ -282,17 +281,9 @@ function makeTexture(ad) {
   const paint = (pic, pw, ph) => {
     g.fillStyle = '#b9b3c0';
     g.fillRect(0, 0, c.width, c.height);
-    if (pic) {
-      // Thumbnail shown whole (no crop): a blurred copy fills the card, the sharp
-      // picture is fitted inside the part of the texture the card shows when it
-      // stands at full height in the middle (x 53..587, y 80..880)
-      g.save();
-      g.filter = 'blur(26px) saturate(1.1) brightness(.92)';
-      drawCover(g, pic, pw, ph, c.width, c.height);
-      g.restore();
-      const s = Math.min(534 / pw, 800 / ph);
-      g.drawImage(pic, 320 - (pw * s) / 2, 480 - (ph * s) / 2, pw * s, ph * s);
-    }
+    // The picture covers the whole texture (cropped, never letterboxed); shorter
+    // cards show less of its height (uCrop in CARD_FRAG), so it opens up toward the centre
+    if (pic) drawCover(g, pic, pw, ph, c.width, c.height);
     const label = '▦ ' + ad.count;
     g.font = `500 ${30 * k}px "KHTekaMono", monospace`;
     const bh = 56 * k, bw = g.measureText(label).width + 40 * k;

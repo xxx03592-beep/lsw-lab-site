@@ -55,6 +55,6 @@
 .mc-glow span:nth-child(1) { background: #F3B3CF; }
 .mc-glow span:nth-child(2) { background: #9FE3CF; }
 .mc-glow span:nth-child(3) { background: #A9C2F2; opacity: .5; }
-.mc-card .tile-img.has-photo { background-size: contain; background-repeat: no-repeat; background-position: center; background-color: #cfc9d6; } /* whole thumbnail, no crop */
+.mc-card .tile-img.has-photo { background-size: cover; background-repeat: no-repeat; background-position: center; background-color: #cfc9d6; } /* fills the card, cropped as needed */
 .mc-card .tile-img.has-photo::after { display: none; }
 .mc-page main .mc-hint, .mc-embed .mc-hint { letter-spacing: 0.02em; } /* same as the Meta Ad Creatives page hint */
