@@ -1,21 +1,16 @@
 @font-face {
-  font-family: "Helveticaneue";
-  src: url("fonts/HelveticaNeue.ttf") format("truetype");
+  font-family: "KHTeka";
+  src: url("fonts/KHTeka-Regular.woff2") format("woff2"),
+       url("fonts/KHTeka-Regular.woff") format("woff");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: "Helveticaneue";
-  src: url("fonts/HelveticaNeue-Medium.otf") format("opentype");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Abcwhytemono";
-  src: url("fonts/ABCWhyteMono-Medium.otf") format("opentype");
-  font-weight: 500;
+  font-family: "KHTekaMono";
+  src: url("fonts/KHTekaMono-Regular.woff2") format("woff2"),
+       url("fonts/KHTekaMono-Regular.woff") format("woff");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
@@ -27,8 +22,8 @@
   --line: rgba(16, 18, 20, 0.18);
   --card: rgba(16, 18, 20, 0.05);
   --dim: rgba(16, 18, 20, 0.55);
-  --sans: "Helveticaneue", Arial, sans-serif;
-  --mono: "Abcwhytemono", Arial, sans-serif;
+  --sans: "KHTeka", system-ui, -apple-system, sans-serif;
+  --mono: "KHTekaMono", "KHTeka", ui-monospace, Menlo, Consolas, monospace;
   --gutter: clamp(16px, 4vw, 48px);
 }
 
