@@ -31,14 +31,14 @@
   --bg-base: #C6C1D0;
   --bg-l: #ECC6D6;
   --bg-r: #C6CCF4;
-  --bg-t: #CBC3F3;
-  --bg-b: #A1DCEC;
+  --bg-t: #C3B4F4; /* purple across the top */
+  --bg-b: #93DCE0; /* teal across the bottom */
   /* Side bands fade as (1 - x/20vw)³, so they end without a visible edge */
   --page-bg:
     linear-gradient(90deg, var(--bg-l), color-mix(in srgb, var(--bg-l) 42%, transparent) 5vw, color-mix(in srgb, var(--bg-l) 12.5%, transparent) 10vw, color-mix(in srgb, var(--bg-l) 1.6%, transparent) 15vw, transparent 20vw),
     linear-gradient(270deg, var(--bg-r), color-mix(in srgb, var(--bg-r) 42%, transparent) 5vw, color-mix(in srgb, var(--bg-r) 12.5%, transparent) 10vw, color-mix(in srgb, var(--bg-r) 1.6%, transparent) 15vw, transparent 20vw),
-    radial-gradient(60% 22vh at 50% 0%, var(--bg-t), 6vh, transparent),
-    radial-gradient(50% 20vh at 50% 100%, var(--bg-b), 5vh, transparent),
+    linear-gradient(180deg, var(--bg-t), color-mix(in srgb, var(--bg-t) 42%, transparent) 10vh, color-mix(in srgb, var(--bg-t) 12.5%, transparent) 20vh, color-mix(in srgb, var(--bg-t) 1.6%, transparent) 30vh, transparent 40vh),
+    linear-gradient(0deg, var(--bg-b), color-mix(in srgb, var(--bg-b) 42%, transparent) 10vh, color-mix(in srgb, var(--bg-b) 12.5%, transparent) 20vh, color-mix(in srgb, var(--bg-b) 1.6%, transparent) 30vh, transparent 40vh),
     var(--bg-base);
 }
 

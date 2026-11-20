@@ -29,6 +29,7 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
 // Motion and layout tuning. Card proportions follow the reference (exp.fiddle.digital,
 // measured at 1440×900 and 1890×892): the centre card is 44.2% of the window height, 0.673 wide:tall, 9px apart.
+// Ours is drawn 10% larger than that.
 const EMPHASIS = 0.4;    // a card at the stage edge loses 40% of its height
 const ASPECT = 0.673;    // card width / height
 let rowLift = 0;         // row centre sits this far above the stage centre, px
@@ -71,7 +72,7 @@ function measure() {
   const titleTop = bottomEl.offsetTop;
   const space = titleTop - menuBottom;
   // Sized from the window height (not the stage, which loses the announcement bar on the home page)
-  cardH = mobile ? Math.min((w * 0.72) / ASPECT, h * 0.5) : Math.min(innerHeight * 0.442, (w * 0.185) / ASPECT);
+  cardH = mobile ? Math.min((w * 0.72) / ASPECT, h * 0.5) : Math.min(innerHeight * 0.486, (w * 0.2035) / ASPECT); // reference size + 10%
   cardH = Math.min(cardH, space - LABEL_H - 48);
   cardW = Math.round(cardH * ASPECT);
   cardH = Math.round(cardH);

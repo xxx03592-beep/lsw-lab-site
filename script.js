@@ -83,7 +83,7 @@ document.querySelectorAll('.section .container > *, .stat, .card, .play-step').f
 // base, then the left / right / top / bottom edge colours. The first stop is sampled from the reference.
 const BG_VARS = ['--bg-base', '--bg-l', '--bg-r', '--bg-t', '--bg-b'];
 const PALETTE = [
-  ['#C6C1D0', '#ECC6D6', '#C6CCF4', '#CBC3F3', '#A1DCEC'], // pink / periwinkle, cyan below
+  ['#C6C1D0', '#ECC6D6', '#C6CCF4', '#C3B4F4', '#93DCE0'], // first screen: pink / periwinkle sides, purple top, teal bottom
   ['#C7C2CF', '#B4E3D3', '#EEC2DC', '#E3C4EC', '#C3C3F4'], // mint / pink, lavender below
   ['#C4C3D1', '#C2CCF6', '#DBC2F2', '#B8E1D9', '#F0C7D8'], // sky / violet, rose below
 ];
