@@ -1,4 +1,4 @@
-# LSW Lab — every crawler may read the whole site, including AI search crawlers
+# Leeframes Studio — every crawler may read the whole site, including AI search crawlers
 User-agent: *
 Allow: /
 
@@ -21,4 +21,4 @@ Allow: /
 User-agent: ClaudeBot
 Allow: /
 
-Sitemap: https://dsgnleesw.com/sitemap.xml
+Sitemap: https://leeframes.com/sitemap.xml

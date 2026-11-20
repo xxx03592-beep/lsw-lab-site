@@ -1,6 +1,6 @@
-# LSW Lab
+# Leeframes Studio
 
-> LSW Lab is a performance creative studio in Seoul, founded in 2026. It makes Meta (Facebook and Instagram) ad creatives, AI video and AI-made lookbooks for DTC fashion and accessory brands, and runs the media buying that scales the winning ads.
+> Leeframes Studio is a performance creative studio in Seoul, founded in 2026. It makes Meta (Facebook and Instagram) ad creatives, AI video and AI-made lookbooks for DTC fashion and accessory brands, and runs the media buying that scales the winning ads.
 
 ## Services
 
@@ -19,6 +19,6 @@ A four-week playbook: week 1 audit and direction, week 2 production and build, w
 
 ## Pages
 
-- [Home](https://dsgnleesw.com/): services, results, process and FAQ
-- [Lookbook](https://dsgnleesw.com/meta-ad-creatives.html): 18 lookbook projects for 6A, Akoihaus, Cleartype, Coffery, Produktepr and YAR
-- [Meta Ad Creatives](https://dsgnleesw.com/lookbook.html): 88 static and video Meta ads for rings, necklaces, bags, slippers and more
+- [Home](https://leeframes.com/): services, results, process and FAQ
+- [Lookbook](https://leeframes.com/meta-ad-creatives.html): 18 lookbook projects for 6A, Akoihaus, Cleartype, Coffery, Produktepr and YAR
+- [Meta Ad Creatives](https://leeframes.com/lookbook.html): 88 static and video Meta ads for rings, necklaces, bags, slippers and more
