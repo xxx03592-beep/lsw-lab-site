@@ -66,8 +66,8 @@ function measure() {
   const w = stage.clientWidth;
   const h = stage.clientHeight;
   const mobile = w < 760;
-  // The row (card titles + cards) sits centred between the bottom of the menu and the
-  // top of the bottom-left title block. The stage starts at the top of the header on both pages.
+  // The row (card titles + cards) sits between the bottom of the menu and the top of the
+  // bottom-left title block, slightly below centre. The stage starts at the top of the header on both pages.
   const menuBottom = mobile ? 72 : 66;
   const titleTop = bottomEl.offsetTop;
   const space = titleTop - menuBottom;
@@ -78,7 +78,8 @@ function measure() {
   cardH = Math.round(cardH);
   stride = cardW + (mobile ? 8 : 9);
   half = w / 2;
-  const cardTop = menuBottom + (space - (cardH + LABEL_H + 4)) / 2 + LABEL_H + 4;
+  const drop = mobile ? 12 : 28; // a little below the exact middle
+  const cardTop = menuBottom + (space - (cardH + LABEL_H + 4)) / 2 + LABEL_H + 4 + drop;
   rowLift = h / 2 - (cardTop + cardH / 2);
   stage.style.setProperty('--card-h', cardH + 'px');
   stage.style.setProperty('--card-w', cardW + 'px');
