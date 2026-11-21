@@ -66,28 +66,28 @@
 <!-- Running band: two identical groups so translateX(-50%) loops seamlessly -->
 <div class="q-band" aria-hidden="true">
   <div class="ticker-track">
-    <span class="ticker-group"><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span></span>
-    <span class="ticker-group"><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span></span>
+    <span class="ticker-group"><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span></span>
+    <span class="ticker-group"><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Let's talk<i>✦</i></span></span>
   </div>
 </div>
 <h1 class="q-tab"><span class="q-tab-arrow" aria-hidden="true">↓</span>Got a product to show? Let's make it look good.</h1>
 
 <!-- Quote form: quote.js posts it to /api/quote (worker.js), which emails it to hello@leeframes.com -->
 <form class="q-form container" id="q-form" novalidate>
+  <p class="q-intro">Relax, this isn't an exam. One product photo, a rough budget and your email, and we're already talking. Fill in the rest only if you feel like it.</p>
   <fieldset class="q-row">
     <legend class="q-label">I am interested in</legend>
     <div class="q-chips">
       <label class="q-chip"><input type="checkbox" name="interest" value="Lookbook"><span>Lookbook</span></label>
       <label class="q-chip"><input type="checkbox" name="interest" value="Meta ad creatives"><span>Meta ad creatives</span></label>
-      <label class="q-chip"><input type="checkbox" name="interest" value="AI video"><span>AI video</span></label>
-      <label class="q-chip"><input type="checkbox" name="interest" value="Media buying"><span>Media buying</span></label>
     </div>
   </fieldset>
   <fieldset class="q-row">
     <legend class="q-label">Budget range for this project (USD)</legend>
     <!-- Ranges: edit freely, the value is what lands in the email -->
     <div class="q-chips">
-      <label class="q-chip"><input type="radio" name="budget" value="Under $3k"><span>&lt;3k</span></label>
+      <label class="q-chip"><input type="radio" name="budget" value="Under $1k"><span>&lt;1k</span></label>
+      <label class="q-chip"><input type="radio" name="budget" value="$1k–3k"><span>1k—3k</span></label>
       <label class="q-chip"><input type="radio" name="budget" value="$3k–6k"><span>3k—6k</span></label>
       <label class="q-chip"><input type="radio" name="budget" value="$6k–12k"><span>6k—12k</span></label>
       <label class="q-chip"><input type="radio" name="budget" value="$12k+"><span>12k+</span></label>
@@ -97,11 +97,11 @@
   </fieldset>
   <label class="q-row">
     <span class="q-label">Project idea</span>
-    <textarea class="q-input" name="idea" rows="2" placeholder="What are you selling, and what do you need?" data-required="Project idea"></textarea>
+    <textarea class="q-input" name="idea" rows="2" placeholder="What are you selling, and what do you need?"></textarea>
   </label>
   <label class="q-row">
     <span class="q-label">Company</span>
-    <input class="q-input" name="company" type="text" autocomplete="organization" placeholder="Brand or company name" data-required="Company">
+    <input class="q-input" name="company" type="text" autocomplete="organization" placeholder="Brand or company name">
   </label>
   <label class="q-row">
     <span class="q-label">Website or store</span>

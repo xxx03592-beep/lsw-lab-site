@@ -10,6 +10,7 @@
 
 /* Form: label left, answer right, a hairline under every row */
 .q-form { max-width: 1180px; margin-top: clamp(56px, 8vw, 110px); }
+.q-intro { max-width: 780px; margin: 0 0 clamp(36px, 5vw, 64px); font-size: clamp(22px, 2.4vw, 32px); line-height: 1.22; letter-spacing: -0.015em; }
 .q-row { display: grid; grid-template-columns: minmax(180px, 280px) 1fr; align-items: end; gap: 24px; min-width: 0; margin: 0; padding: 18px 0 10px; border: 0; border-bottom: 1px solid var(--line); }
 .q-gap { margin-top: 56px; } /* a breath between the project and the contact details */
 fieldset.q-row > legend { float: left; } /* legends ignore grid; floated they line up with the labels */

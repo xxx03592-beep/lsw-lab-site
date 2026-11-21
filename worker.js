@@ -26,8 +26,8 @@ const MAX_FILE_BYTES = 8 * 1024 * 1024;   // per file
 const MAX_TOTAL_BYTES = 15 * 1024 * 1024; // all files; base64 adds a third, the API caps a message at 25 MiB
 const ALLOWED_TYPE = /^(image\/(jpeg|png|webp|gif|heic|heif)|application\/(pdf|zip|x-zip-compressed)|video\/(mp4|quicktime))$/;
 const FIELDS = {
-  idea: ['Project idea', 4000, true],
-  company: ['Company', 200, true],
+  idea: ['Project idea', 4000, false],
+  company: ['Company', 200, false],
   website: ['Website', 300, false],
   deadline: ['Deadline', 200, false],
   name: ['Name', 200, true],
@@ -35,7 +35,7 @@ const FIELDS = {
   refs: ['References', 2000, false],
   budget: ['Budget', 50, false],
 };
-const INTERESTS = ['Lookbook', 'Meta ad creatives', 'AI video', 'Media buying'];
+const INTERESTS = ['Lookbook', 'Meta ad creatives'];
 const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
 
 const json = (status, body) => new Response(JSON.stringify(body), {
@@ -106,14 +106,15 @@ async function handleQuote(request, env) {
     ['References', v.refs],
     ['Files', files.map((f) => f.name).join(', ')],
   ].filter(([, x]) => x);
-  const text = `${v.idea}\n\n${rows.map(([k, x]) => `${k}: ${x}`).join('\n')}\n\nReply to this email to answer ${v.name}.\n`;
-  const html = `<p style="font-size:16px;white-space:pre-wrap">${escapeHtml(v.idea)}</p>
+  const idea = v.idea || '(No project idea written: just say hello back.)';
+  const text = `${idea}\n\n${rows.map(([k, x]) => `${k}: ${x}`).join('\n')}\n\nReply to this email to answer ${v.name}.\n`;
+  const html = `<p style="font-size:16px;white-space:pre-wrap">${escapeHtml(idea)}</p>
 <table cellpadding="6" style="border-collapse:collapse;font-size:14px">${rows.map(([k, x]) => `<tr><td style="color:#666;vertical-align:top">${escapeHtml(k)}</td><td>${escapeHtml(x)}</td></tr>`).join('')}</table>
 <p style="color:#666;font-size:13px">Reply to this email to answer ${escapeHtml(v.name)}.</p>`;
 
   const from = env.QUOTE_FROM || 'quote@leeframes.com';
   const to = env.QUOTE_TO || 'hello@leeframes.com';
-  const subject = oneLine(`Quote request: ${v.company} (${v.name})`).slice(0, 200);
+  const subject = oneLine(`Quote request: ${v.company ? `${v.company} (${v.name})` : v.name}`).slice(0, 200);
   try {
     if (env.EMAIL) {
       await env.EMAIL.send({
