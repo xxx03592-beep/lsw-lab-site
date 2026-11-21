@@ -553,6 +553,7 @@ let spread = 0;        // 0..1, eased in the render loop
 let spreadTarget = 0;
 let openK = -1;        // index in cards of the opened card
 let openCY = 0;        // where the column's centre sits, GL units (y up from the stage centre)
+let colTop = 0;        // top of the column's current photo, px from the top of the window
 let colW = 0;          // photo width and height in the column, px
 let detailH = 0;
 let detailOpen = false;
@@ -570,15 +571,57 @@ const dList = el('div', 'mcd-list');
 const dCount = el('p', 'mcd-count mono');
 dView.append(dList);
 detail.append(dView, dCount);
+
+// Full screen: a second tap on a photo grows it from its place in the column to the whole
+// window height (whole picture, uncropped); any tap brings it back
+const dFull = el('div', 'mcd-full', { hidden: true });
+const dFullImg = el('img', '', { alt: '', draggable: false });
+dFull.append(dFullImg);
+detail.append(dFull);
+let fullOpen = false, fullAt = 0, fullTimer = 0;
+const fullFrom = () => ({ x: innerWidth / 2 - colW / 2, y: colTop + fullAt * dStep() - dPos, w: colW, h: detailH });
+function placeFull(b) { Object.assign(dFullImg.style, { left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px' }); }
+function openFull(n) {
+  const src = dList.children[n];
+  if (!src) return;
+  fullOpen = true;
+  fullAt = n;
+  dVel = 0;
+  dTarget = n * dStep(); // settle the column on this photo underneath
+  const aspect = src.naturalWidth ? src.naturalWidth / src.naturalHeight : ASPECT;
+  let h = innerHeight, w = h * aspect;
+  if (w > innerWidth) { w = innerWidth; h = w / aspect; }
+  clearTimeout(fullTimer);
+  dFullImg.src = src.currentSrc || src.src;
+  dFullImg.alt = src.alt;
+  dFull.hidden = false;
+  dFull.classList.remove('is-full');
+  placeFull(fullFrom());
+  void dFull.offsetWidth; // start the transition from the photo's place
+  dFull.classList.add('is-full');
+  placeFull({ x: (innerWidth - w) / 2, y: (innerHeight - h) / 2, w, h });
+}
+function closeFull(instant) {
+  if (!fullOpen) return;
+  fullOpen = false;
+  dFull.classList.remove('is-full');
+  placeFull(fullFrom());
+  clearTimeout(fullTimer);
+  fullTimer = setTimeout(() => { dFull.hidden = true; }, instant || reduceMotion ? 0 : 520);
+}
+dFull.addEventListener('click', () => closeFull());
 if (!gl) detail.classList.add('no-gl');
 document.body.append(detail);
 
 function detailSize() {
   const mobile = innerWidth < 760;
-  // Clear of the header (and announcement bar) above, with the same margin below
-  const headerBottom = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--announce-h')) || 0) + 72;
-  detailH = Math.round(Math.min(innerHeight - 2 * (headerBottom + (mobile ? 24 : 28)), innerHeight * 0.78, (innerWidth * (mobile ? 0.58 : 0.5)) / ASPECT));
-  colW = Math.round(detailH * ASPECT);
+  // From just under the menu (and announcement bar) down to the bottom of the window
+  const headerBottom = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--announce-h')) || 0) + (mobile ? 72 : 66);
+  colTop = headerBottom + (mobile ? 12 : 16);
+  detailH = innerHeight - colTop - (mobile ? 12 : 16);
+  colW = Math.round(Math.min(detailH * ASPECT, innerWidth * (mobile ? 0.72 : 0.6))); // narrow screens: keep room for the previews
+  detailH = Math.round(Math.min(detailH, colW / ASPECT));
+  detail.style.setProperty('--mcd-top', colTop + 'px');
   detail.style.setProperty('--mcd-h', detailH + 'px');
   detail.style.setProperty('--mcd-w', colW + 'px');
   detail.style.setProperty('--mcd-gap', GAP + 'px');
@@ -612,6 +655,7 @@ function resetColumn() { dPos = 0; dVel = 0; dTarget = null; }
 
 detail.addEventListener('wheel', (e) => {
   e.preventDefault();
+  if (fullOpen) return;
   const d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
   dVel = clamp(dVel + (e.deltaMode === 1 ? d * 30 : d) * WHEEL_GAIN, -MAX_SPEED, MAX_SPEED);
   dTarget = null;
@@ -662,10 +706,10 @@ function detailClick(e) {
     const hit = detLayout.findIndex((d, k) => d && k !== openK && Math.abs(gx - d.x) < d.w / 2 && Math.abs(gy - d.y) < d.h / 2);
     if (hit >= 0) { switchDetail(hit); return; }
   }
-  const along = e.clientY - (innerHeight / 2 - detailH / 2) + dPos; // px down the column
+  const along = e.clientY - colTop + dPos; // px down the column
   const n = Math.floor(along / dStep());
   const onPhoto = Math.abs(e.clientX - innerWidth / 2) < colW / 2 && n >= 0 && n <= dLast() && along - n * dStep() < detailH;
-  if (!onPhoto) closeDetail();
+  if (onPhoto) openFull(n); else closeDetail();
 }
 
 // Where card k sits in the detail view: the opened one fills the column, the rest line up small on both sides
@@ -720,7 +764,7 @@ function openDetail(i, k) {
   detailOpen = true;
   detailSize();
   const r = stage.getBoundingClientRect();
-  openCY = r.top + r.height / 2 - innerHeight / 2;
+  openCY = r.top + r.height / 2 - (colTop + detailH / 2);
   openK = gl ? k : -1;
   centreRowOn(k);
   spreadTarget = 1;
@@ -749,6 +793,7 @@ function switchDetail(k) {
 }
 function closeDetail() {
   if (!detailOpen) return;
+  if (fullOpen) closeFull(true);
   detailOpen = false;
   columnReady = false;
   clearTimeout(readyTimer);
@@ -765,6 +810,7 @@ function closeDetail() {
 }
 document.addEventListener('keydown', (e) => {
   if (!detailOpen) return;
+  if (fullOpen) { if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); closeFull(); } return; }
   if (e.key === 'Escape') closeDetail();
   const down = ['ArrowDown', 'PageDown', ' '].includes(e.key), up = ['ArrowUp', 'PageUp'].includes(e.key);
   if (down || up) { e.preventDefault(); dTarget = clamp(dIndex() + (down ? 1 : -1), 0, dLast()) * dStep(); dVel = 0; }
@@ -774,7 +820,7 @@ addEventListener('resize', () => {
   if (!detailOpen) return;
   detailSize();
   const r = stage.getBoundingClientRect();
-  openCY = r.top + r.height / 2 - innerHeight / 2;
+  openCY = r.top + r.height / 2 - (colTop + detailH / 2);
   dPos = dIndex() * dStep();
   dTarget = null;
 });
