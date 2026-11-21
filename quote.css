@@ -30,7 +30,21 @@ textarea.q-input { min-height: 2.4em; field-sizing: content; }
 .q-chip input:focus-visible + span { outline: 2px solid var(--white); outline-offset: 2px; }
 .q-or { margin: 0 8px; color: var(--dim); }
 
-.q-attach { margin: 22px 0 0 calc(min(280px, 30%) + 24px); font-size: 14px; color: var(--dim); }
+/* Attach file: a wide soft button, the chosen files listed under it */
+.q-files { margin: 40px 0 0 calc(min(280px, 30%) + 24px); max-width: 420px; }
+.q-attach-btn { position: relative; display: flex; align-items: center; justify-content: center; height: 52px; border-radius: 10px; background: rgba(255, 255, 255, .55); font-size: 16px; cursor: pointer; transition: background .2s; }
+.q-attach-btn:hover { background: rgba(255, 255, 255, .8); }
+.q-attach-btn input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.q-attach-btn:focus-within { outline: 2px solid var(--white); outline-offset: 2px; }
+.q-file-note { margin-top: 10px; color: var(--dim); text-align: center; }
+.q-file-list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.q-file-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; background: rgba(16, 18, 20, .07); font-size: 14px; }
+.q-file-list li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.q-file-list button { flex: none; background: none; border: 0; padding: 0 2px; font-size: 18px; line-height: 1; color: var(--dim); cursor: pointer; }
+.q-file-list button:hover { color: var(--white); }
+.q-file-error { color: #a2445c; }
+.q-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.q-submit[disabled] { cursor: progress; opacity: .7; }
 
 /* Missing fields on the left, Submit on the right */
 .q-foot { display: grid; grid-template-columns: 1fr minmax(220px, 320px); align-items: start; gap: 24px; margin-top: 64px; }
@@ -78,7 +92,7 @@ textarea.q-input { min-height: 2.4em; field-sizing: content; }
   fieldset.q-row > legend { float: none; padding-bottom: 10px; }
   .q-label { font-size: 13px; padding: 0; color: var(--dim); }
   .q-chip span { font-size: 15px; }
-  .q-attach { margin-left: 0; }
+  .q-files { margin-left: 0; max-width: none; }
   .q-foot, .q-alt { grid-template-columns: 1fr; }
   .q-foot { margin-top: 40px; }
   .q-submit { order: -1; }

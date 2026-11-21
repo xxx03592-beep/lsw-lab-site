@@ -35,16 +35,58 @@ function check() {
 form.addEventListener('input', check);
 check();
 
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  tried = true;
-  const missing = check();
-  if (missing.length) { missing[0].focus(); return; }
-  const data = new FormData(form);
+// Attached files: kept in our own list (a file input forgets earlier picks) and copied
+// back into the input with DataTransfer so FormData sends them
+const MAX_FILES = 5, MAX_FILE = 8 * 1024 * 1024, MAX_TOTAL = 15 * 1024 * 1024;
+const fileInput = document.getElementById('q-file');
+const fileList = document.getElementById('q-file-list');
+let files = [];
+const mb = (n) => (n < 1048576 ? Math.max(1, Math.round(n / 1024)) + ' KB' : (n / 1048576).toFixed(1) + ' MB');
+function renderFiles(error) {
+  fileList.replaceChildren(...files.map((f, i) => {
+    const li = document.createElement('li');
+    const rm = Object.assign(document.createElement('button'), { type: 'button', textContent: '×' });
+    rm.setAttribute('aria-label', 'Remove ' + f.name);
+    rm.addEventListener('click', () => { files.splice(i, 1); syncFiles(); renderFiles(); });
+    li.append(Object.assign(document.createElement('span'), { textContent: `${f.name} · ${mb(f.size)}` }), rm);
+    return li;
+  }));
+  if (error) fileList.append(Object.assign(document.createElement('li'), { className: 'q-file-error', textContent: error }));
+}
+function syncFiles() {
+  try {
+    const dt = new DataTransfer();
+    files.forEach((f) => dt.items.add(f));
+    fileInput.files = dt.files;
+  } catch (err) { /* very old browsers: the last pick is what gets sent */ }
+}
+fileInput.addEventListener('change', () => {
+  let error = '';
+  for (const f of fileInput.files) {
+    const total = files.reduce((n, x) => n + x.size, 0);
+    if (files.length >= MAX_FILES) { error = `Up to ${MAX_FILES} files.`; break; }
+    if (f.size > MAX_FILE) { error = `${f.name} is over 8 MB.`; continue; }
+    if (total + f.size > MAX_TOTAL) { error = 'Files add up to more than 15 MB.'; continue; }
+    if (!files.some((x) => x.name === f.name && x.size === f.size)) files.push(f);
+  }
+  syncFiles();
+  renderFiles(error);
+});
+
+// Bot check: when the form was opened (the server ignores sends faster than a person)
+document.getElementById('q-t').value = Date.now();
+
+function say(text, link) {
+  sent.replaceChildren(text);
+  if (link) sent.append(' ', Object.assign(document.createElement('a'), { href: `mailto:${TO}`, textContent: TO }), '.');
+  sent.hidden = false;
+}
+
+// No server set up (or it failed): open the visitor's email app with the answers instead
+function sendByEmailApp(data) {
   const val = (k) => (data.get(k) || '').toString().trim();
-  const interests = data.getAll('interest').join(', ');
   const lines = [
-    ['Interested in', interests],
+    ['Interested in', data.getAll('interest').join(', ')],
     ['Budget', val('budget')],
     ['Company', val('company')],
     ['Website', val('website')],
@@ -56,7 +98,52 @@ form.addEventListener('submit', (e) => {
   const body = `${val('idea')}\n\n${lines.join('\n')}\n`;
   const subject = `Quote request${val('company') ? ' — ' + val('company') : ''}`;
   location.href = `mailto:${TO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  sent.hidden = false;
+  say(files.length
+    ? 'Your email app should now be open with your answers. Attach your files there and press send. Nothing opened? Write to'
+    : 'Your email app should now be open with your answers. Press send there. Nothing opened? Write to', true);
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  tried = true;
+  const missing = check();
+  if (missing.length) { missing[0].focus(); return; }
+  const data = new FormData(form);
+  submit.disabled = true;
+  submit.textContent = 'Sending…';
+  sent.hidden = true;
+  let res = null, out = null;
+  try {
+    res = await fetch('/api/quote', { method: 'POST', body: data });
+    out = await res.json();
+  } catch (err) { /* offline, or no function on this host */ }
+  submit.disabled = false;
+  submit.textContent = 'Submit';
+  if (out && out.ok) {
+    form.reset();
+    files = [];
+    syncFiles();
+    renderFiles();
+    document.getElementById('q-t').value = Date.now();
+    tried = false;
+    check();
+    say('Thank you. Your request is with us, and we will reply by email.');
+    sent.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    return;
+  }
+  if (res && res.status === 400 && out) {
+    const why = {
+      missing: 'Please fill in: ' + (out.fields || []).join(', ') + '.',
+      bad_email: 'That email address does not look right.',
+      too_long: `${out.field} is too long.`,
+      too_many_files: 'Up to 5 files, please.',
+      file_too_big: `${out.file} is over 8 MB.`,
+      files_too_big: 'Files add up to more than 15 MB.',
+      file_type: `${out.file}: please send images, PDF, ZIP or MP4.`,
+    }[out.error];
+    if (why) { say(why); return; }
+  }
+  sendByEmailApp(data);
 });
 
 // Copy the address

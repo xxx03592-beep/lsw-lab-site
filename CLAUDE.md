@@ -10,7 +10,8 @@
 - index.html: 메인 페이지
 - lookbook.html: Lookbook 페이지 (meta.js / meta.css 사용)
 - meta-ad-creatives.html: Meta Ad Creatives 페이지 (lookbook.js / lookbook.css 사용)
-- quote.html / quote.css / quote.js: Get a quote 견적 문의 페이지 (제출 시 hello@leeframes.com 메일 작성)
+- quote.html / quote.css / quote.js: Get a quote 견적 문의 페이지
+- functions/api/quote.js: 견적 폼 전송용 Cloudflare Pages Function (Email Sending REST API로 hello@leeframes.com에 발송, 첨부 포함). CF_ACCOUNT_ID·CF_EMAIL_TOKEN 미설정 시 503 → 폼이 메일 앱 열기로 대체
 - styles.css: 메인 스타일
 - lookbook.css: lookbook/meta 공통 스타일
 - meta.css: meta-ad-creatives 전용 스타일
