@@ -11,7 +11,7 @@ toggle.addEventListener('click', () => {
 });
 
 // Required: Interested in, Budget, Brand, Email (marked data-required in quote.html).
-// Both Submit buttons stay disabled until all four are in.
+// The Submit button (end of the form) stays disabled until all four are in.
 const form = document.getElementById('q-form');
 const submits = [...form.querySelectorAll('.q-submit')];
 const sent = document.getElementById('q-sent');
