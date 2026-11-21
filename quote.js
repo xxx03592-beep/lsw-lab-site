@@ -116,7 +116,10 @@ form.addEventListener('submit', async (e) => {
     document.getElementById('q-t').value = Date.now();
     document.getElementById('q-more').open = false;
     check();
-    say('Thank you. Your request is with us, and we will reply by email.');
+    sent.hidden = true;
+    const done = document.getElementById('q-done');
+    if (done && typeof done.showModal === 'function') done.showModal();
+    else say("Got it, thank you! Your request is in. We'll get back to you within 24 hours.");
     return;
   }
   if (res && res.status === 400 && out) {
@@ -133,6 +136,13 @@ form.addEventListener('submit', async (e) => {
   }
   // Sending failed or isn't set up: keep the answers in the form and offer the address
   say('Sorry, your request could not be sent just now. Please try again in a minute, or write to', true);
+});
+
+// Success pop-up: a click on the dimmed area outside it closes it too
+const doneBox = document.getElementById('q-done');
+if (doneBox) doneBox.addEventListener('click', (e) => {
+  const r = doneBox.getBoundingClientRect(); // the box's own padding is the dialog too, so test the position
+  if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) doneBox.close();
 });
 
 // Copy the address
