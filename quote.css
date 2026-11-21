@@ -8,17 +8,15 @@
 .q-tab-arrow { font-family: var(--mono); font-size: 18px; opacity: .6; animation: q-nudge 2.4s ease-in-out infinite; }
 @keyframes q-nudge { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(3px); } }
 
-/* Form, set like the reference connect page (measured at 1440px): 20px labels in the left
-   third, ~35px answers in the right two thirds, a dark 1px rule under every row */
+/* Form, laid out like the reference connect page: 20px labels in the left third, answers
+   in the right two thirds at the same 20px, no rules between rows */
 .q-form { max-width: calc(1194px + 2 * var(--gutter)); margin-top: clamp(56px, 8vw, 110px); }
-.q-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items: end; gap: 4px; min-width: 0; margin: 4px 0 0; padding: 4px 0; min-height: 49px; border: 0; border-bottom: 1px solid var(--white); }
+.q-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items: end; gap: 4px; min-width: 0; margin: 0; padding: 10px 0; min-height: 49px; border: 0; }
 fieldset.q-row > legend { float: left; } /* legends ignore grid; floated they line up with the labels */
 .q-label { display: block; font-size: 20px; line-height: 24px; padding: 0 0 4px; }
-.q-input { width: 100%; min-width: 0; border: 0; padding: 8px 0 0; background: none; color: var(--white); font: inherit; font-size: clamp(24px, 2.47vw, 40px); line-height: 1.09; letter-spacing: -0.02em; outline: none; resize: none; }
+.q-input { width: 100%; min-width: 0; border: 0; padding: 0 0 4px; background: none; color: var(--white); font: inherit; font-size: 20px; line-height: 24px; letter-spacing: 0; outline: none; resize: none; }
 .q-input::placeholder { color: #a399a8; }
-textarea.q-input { min-height: 2.2em; field-sizing: content; }
-.q-row:focus-within { border-bottom-width: 2px; padding-bottom: 3px; }
-.q-row.is-missing { border-bottom-color: #a2445c; }
+textarea.q-input { min-height: 48px; field-sizing: content; }
 
 /* Choice chips: lilac, black once chosen */
 .q-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 3px; }
@@ -108,8 +106,8 @@ textarea.q-input { min-height: 2.2em; field-sizing: content; }
   .q-tab { padding: 12px 18px 13px; gap: 12px; }
   .q-row { grid-template-columns: 1fr; gap: 6px; padding: 18px 0 6px; }
   fieldset.q-row > legend { float: none; padding-bottom: 10px; }
-  .q-label { font-size: 15px; line-height: 20px; padding: 0; }
-  .q-input { font-size: 26px; }
+  .q-label { font-size: 16px; line-height: 20px; padding: 0; }
+  .q-input { font-size: 16px; line-height: 20px; } /* 16px+: phones don't zoom in on focus */
   .q-chip span { font-size: 17px; line-height: 20px; padding: 8px 11px; }
   .q-enough { font-size: 26px; }
   .q-more { margin-top: 56px; }
