@@ -8,8 +8,8 @@
 
 ## 주요 파일
 - index.html: 메인 페이지
-- lookbook.html: Meta Ad Creatives 페이지
-- meta-ad-creatives.html: Lookbook 페이지
+- lookbook.html: Lookbook 페이지 (meta.js / meta.css 사용)
+- meta-ad-creatives.html: Meta Ad Creatives 페이지 (lookbook.js / lookbook.css 사용)
 - styles.css: 메인 스타일
 - lookbook.css: lookbook/meta 공통 스타일
 - meta.css: meta-ad-creatives 전용 스타일

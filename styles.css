@@ -337,15 +337,15 @@ blockquote { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; letter-spac
 .ticker-group > span { display: inline-flex; align-items: center; gap: 32px; }
 .ticker-group i { font-style: normal; color: var(--white); }
 
-/* Process / playbook: 4 steps in a hairline grid, then a one-line CTA strip */
-.playbook { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 48px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); counter-reset: none; }
+/* Process / playbook: 3 steps in a hairline grid, then a one-line CTA strip */
+.playbook { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 48px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); counter-reset: none; }
 .play-step { display: flex; flex-direction: column; gap: 14px; min-height: 260px; padding: 36px 32px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); position: relative; overflow: hidden; background: transparent; } /* plain text until hovered */
 .play-step .step { color: var(--dim); letter-spacing: 0.35em; }
 .play-step h3 { text-transform: uppercase; font-size: 18px; font-weight: 500; letter-spacing: 0.01em; }
 .play-step p:last-child { font-size: 14px; line-height: 1.55; color: rgba(16, 18, 20, .7); }
 .playbook-cta { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-top: 24px; padding: 32px 36px; border: 1px solid var(--line); }
 .playbook-line { font-size: clamp(18px, 2vw, 24px); text-transform: uppercase; letter-spacing: 0.01em; }
-@media (max-width: 1024px) { .playbook { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1024px) { .playbook { grid-template-columns: 1fr; } }
 @media (max-width: 760px) {
   .playbook { grid-template-columns: 1fr; }
   .play-step { min-height: 0; padding: 28px 22px; }
@@ -366,3 +366,14 @@ section[id] { scroll-margin-top: 72px; } /* menu links land below the sticky hea
 .play-step:nth-child(2) { transition-delay: .1s; }
 .play-step:nth-child(3) { transition-delay: .2s; }
 .play-step:nth-child(4) { transition-delay: .3s; }
+
+/* Sub-pages: "Get a quote" button, bottom centre (a full-width bar fixed to the bottom on phones) */
+.quote-cta { position: fixed; left: 50%; bottom: 30px; transform: translateX(-50%); z-index: 40; white-space: nowrap; transition: opacity .3s ease; }
+.mcd-lock .quote-cta { opacity: 0; pointer-events: none; } /* hidden while a lookbook project is open */
+.mc-page .mc-hint, .lb-page .lb-hint { bottom: 8px; }
+@media (max-width: 760px) {
+  .quote-cta { left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); transform: none; text-align: center; justify-content: center; }
+  .mc-page .mc-bottom, .lb-page .lb-bottom { bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .mc-page .mc-hint, .lb-page .lb-hint { display: none; }
+  .lb-page .lb-section { padding-bottom: 72px; }
+}
