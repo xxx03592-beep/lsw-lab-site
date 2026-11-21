@@ -140,7 +140,8 @@ async function handleQuote(request, env) {
   } catch (err) {
     // The reason goes to the Worker's logs; the visitor is asked to email directly
     console.log('quote send failed', err && err.code, err && err.message);
-    return json(502, { ok: false, error: 'send_failed' });
+    // Cloudflare's error code (e.g. E_RECIPIENT_PLAN_RESTRICTED) says which setting is missing
+    return json(502, { ok: false, error: 'send_failed', code: String((err && err.code) || (err && err.name) || 'unknown').slice(0, 80) });
   }
   return json(200, { ok: true });
 }
