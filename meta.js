@@ -88,6 +88,7 @@ function measure() {
 
 // Build the cards
 function build() {
+  if (detailOpen) closeDetail(); // card indices change
   items = ADS.slice();
   measure();
   const need = Math.ceil((stage.clientWidth * 2.4) / stride);
@@ -173,6 +174,7 @@ uniform vec2 uSize;
 uniform float uRadius;
 uniform float uParallax;
 uniform float uCrop;
+uniform float uAlpha;
 varying vec2 vUv;
 float roundBox(vec2 p, vec2 b, float r) {
   vec2 q = abs(p) - b + r;
@@ -185,7 +187,7 @@ void main() {
   // Shorter cards crop the picture (cover) rather than squash it; the picture
   // is zoomed 1.2x inside the card and slides against the scroll
   vec2 uv = vec2(vUv.x - 0.5, (vUv.y - 0.5) * uCrop) / 1.2 + 0.5 + vec2(uParallax * 0.07, 0.0);
-  gl_FragColor = vec4(texture2D(uTex, uv).rgb, edge);
+  gl_FragColor = vec4(texture2D(uTex, uv).rgb, edge * uAlpha);
 }`;
 // LENS_VERT / LENS_FRAG live in lens-shader.js (shared with the Meta Ad Creatives page)
 
@@ -337,6 +339,7 @@ function glBuild() {
         uRadius: { value: w < 760 ? 8 : 10 }, // rounded corners, px
         uParallax: { value: 0 },
         uCrop: { value: 1 },
+        uAlpha: { value: 1 },
       },
     });
     const mesh = new THREE.Mesh(gl.geometry, mat);
@@ -401,43 +404,44 @@ function frame(now) {
   const raw = reduceMotion ? 0 : Math.pow(Math.min(Math.abs(vel) / 2600, 1), 0.75);
   energy += (raw - energy) * (1 - Math.exp(-(raw > energy ? 8 : 6) * dt));
 
-  // Detail view: the other cards slide out to both sides while the opened one grows into the first photo
+  // Detail view: the opened card grows into the column, the others shrink into side previews
   spread += (spreadTarget - spread) * (1 - Math.exp(-(spreadTarget > spread ? 6 : 8) * dt));
   if (spreadTarget === 0 && spread < 0.001) { spread = 0; openK = -1; }
   const ease = spread * spread * (3 - 2 * spread);
+  if (openK >= 0) updateDetailLayout(dt, false);
+  if (!detail.hidden) stepColumn(dt);
 
   const top = rowLift + cardH / 2; // shared top line, in GL units (y up)
   const stretch = 1 + 0.1 * energy;  // slight horizontal stretch with speed
   cards.forEach((el, k) => {
-    let x = wrapped(k);
+    const x = wrapped(k);
     const s = heightAt(x);
-    const opened = k === openK;
-    if (ease > 0 && !opened) x += (x < 0 ? -1 : 1) * ease * (half + cardW * 1.5);
     el.style.transform = `translateX(calc(-50% + ${x.toFixed(1)}px)) scaleY(${s.toFixed(3)})`;
     el.style.filter = gl || reduceMotion ? '' : `blur(${(energy * 6).toFixed(1)}px)`;
     el.classList.toggle('is-active', Math.abs(x) < stride / 2);
     if (gl) {
-      const visible = Math.abs(x) < half + cardW;
       const mesh = gl.meshes[k];
       const u = mesh.material.uniforms;
-      let cw = cardW * stretch, ch = cardH * s, cy = top - ch / 2, cx = x;
-      if (opened && ease > 0) {
-        const tw = Math.min(detailH * openAspect, innerWidth - 32);
-        cx = x * (1 - ease);
-        cy += (openCY - cy) * ease;
-        cw += (tw - cw) * ease;
-        ch += (detailH - ch) * ease;
+      let cw = cardW * stretch, ch = cardH * s, cy = top - ch / 2, cx = x, alpha = 1;
+      const d = openK >= 0 && ease > 0 ? detLayout[k] : null;
+      if (d) {
+        cx += (d.x - cx) * ease;
+        cy += (d.y - cy) * ease;
+        cw += (d.w - cw) * ease;
+        ch += (d.h - ch) * ease;
+        alpha = 1 + (d.a - 1) * ease;
       }
       mesh.position.set(cx, cy, 0);
       mesh.scale.set(cw / cardW, ch / cardH, 1);
       u.uSize.value.set(cw, ch);
-      u.uCrop.value = opened ? (ch / cw) * (cardW / cardH) : s;
-      u.uParallax.value = clamp(cx / half, -1.2, 1.2) * (opened ? 1 - ease : 1);
-      mesh.visible = visible || opened;
+      u.uCrop.value = d ? (ch / cw) * (cardW / cardH) : s;
+      u.uParallax.value = clamp(x / half, -1.2, 1.2) * (1 - ease);
+      u.uAlpha.value = alpha;
+      mesh.visible = alpha > 0.01 && Math.abs(cx) < half + cw;
       const label = gl.labels[k];
       label.position.set(x - (cardW * (stretch - 1)) / 2, top + LABEL_H / 2 + 2, 0);
-      label.material.opacity = opened ? 1 - ease : 1;
-      label.visible = visible;
+      label.material.opacity = 1 - ease;
+      label.visible = ease < 0.99 && Math.abs(x) < half + cardW;
     }
   });
 
@@ -541,100 +545,233 @@ stage.addEventListener('keydown', (e) => {
 });
 
 
-// Detail view: the project's photos in one vertical column, scrolled natively.
-// Opening slides the neighbouring cards apart and grows the clicked card (in GL) to the
-// size and place of the first photo, then the column fades in over it.
+// Detail view. Opening a card grows it (in GL) into the first photo while the other cards
+// shrink into small previews on both sides, where they stay; clicking one switches project.
+// The photos sit in one vertical column, all the same size, scrolled with the slider's
+// inertia and a soft spring that settles each photo in the middle (and bounces off the ends).
 let spread = 0;        // 0..1, eased in the render loop
 let spreadTarget = 0;
 let openK = -1;        // index in cards of the opened card
-let openCY = 0;        // where the first photo's centre sits, GL units
-let openAspect = ASPECT;
-let detailH = 0;       // photo height in the column, px
+let openCY = 0;        // where the column's centre sits, GL units (y up from the stage centre)
+let colW = 0;          // photo width and height in the column, px
+let detailH = 0;
 let detailOpen = false;
 let detailAd = null;
+let columnReady = false; // the column's photos are showing: the grown GL card fades out under them
+let detLayout = [];    // per card {x, y, w, h, a}: smoothed detail-view placement
 const GAP = 24;
+const PREVIEW = 0.42;  // preview size relative to a slider card
 const el = (tag, cls, props = {}) => Object.assign(document.createElement(tag), { className: cls }, props);
 const detail = el('div', 'mc-detail', { hidden: true });
 detail.setAttribute('role', 'dialog');
 detail.setAttribute('aria-modal', 'true');
-const dScroll = el('div', 'mcd-scroll', { tabIndex: -1 });
+const dView = el('div', 'mcd-view', { tabIndex: -1 });
 const dList = el('div', 'mcd-list');
-const dCat = el('p', 'mono small');
-const dTitle = el('p', 'mc-title');
-const dCount = el('p', 'mc-progress mono');
-const dWrap = el('div', 'mc-title-wrap');
-const dBar = el('div', 'mc-bottom mcd-bar');
+const dCount = el('p', 'mcd-count mono');
 const dClose = el('button', 'mcd-close mono', { type: 'button', textContent: 'Close ×' });
-dScroll.append(dList);
-dWrap.append(dCat, dTitle);
-dBar.append(dWrap, dCount);
-detail.append(dScroll, dBar, dClose);
+dView.append(dList);
+detail.append(dView, dCount, dClose);
+if (!gl) detail.classList.add('no-gl');
 document.body.append(detail);
 
 function detailSize() {
-  detailH = Math.round(Math.min(innerHeight * (innerWidth < 760 ? 0.72 : 0.8), (innerWidth - 32) / 0.75));
+  const mobile = innerWidth < 760;
+  // Clear of the header (and announcement bar) above, with the same margin below
+  const headerBottom = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--announce-h')) || 0) + 72;
+  detailH = Math.round(Math.min(innerHeight - 2 * (headerBottom + (mobile ? 24 : 28)), innerHeight * 0.78, (innerWidth * (mobile ? 0.58 : 0.5)) / ASPECT));
+  colW = Math.round(detailH * ASPECT);
   detail.style.setProperty('--mcd-h', detailH + 'px');
+  detail.style.setProperty('--mcd-w', colW + 'px');
   detail.style.setProperty('--mcd-gap', GAP + 'px');
 }
-function updateCount() {
-  if (!detailAd) return;
-  const n = clamp(Math.round(dScroll.scrollTop / (detailH + GAP)), 0, detailAd.images.length - 1);
-  dCount.textContent = `${pad(n + 1)} / ${pad(detailAd.images.length)}`;
-}
-dScroll.addEventListener('scroll', updateCount, { passive: true });
 
-let detailTimer = 0;
+// Column scroll physics, in px down the column
+let dPos = 0, dVel = 0, dTarget = null, dDragging = false;
+const dStep = () => detailH + GAP;
+const dLast = () => (detailAd ? detailAd.images.length - 1 : 0);
+const dIndex = () => clamp(Math.round(dPos / dStep()), 0, dLast());
+function stepColumn(dt) {
+  if (!dDragging) {
+    const max = dLast() * dStep();
+    if (dTarget === null && (dPos < 0 || dPos > max)) dTarget = clamp(Math.round(dPos / dStep()), 0, dLast()) * dStep();
+    if (dTarget === null) {
+      dPos += dVel * dt;
+      dVel *= Math.exp(-FRICTION * dt);
+      if (Math.abs(dVel) < SETTLE_SPEED) dTarget = dIndex() * dStep();
+    } else {
+      // Slightly under-damped spring: overshoots a touch, then settles
+      const w = 13, zeta = 0.62;
+      dVel += (w * w * (dTarget - dPos) - 2 * zeta * w * dVel) * dt;
+      dPos += dVel * dt;
+      if (Math.abs(dTarget - dPos) < 0.3 && Math.abs(dVel) < 5) { dPos = dTarget; dVel = 0; }
+    }
+  }
+  dList.style.transform = `translate3d(0, ${(-dPos).toFixed(1)}px, 0)`;
+  if (detailAd) dCount.textContent = `${pad(dIndex() + 1)} / ${pad(detailAd.images.length)}`;
+}
+function resetColumn() { dPos = 0; dVel = 0; dTarget = null; }
+
+detail.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+  dVel = clamp(dVel + (e.deltaMode === 1 ? d * 30 : d) * WHEEL_GAIN, -MAX_SPEED, MAX_SPEED);
+  dTarget = null;
+}, { passive: false });
+
+let dStartY = 0, dStartPos = 0, dLastY = 0, dLastT = 0, dMoved = 0;
+dView.addEventListener('pointerdown', (e) => {
+  dDragging = true;
+  dMoved = 0;
+  dStartY = dLastY = e.clientY;
+  dStartPos = dPos;
+  dLastT = performance.now();
+  dVel = 0;
+  dTarget = null;
+  dView.setPointerCapture(e.pointerId);
+});
+dView.addEventListener('pointermove', (e) => {
+  if (!dDragging) return;
+  const now = performance.now();
+  const v = ((dLastY - e.clientY) * 1000) / Math.max(now - dLastT, 1);
+  dVel = dVel * 0.6 + v * 0.4;
+  dLastY = e.clientY;
+  dLastT = now;
+  dMoved = Math.max(dMoved, Math.abs(e.clientY - dStartY));
+  let p = dStartPos + (dStartY - e.clientY);
+  const max = dLast() * dStep();
+  if (p < 0) p *= 0.35; else if (p > max) p = max + (p - max) * 0.35; // rubber band past the ends
+  dPos = p;
+});
+const dEnd = (e) => {
+  if (!dDragging) return;
+  dDragging = false;
+  if (performance.now() - dLastT > 80) dVel = 0;
+  dVel = clamp(dVel, -MAX_SPEED, MAX_SPEED);
+  if (e.type === 'pointerup' && dMoved < 6) { dVel = 0; detailClick(e); }
+};
+dView.addEventListener('pointerup', dEnd);
+dView.addEventListener('pointercancel', dEnd);
+
+// A tap on a side preview opens that project
+function detailClick(e) {
+  if (!gl || !detailAd) return;
+  const r = stage.getBoundingClientRect();
+  const gx = e.clientX - (r.left + r.width / 2);
+  const gy = r.top + r.height / 2 - e.clientY;
+  const hit = detLayout.findIndex((d, k) => d && k !== openK && Math.abs(gx - d.x) < d.w / 2 && Math.abs(gy - d.y) < d.h / 2);
+  if (hit >= 0) switchDetail(hit);
+}
+
+// Where card k sits in the detail view: the opened one fills the column, the rest line up small on both sides
+function detailTarget(k) {
+  const n = cards.length;
+  let j = (((k - openK) % n) + n) % n;
+  if (j > n / 2) j -= n;
+  if (j === 0) return { x: 0, y: openCY, w: colW, h: detailH, a: columnReady ? 0 : 1 };
+  const pw = cardW * PREVIEW, ph = cardH * PREVIEW;
+  const gap = innerWidth < 760 ? 14 : 36;
+  const x = Math.sign(j) * (colW / 2 + gap + pw / 2 + (Math.abs(j) - 1) * (pw + 10));
+  return { x, y: openCY, w: pw, h: ph, a: 1 };
+}
+function updateDetailLayout(dt, snap) {
+  if (openK < 0) return;
+  const t = snap ? 1 : 1 - Math.exp(-9 * dt);
+  cards.forEach((_, k) => {
+    const g = detailTarget(k);
+    const d = detLayout[k];
+    if (!d || snap) { detLayout[k] = { ...g }; return; }
+    for (const key of ['x', 'y', 'w', 'h']) d[key] += (g[key] - d[key]) * t;
+    d.a += (g.a - d.a) * (1 - Math.exp(-(g.a < d.a ? 6 : 14) * dt));
+  });
+}
+
+function fillColumn() {
+  dList.replaceChildren(...detailAd.images.map((src, j) => {
+    const img = el('img', '', { src, alt: `${detailAd.title} ${j + 1}`, decoding: 'async', draggable: false });
+    if (j > 1) img.loading = 'lazy';
+    return img;
+  }));
+  detail.setAttribute('aria-label', detailAd.title);
+  resetColumn();
+  stepColumn(0);
+}
+
+let readyTimer = 0, detailTimer = 0;
+function showColumnSoon(delay) {
+  columnReady = false;
+  clearTimeout(readyTimer);
+  readyTimer = setTimeout(() => { detail.classList.add('is-ready'); columnReady = true; }, reduceMotion ? 0 : delay);
+}
+function centreRowOn(k) {
+  settle = Math.round((pos + wrapped(k)) / stride) * stride;
+  vel = 0;
+}
+
 function openDetail(i, k) {
   if (detailOpen) return;
   const n = items.length;
   detailAd = items[((i % n) + n) % n];
   detailOpen = true;
   detailSize();
-  // The first photo is centred in the window; GL y points up from the stage centre
   const r = stage.getBoundingClientRect();
   openCY = r.top + r.height / 2 - innerHeight / 2;
   openK = gl ? k : -1;
-  openAspect = ASPECT;
-  settle = Math.round((pos + wrapped(k)) / stride) * stride;
-  vel = 0;
+  centreRowOn(k);
   spreadTarget = 1;
-  dCat.textContent = detailAd.label;
-  dTitle.textContent = detailAd.title;
-  detail.setAttribute('aria-label', detailAd.title);
-  dList.replaceChildren(...detailAd.images.map((src, j) => {
-    const img = el('img', '', { src, alt: `${detailAd.title} ${j + 1}`, decoding: 'async' });
-    if (j > 1) img.loading = 'lazy';
-    if (j === 0) {
-      const fit = () => { if (img.naturalWidth) openAspect = img.naturalWidth / img.naturalHeight; };
-      if (img.complete) fit(); else img.addEventListener('load', fit, { once: true });
-    }
-    return img;
-  }));
-  updateCount();
-  document.documentElement.classList.add('mcd-lock');
+  detLayout = [];
+  updateDetailLayout(0, true);
+  fillColumn();
   clearTimeout(detailTimer);
+  detail.classList.remove('is-ready');
   detail.hidden = false;
-  dScroll.scrollTop = 0;
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    detail.classList.add('is-open');
-    dScroll.focus({ preventScroll: true });
-  }));
+  stage.classList.add('is-detail');
+  document.documentElement.classList.add('mcd-lock');
+  requestAnimationFrame(() => detail.classList.add('is-open'));
+  showColumnSoon(650);
+  dView.focus({ preventScroll: true });
+}
+function switchDetail(k) {
+  if (!gl || k === openK) return;
+  detailAd = items[Number(cards[k].dataset.i)];
+  openK = k;
+  centreRowOn(k);
+  detail.classList.remove('is-ready');
+  columnReady = false;
+  clearTimeout(detailTimer);
+  detailTimer = setTimeout(fillColumn, reduceMotion ? 0 : 200);
+  showColumnSoon(600);
 }
 function closeDetail() {
   if (!detailOpen) return;
   detailOpen = false;
-  detail.classList.remove('is-open');
+  columnReady = false;
+  clearTimeout(readyTimer);
+  clearTimeout(detailTimer);
+  detail.classList.remove('is-open', 'is-ready');
+  stage.classList.remove('is-detail');
   spreadTarget = 0;
   resting = true;
   driftV = 0;
   document.documentElement.classList.remove('mcd-lock');
-  clearTimeout(detailTimer);
-  detailTimer = setTimeout(() => { detail.hidden = true; dList.replaceChildren(); }, reduceMotion ? 0 : 450);
+  detailTimer = setTimeout(() => { detail.hidden = true; dList.replaceChildren(); }, reduceMotion ? 0 : 400);
   stage.focus({ preventScroll: true });
 }
 dClose.addEventListener('click', closeDetail);
-document.addEventListener('keydown', (e) => { if (detailOpen && e.key === 'Escape') closeDetail(); });
-addEventListener('resize', () => { if (detailOpen) { detailSize(); updateCount(); } });
+document.addEventListener('keydown', (e) => {
+  if (!detailOpen) return;
+  if (e.key === 'Escape') closeDetail();
+  const down = ['ArrowDown', 'PageDown', ' '].includes(e.key), up = ['ArrowUp', 'PageUp'].includes(e.key);
+  if (down || up) { e.preventDefault(); dTarget = clamp(dIndex() + (down ? 1 : -1), 0, dLast()) * dStep(); dVel = 0; }
+  if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') switchDetail((openK + (e.key === 'ArrowRight' ? 1 : -1) + cards.length) % cards.length);
+});
+addEventListener('resize', () => {
+  if (!detailOpen) return;
+  detailSize();
+  const r = stage.getBoundingClientRect();
+  openCY = r.top + r.height / 2 - innerHeight / 2;
+  dPos = dIndex() * dStep();
+  dTarget = null;
+});
 
 // Rebuild when the stage changes size (not on mobile URL-bar resizes), keeping the same card in the centre
 let builtSize = '';

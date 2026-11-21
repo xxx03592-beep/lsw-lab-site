@@ -32,34 +32,33 @@
 .mc-bar i { position: absolute; left: 0; top: -1px; height: 3px; width: 0; background: var(--white); transition: width .4s ease; }
 .mc-hint { left: 50%; bottom: 10px; transform: translateX(-50%); opacity: .6; }
 
-/* Detail view (meta.js): the cards part to the sides, then the project's photos fade in as one vertical column */
+/* Detail view (meta.js): the photo column floats over the slider, whose other cards stay beside it as small previews */
 .mcd-lock, .mcd-lock body { overflow: hidden; }
 .mc-detail { position: fixed; inset: 0; z-index: 100; }
 .mc-detail[hidden] { display: none; }
-.mc-detail::before { content: ""; position: absolute; inset: 0; background: var(--page-bg); opacity: 0; transition: opacity .35s ease; }
-.mc-detail.is-open::before { opacity: 1; transition: opacity .45s ease .5s; } /* waits for the card to finish growing */
-.mcd-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; outline: none; scroll-snap-type: y proximity; scrollbar-width: none; }
-.mcd-scroll::-webkit-scrollbar { display: none; }
-.mcd-list { display: flex; flex-direction: column; align-items: center; gap: var(--mcd-gap); padding: calc(50dvh - var(--mcd-h) / 2) 16px; }
-.mcd-list img { display: block; height: var(--mcd-h); width: auto; max-width: calc(100vw - 32px); object-fit: cover; border-radius: 10px; background: #cfc9d6; scroll-snap-align: center; opacity: 0; transform: translateY(24px); transition: opacity .3s ease, transform .3s ease; }
-.mc-detail.is-open .mcd-list img { opacity: 1; transform: none; transition: opacity .45s ease .45s, transform .6s cubic-bezier(.2,.7,.2,1) .45s; }
-.mc-detail.is-open .mcd-list img:first-child { transform: none; transition: opacity .25s ease .5s; } /* lands exactly on the grown card */
-.mcd-bar, .mcd-close { opacity: 0; transition: opacity .3s ease; }
-.mc-detail.is-open :is(.mcd-bar, .mcd-close) { opacity: 1; transition-delay: .55s; }
-.mcd-close { position: absolute; top: 22px; right: var(--gutter); z-index: 6; background: none; border: 0; padding: 8px 0; color: inherit; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
+.mc-detail.no-gl { background: var(--page-bg); } /* without WebGL there are no previews to show */
+.mcd-view { position: absolute; inset: 0; overflow: hidden; outline: none; cursor: grab; touch-action: none; user-select: none; -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--announce-h, 0px) + 66px), #000 calc(var(--announce-h, 0px) + 96px), #000 calc(100% - 60px), transparent); mask-image: linear-gradient(to bottom, transparent calc(var(--announce-h, 0px) + 66px), #000 calc(var(--announce-h, 0px) + 96px), #000 calc(100% - 60px), transparent); } /* photos fade out under the header */
+.mcd-view:active { cursor: grabbing; }
+.mcd-list { position: absolute; left: calc(50% - var(--mcd-w) / 2); top: calc(50% - var(--mcd-h) / 2); width: var(--mcd-w); display: flex; flex-direction: column; gap: var(--mcd-gap); will-change: transform; }
+/* Every photo in the same box, cropped to fit, never stretched */
+.mcd-list img { display: block; flex: none; width: var(--mcd-w); height: var(--mcd-h); object-fit: cover; border-radius: 10px; background: #cfc9d6; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+.mc-detail.is-ready .mcd-list img { opacity: 1; transition: opacity .35s ease; }
+.mcd-count, .mcd-close { position: absolute; z-index: 6; opacity: 0; transition: opacity .3s ease; }
+.mc-detail.is-open :is(.mcd-count, .mcd-close) { opacity: 1; transition-delay: .45s; }
+.mcd-count { right: var(--gutter); bottom: 36px; font-size: 13px; }
+.mcd-close { top: calc(var(--announce-h, 0px) + 80px); right: var(--gutter); background: none; border: 0; padding: 8px 0; color: inherit; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
 .mcd-close:hover { opacity: .6; }
 .mc-detail .mono { font-weight: 400; letter-spacing: 0.04em; }
-@media (prefers-reduced-motion: reduce) { .mc-detail *, .mc-detail::before { transition-duration: 0s !important; transition-delay: 0s !important; } }
+/* The slider's bottom-left title and progress step aside while a project is open */
+.mc-stage .mc-bottom, .mc-stage .mc-hint { transition: opacity .3s ease; }
+.mc-stage.is-detail .mc-bottom, .mc-stage.is-detail .mc-hint { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .mc-detail * { transition-duration: 0s !important; transition-delay: 0s !important; } }
 
 @media (max-width: 760px) {
   .mc-bottom { flex-direction: column; align-items: flex-start; gap: 12px; bottom: 32px; }
   .mc-title { font-size: clamp(30px, 10vw, 44px); max-width: 100%; }
   .mc-card { border-radius: 8px; }
-  .mcd-bar { flex-direction: row; align-items: flex-end; bottom: 20px; }
-  .mcd-bar .mc-title-wrap { gap: 8px; }
-  .mcd-bar .mc-title { font-size: 22px; }
-  .mcd-bar .mc-progress { padding-bottom: 2px; }
-  .mcd-close { top: 24px; }
+  .mcd-count { bottom: 24px; }
 }
 
 /* WebGL layer: draws the bending cards; the DOM cards stay as invisible hit areas */
