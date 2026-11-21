@@ -74,8 +74,6 @@
 
 <!-- Quote form: quote.js posts it to /api/quote (worker.js), which emails it to hello@leeframes.com -->
 <form class="q-form container" id="q-form" novalidate>
-  <p class="q-intro">Relax, this isn't an exam. Your brand, email and budget will do.</p>
-
   <!-- Required: the only four things we need -->
   <fieldset class="q-row" data-required="Interested in">
     <legend class="q-label">I am interested in</legend>
@@ -112,14 +110,13 @@
   <input type="hidden" name="t" id="q-t">
 
   <div class="q-foot">
-    <p class="q-missing" id="q-missing" aria-live="polite"></p>
     <button class="q-submit" type="submit">Submit</button>
   </div>
   <p class="q-sent" id="q-sent" hidden></p>
 
-  <!-- Optional extras, folded away; folded fields are still sent with the form -->
-  <details class="q-more" id="q-more">
-    <summary class="q-more-toggle"><span class="q-more-plus" aria-hidden="true">+</span> Add more details (optional)</summary>
+  <!-- Optional extras, always open -->
+  <section class="q-more" id="q-more" aria-labelledby="q-more-title">
+    <h2 class="q-more-title" id="q-more-title">More details (optional)</h2>
     <label class="q-row">
       <span class="q-label">Name</span>
       <input class="q-input" name="name" type="text" autocomplete="name" placeholder="What should we call you?">
@@ -146,10 +143,9 @@
       <ul class="q-file-list" id="q-file-list"></ul>
     </div>
     <div class="q-foot q-foot-end">
-      <p class="q-missing q-missing-end" aria-hidden="true"></p>
       <button class="q-submit" type="submit">Submit</button>
     </div>
-  </details>
+  </section>
 </form>
 
 <!-- Shown after a successful send (quote.js) -->

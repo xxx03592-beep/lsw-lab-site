@@ -11,9 +11,8 @@ toggle.addEventListener('click', () => {
 });
 
 // Required: Interested in, Budget, Brand, Email (marked data-required in quote.html).
-// Both Submit buttons stay disabled, with the missing ones listed, until all four are in.
+// Both Submit buttons stay disabled until all four are in.
 const form = document.getElementById('q-form');
-const missingEls = [...form.querySelectorAll('.q-missing')];
 const submits = [...form.querySelectorAll('.q-submit')];
 const sent = document.getElementById('q-sent');
 const required = [...form.querySelectorAll('[data-required]')];
@@ -27,13 +26,6 @@ let sending = false;
 
 function check() {
   const missing = required.filter((el) => !isFilled(el));
-  missingEls.forEach((m) => {
-    m.replaceChildren();
-    if (!missing.length) return;
-    m.append('Following fields need to be filled in: ');
-    // Built with textContent, so nothing typed can become markup
-    missing.forEach((el) => m.append(Object.assign(document.createElement('b'), { textContent: el.dataset.required }), ' '));
-  });
   submits.forEach((b) => {
     b.classList.toggle('is-ready', missing.length === 0);
     b.disabled = sending || missing.length > 0;
@@ -114,7 +106,6 @@ form.addEventListener('submit', async (e) => {
     syncFiles();
     renderFiles();
     document.getElementById('q-t').value = Date.now();
-    document.getElementById('q-more').open = false;
     check();
     sent.hidden = true;
     const done = document.getElementById('q-done');
