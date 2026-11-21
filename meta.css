@@ -20,27 +20,46 @@
 .mc-card .tile-alt { opacity: 0; background: linear-gradient(20deg, var(--b), var(--a)); }
 .mc-card .tile-alt::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent 0 14px, rgba(255,255,255,.05) 14px 15px); }
 @media (hover: hover) { .mc-card.is-active:hover .tile-alt { opacity: 1; } }
-.mc-card .tile-badge { top: 18px; right: 18px; }
+.mc-card .tile-badge { top: 18px; right: 18px; transform: scale(.5); transform-origin: 100% 0; } /* half size, as drawn on the GL cards */
 
 /* Overlay UI */
 .mc-bottom, .mc-hint { position: absolute; z-index: 5; pointer-events: none; }
 .mc-bottom { left: var(--gutter); right: var(--gutter); bottom: 28px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; }
-.mc-title-wrap { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.mc-title-wrap { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 .mc-title { font-family: var(--mono); font-weight: 400; text-transform: uppercase; font-size: clamp(32px, 4.3vw, 62px); letter-spacing: 0.02em; line-height: .9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mc-progress { display: flex; align-items: center; gap: 12px; flex-shrink: 0; padding-bottom: 8px; }
 .mc-bar { position: relative; width: 120px; height: 1px; background: var(--line); }
 .mc-bar i { position: absolute; left: 0; top: -1px; height: 3px; width: 0; background: var(--white); transition: width .4s ease; }
 .mc-hint { left: 50%; bottom: 10px; transform: translateX(-50%); opacity: .6; }
 
-/* Lightbox matches the 9:16 cards */
-:is(.mc-page, .has-mc) .lb-figure { width: auto; }
-:is(.mc-page, .has-mc) .lb-frame { aspect-ratio: 9 / 16; height: calc(100dvh - 64px); max-height: none; }
+/* Detail view (meta.js): the cards part to the sides, then the project's photos fade in as one vertical column */
+.mcd-lock, .mcd-lock body { overflow: hidden; }
+.mc-detail { position: fixed; inset: 0; z-index: 100; }
+.mc-detail[hidden] { display: none; }
+.mc-detail::before { content: ""; position: absolute; inset: 0; background: var(--page-bg); opacity: 0; transition: opacity .35s ease; }
+.mc-detail.is-open::before { opacity: 1; transition: opacity .45s ease .5s; } /* waits for the card to finish growing */
+.mcd-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; outline: none; scroll-snap-type: y proximity; scrollbar-width: none; }
+.mcd-scroll::-webkit-scrollbar { display: none; }
+.mcd-list { display: flex; flex-direction: column; align-items: center; gap: var(--mcd-gap); padding: calc(50dvh - var(--mcd-h) / 2) 16px; }
+.mcd-list img { display: block; height: var(--mcd-h); width: auto; max-width: calc(100vw - 32px); object-fit: cover; border-radius: 10px; background: #cfc9d6; scroll-snap-align: center; opacity: 0; transform: translateY(24px); transition: opacity .3s ease, transform .3s ease; }
+.mc-detail.is-open .mcd-list img { opacity: 1; transform: none; transition: opacity .45s ease .45s, transform .6s cubic-bezier(.2,.7,.2,1) .45s; }
+.mc-detail.is-open .mcd-list img:first-child { transform: none; transition: opacity .25s ease .5s; } /* lands exactly on the grown card */
+.mcd-bar, .mcd-close { opacity: 0; transition: opacity .3s ease; }
+.mc-detail.is-open :is(.mcd-bar, .mcd-close) { opacity: 1; transition-delay: .55s; }
+.mcd-close { position: absolute; top: 22px; right: var(--gutter); z-index: 6; background: none; border: 0; padding: 8px 0; color: inherit; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
+.mcd-close:hover { opacity: .6; }
+.mc-detail .mono { font-weight: 400; letter-spacing: 0.04em; }
+@media (prefers-reduced-motion: reduce) { .mc-detail *, .mc-detail::before { transition-duration: 0s !important; transition-delay: 0s !important; } }
 
 @media (max-width: 760px) {
-  :is(.mc-page, .has-mc) .lb-frame { height: auto; width: min(calc(100vw - 24px), calc((100dvh - 230px) * 9 / 16)); }
   .mc-bottom { flex-direction: column; align-items: flex-start; gap: 12px; bottom: 32px; }
   .mc-title { font-size: clamp(30px, 10vw, 44px); max-width: 100%; }
   .mc-card { border-radius: 8px; }
+  .mcd-bar { flex-direction: row; align-items: flex-end; bottom: 20px; }
+  .mcd-bar .mc-title-wrap { gap: 8px; }
+  .mcd-bar .mc-title { font-size: 22px; }
+  .mcd-bar .mc-progress { padding-bottom: 2px; }
+  .mcd-close { top: 24px; }
 }
 
 /* WebGL layer: draws the bending cards; the DOM cards stay as invisible hit areas */
@@ -49,9 +68,7 @@
 .gl-on .mc-glow { display: none; }
 
 /* Reference look on this page (header matches the other pages) */
-.mc-page main .mono, .mc-embed .mono, :is(.mc-page, .has-mc) .lightbox .mono { font-weight: 400; letter-spacing: 0.04em; }
-:is(.mc-page, .has-mc) .lightbox { background: #cbc6d0; } /* opaque: the viewer covers the whole screen */
-:is(.mc-page, .has-mc) .play-icon { background: var(--white); color: var(--blue); }
+.mc-page main .mono, .mc-embed .mono { font-weight: 400; letter-spacing: 0.04em; }
 .mc-glow span:nth-child(1) { background: #F3B3CF; }
 .mc-glow span:nth-child(2) { background: #9FE3CF; }
 .mc-glow span:nth-child(3) { background: #A9C2F2; opacity: .5; }

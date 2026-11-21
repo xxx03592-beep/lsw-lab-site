@@ -78,7 +78,7 @@ function measure() {
   cardH = Math.round(cardH);
   stride = cardW + (mobile ? 8 : 9);
   half = w / 2;
-  const drop = mobile ? 12 : 28; // a little below the exact middle
+  const drop = mobile ? 0 : 6; // a touch below the exact middle, nearer the menu than the title
   const cardTop = menuBottom + (space - (cardH + LABEL_H + 4)) / 2 + LABEL_H + 4 + drop;
   rowLift = h / 2 - (cardTop + cardH / 2);
   stage.style.setProperty('--card-h', cardH + 'px');
@@ -280,7 +280,7 @@ function makeTexture(ad) {
   // Badge sits inside the 1.2x zoom crop (visible texels: x 53..587, y 80..880).
   // k keeps it the same on-screen size as on the original 373px-tall card,
   // however large the card is drawn.
-  const k = 373 / (cardH || 373);
+  const k = (0.5 * 373) / (cardH || 373); // half the original badge size
   const paint = (pic, pw, ph) => {
     g.fillStyle = '#b9b3c0';
     g.fillRect(0, 0, c.width, c.height);
@@ -374,6 +374,7 @@ let onScreen = true;
 let looping = true;
 function frame(now) {
   if (!onScreen) { looping = false; return; }
+  if (!cards.length) { lastFrame = now; requestAnimationFrame(frame); return; } // stage had no size at build time
   const dt = Math.min((now - lastFrame) / 1000, 0.05);
   lastFrame = now;
 
@@ -391,7 +392,7 @@ function frame(now) {
       if (Math.abs(vel) < SETTLE_SPEED && !resting) settle = Math.round(pos / stride) * stride;
     }
     if (resting && settle === null) {
-      const target = reduceMotion || !box.hidden ? 0 : DRIFT;
+      const target = reduceMotion || detailOpen ? 0 : DRIFT;
       driftV += (target - driftV) * (1 - Math.exp(-1.5 * dt));
       pos += driftV * dt;
     }
@@ -400,11 +401,18 @@ function frame(now) {
   const raw = reduceMotion ? 0 : Math.pow(Math.min(Math.abs(vel) / 2600, 1), 0.75);
   energy += (raw - energy) * (1 - Math.exp(-(raw > energy ? 8 : 6) * dt));
 
+  // Detail view: the other cards slide out to both sides while the opened one grows into the first photo
+  spread += (spreadTarget - spread) * (1 - Math.exp(-(spreadTarget > spread ? 6 : 8) * dt));
+  if (spreadTarget === 0 && spread < 0.001) { spread = 0; openK = -1; }
+  const ease = spread * spread * (3 - 2 * spread);
+
   const top = rowLift + cardH / 2; // shared top line, in GL units (y up)
   const stretch = 1 + 0.1 * energy;  // slight horizontal stretch with speed
   cards.forEach((el, k) => {
-    const x = wrapped(k);
+    let x = wrapped(k);
     const s = heightAt(x);
+    const opened = k === openK;
+    if (ease > 0 && !opened) x += (x < 0 ? -1 : 1) * ease * (half + cardW * 1.5);
     el.style.transform = `translateX(calc(-50% + ${x.toFixed(1)}px)) scaleY(${s.toFixed(3)})`;
     el.style.filter = gl || reduceMotion ? '' : `blur(${(energy * 6).toFixed(1)}px)`;
     el.classList.toggle('is-active', Math.abs(x) < stride / 2);
@@ -412,14 +420,23 @@ function frame(now) {
       const visible = Math.abs(x) < half + cardW;
       const mesh = gl.meshes[k];
       const u = mesh.material.uniforms;
-      mesh.position.set(x, top - (cardH * s) / 2, 0);
-      mesh.scale.set(stretch, s, 1);
-      u.uSize.value.set(cardW * stretch, cardH * s);
-      u.uCrop.value = s;
-      u.uParallax.value = clamp(x / half, -1.2, 1.2);
-      mesh.visible = visible;
+      let cw = cardW * stretch, ch = cardH * s, cy = top - ch / 2, cx = x;
+      if (opened && ease > 0) {
+        const tw = Math.min(detailH * openAspect, innerWidth - 32);
+        cx = x * (1 - ease);
+        cy += (openCY - cy) * ease;
+        cw += (tw - cw) * ease;
+        ch += (detailH - ch) * ease;
+      }
+      mesh.position.set(cx, cy, 0);
+      mesh.scale.set(cw / cardW, ch / cardH, 1);
+      u.uSize.value.set(cw, ch);
+      u.uCrop.value = opened ? (ch / cw) * (cardW / cardH) : s;
+      u.uParallax.value = clamp(cx / half, -1.2, 1.2) * (opened ? 1 - ease : 1);
+      mesh.visible = visible || opened;
       const label = gl.labels[k];
       label.position.set(x - (cardW * (stretch - 1)) / 2, top + LABEL_H / 2 + 2, 0);
+      label.material.opacity = opened ? 1 - ease : 1;
       label.visible = visible;
     }
   });
@@ -507,7 +524,7 @@ function handleClick(e) {
   if (!card) { settle = Math.round(pos / stride) * stride; return; }
   if (!card.classList.contains('is-active')) settle = Math.round((pos + wrapped(cards.indexOf(card))) / stride) * stride;
   else settle = Math.round(pos / stride) * stride;
-  openBox(Number(card.dataset.i));
+  openDetail(Number(card.dataset.i), cards.indexOf(card));
 }
 
 // Where the mouse rests over the stage (for the hovered-card info), null when away
@@ -516,53 +533,108 @@ stage.addEventListener('pointermove', (e) => { if (e.pointerType === 'mouse') mo
 stage.addEventListener('pointerleave', () => { mouseAt = null; });
 
 stage.addEventListener('keydown', (e) => {
-  if (!box.hidden) return;
+  if (detailOpen) return;
   const here = Math.round((settle ?? pos) / stride);
   if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(e.key)) { settle = (here + 1) * stride; vel = 0; e.preventDefault(); }
   if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key)) { settle = (here - 1) * stride; vel = 0; e.preventDefault(); }
-  if (e.key === 'Enter') openBox(active);
+  if (e.key === 'Enter') openDetail(active, Math.round(pos / stride));
 });
 
 
-// Lightbox
-const box = document.getElementById('lightbox');
-const frameEl = document.getElementById('lb-frame');
-const playIcon = frameEl.querySelector('.play-icon');
-const lbName = document.getElementById('lb-name');
-const lbCount = document.getElementById('lb-count');
-// Viewer: a project opens on its first image and the arrows step through all of its images
-const boxImg = Object.assign(document.createElement('img'), { className: 'lb-media', alt: '' });
-frameEl.append(boxImg);
-frameEl.classList.add('has-media');
-let boxAd = null;
-let boxImage = 0;
-function showImage(n) {
-  const list = boxAd.images;
-  boxImage = (n + list.length) % list.length;
-  boxImg.src = list[boxImage];
-  boxImg.alt = `${boxAd.title} ${boxImage + 1}`;
-  lbCount.textContent = `${pad(boxImage + 1)} / ${pad(list.length)}`;
+// Detail view: the project's photos in one vertical column, scrolled natively.
+// Opening slides the neighbouring cards apart and grows the clicked card (in GL) to the
+// size and place of the first photo, then the column fades in over it.
+let spread = 0;        // 0..1, eased in the render loop
+let spreadTarget = 0;
+let openK = -1;        // index in cards of the opened card
+let openCY = 0;        // where the first photo's centre sits, GL units
+let openAspect = ASPECT;
+let detailH = 0;       // photo height in the column, px
+let detailOpen = false;
+let detailAd = null;
+const GAP = 24;
+const el = (tag, cls, props = {}) => Object.assign(document.createElement(tag), { className: cls }, props);
+const detail = el('div', 'mc-detail', { hidden: true });
+detail.setAttribute('role', 'dialog');
+detail.setAttribute('aria-modal', 'true');
+const dScroll = el('div', 'mcd-scroll', { tabIndex: -1 });
+const dList = el('div', 'mcd-list');
+const dCat = el('p', 'mono small');
+const dTitle = el('p', 'mc-title');
+const dCount = el('p', 'mc-progress mono');
+const dWrap = el('div', 'mc-title-wrap');
+const dBar = el('div', 'mc-bottom mcd-bar');
+const dClose = el('button', 'mcd-close mono', { type: 'button', textContent: 'Close ×' });
+dScroll.append(dList);
+dWrap.append(dCat, dTitle);
+dBar.append(dWrap, dCount);
+detail.append(dScroll, dBar, dClose);
+document.body.append(detail);
+
+function detailSize() {
+  detailH = Math.round(Math.min(innerHeight * (innerWidth < 760 ? 0.72 : 0.8), (innerWidth - 32) / 0.75));
+  detail.style.setProperty('--mcd-h', detailH + 'px');
+  detail.style.setProperty('--mcd-gap', GAP + 'px');
 }
-function openBox(i) {
-  boxAd = items[(i + items.length) % items.length];
-  lbName.textContent = boxAd.title;
-  playIcon.hidden = true;
-  box.querySelectorAll('.lb-nav').forEach((b) => { b.hidden = boxAd.images.length < 2; });
-  showImage(0);
-  box.hidden = false;
+function updateCount() {
+  if (!detailAd) return;
+  const n = clamp(Math.round(dScroll.scrollTop / (detailH + GAP)), 0, detailAd.images.length - 1);
+  dCount.textContent = `${pad(n + 1)} / ${pad(detailAd.images.length)}`;
 }
-function closeBox() { box.hidden = true; stage.focus(); }
-const step = (d) => { if (boxAd) showImage(boxImage + d); };
-box.querySelector('.lb-close').addEventListener('click', closeBox);
-box.querySelector('.lb-prev').addEventListener('click', () => step(-1));
-box.querySelector('.lb-next').addEventListener('click', () => step(1));
-box.addEventListener('click', (e) => e.target === box && closeBox());
-document.addEventListener('keydown', (e) => {
-  if (box.hidden) return;
-  if (e.key === 'Escape') closeBox();
-  if (e.key === 'ArrowLeft') step(-1);
-  if (e.key === 'ArrowRight') step(1);
-});
+dScroll.addEventListener('scroll', updateCount, { passive: true });
+
+let detailTimer = 0;
+function openDetail(i, k) {
+  if (detailOpen) return;
+  const n = items.length;
+  detailAd = items[((i % n) + n) % n];
+  detailOpen = true;
+  detailSize();
+  // The first photo is centred in the window; GL y points up from the stage centre
+  const r = stage.getBoundingClientRect();
+  openCY = r.top + r.height / 2 - innerHeight / 2;
+  openK = gl ? k : -1;
+  openAspect = ASPECT;
+  settle = Math.round((pos + wrapped(k)) / stride) * stride;
+  vel = 0;
+  spreadTarget = 1;
+  dCat.textContent = detailAd.label;
+  dTitle.textContent = detailAd.title;
+  detail.setAttribute('aria-label', detailAd.title);
+  dList.replaceChildren(...detailAd.images.map((src, j) => {
+    const img = el('img', '', { src, alt: `${detailAd.title} ${j + 1}`, decoding: 'async' });
+    if (j > 1) img.loading = 'lazy';
+    if (j === 0) {
+      const fit = () => { if (img.naturalWidth) openAspect = img.naturalWidth / img.naturalHeight; };
+      if (img.complete) fit(); else img.addEventListener('load', fit, { once: true });
+    }
+    return img;
+  }));
+  updateCount();
+  document.documentElement.classList.add('mcd-lock');
+  clearTimeout(detailTimer);
+  detail.hidden = false;
+  dScroll.scrollTop = 0;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    detail.classList.add('is-open');
+    dScroll.focus({ preventScroll: true });
+  }));
+}
+function closeDetail() {
+  if (!detailOpen) return;
+  detailOpen = false;
+  detail.classList.remove('is-open');
+  spreadTarget = 0;
+  resting = true;
+  driftV = 0;
+  document.documentElement.classList.remove('mcd-lock');
+  clearTimeout(detailTimer);
+  detailTimer = setTimeout(() => { detail.hidden = true; dList.replaceChildren(); }, reduceMotion ? 0 : 450);
+  stage.focus({ preventScroll: true });
+}
+dClose.addEventListener('click', closeDetail);
+document.addEventListener('keydown', (e) => { if (detailOpen && e.key === 'Escape') closeDetail(); });
+addEventListener('resize', () => { if (detailOpen) { detailSize(); updateCount(); } });
 
 // Rebuild when the stage changes size (not on mobile URL-bar resizes), keeping the same card in the centre
 let builtSize = '';
@@ -581,7 +653,7 @@ builtSize = stageSize();
 const startAt = embedded ? null : new URLSearchParams(location.search).get('open');
 if (startAt !== null && items[Number(startAt)]) {
   pos = Number(startAt) * stride;
-  openBox(Number(startAt));
+  openDetail(Number(startAt), Number(startAt));
 }
 // Redraw card badges once the mono font has loaded
 // and re-centre the row, since the bottom title's height changes with the font
