@@ -19,10 +19,10 @@ fieldset.q-row > legend { float: left; } /* legends ignore grid; floated they li
 textarea.q-input { min-height: 40px; field-sizing: content; }
 
 /* Choice chips: lilac, black once chosen */
-.q-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 3px; }
+.q-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 2px; }
 .q-chip { position: relative; cursor: pointer; }
 .q-chip input { position: absolute; opacity: 0; pointer-events: none; }
-.q-chip span { display: inline-block; padding: 8px 12px; border-radius: 6px; background: #aea4b3; font-size: 20px; line-height: 24px; transition: background .2s, color .2s; }
+.q-chip span { display: inline-block; padding: 6px 10px; border-radius: 6px; background: #aea4b3; font-size: 15px; line-height: 20px; transition: background .2s, color .2s; }
 .q-chip:hover span { background: #9d93a3; }
 .q-chip input:checked + span { background: var(--white); color: #fff; }
 .q-chip input:focus-visible + span { outline: 2px solid var(--white); outline-offset: 2px; }
@@ -108,7 +108,6 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
   fieldset.q-row > legend { float: none; padding-bottom: 10px; }
   .q-label { font-size: 15px; line-height: 20px; padding: 0; }
   .q-input { font-size: 16px; line-height: 20px; } /* 16px+: phones don't zoom in on focus */
-  .q-chip span { font-size: 17px; line-height: 20px; padding: 8px 11px; }
   .q-enough { font-size: 26px; }
   .q-more { margin-top: 56px; }
   .q-files { margin-top: 44px; }
