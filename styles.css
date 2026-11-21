@@ -273,7 +273,7 @@ blockquote { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; letter-spac
 
 /* Footer */
 .footer { border-top: 1px solid var(--line); padding: 56px 0 24px; }
-.wordmark { font-size: clamp(90px, 26vw, 380px); font-weight: 700; letter-spacing: -0.08em; line-height: .8; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
+.wordmark { font-size: min(380px, calc((min(100vw, 1360px) - 2 * var(--gutter)) / 4)); /* the word is ~3.95em wide: always fits the container, no sideways scroll */ font-weight: 700; letter-spacing: -0.08em; line-height: .8; padding-bottom: 40px; border-bottom: 1px solid var(--line); }
 .footer-grid { display: grid; grid-template-columns: 1.5fr repeat(4, 1fr); gap: 24px; padding: 32px 0; }
 .footer-grid > div { display: flex; flex-direction: column; gap: 8px; }
 .footer-grid a { font-size: 14px; }

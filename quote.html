@@ -74,15 +74,17 @@
 
 <!-- Quote form: quote.js posts it to /api/quote (worker.js), which emails it to hello@leeframes.com -->
 <form class="q-form container" id="q-form" novalidate>
-  <p class="q-intro">Relax, this isn't an exam. One product photo, a rough budget and your email, and we're already talking. Fill in the rest only if you feel like it.</p>
-  <fieldset class="q-row">
+  <p class="q-intro">Relax, this isn't an exam. Your brand, email and budget will do.</p>
+
+  <!-- Required: the only four things we need -->
+  <fieldset class="q-row" data-required="Interested in">
     <legend class="q-label">I am interested in</legend>
     <div class="q-chips">
       <label class="q-chip"><input type="checkbox" name="interest" value="Lookbook"><span>Lookbook</span></label>
       <label class="q-chip"><input type="checkbox" name="interest" value="Meta ad creatives"><span>Meta ad creatives</span></label>
     </div>
   </fieldset>
-  <fieldset class="q-row">
+  <fieldset class="q-row" data-required="Budget">
     <legend class="q-label">Budget range for this project (USD)</legend>
     <!-- Ranges: edit freely, the value is what lands in the email -->
     <div class="q-chips">
@@ -96,47 +98,58 @@
     </div>
   </fieldset>
   <label class="q-row">
-    <span class="q-label">Project idea</span>
-    <textarea class="q-input" name="idea" rows="2" placeholder="What are you selling, and what do you need?"></textarea>
-  </label>
-  <label class="q-row">
-    <span class="q-label">Company</span>
-    <input class="q-input" name="company" type="text" autocomplete="organization" placeholder="Brand or company name">
-  </label>
-  <label class="q-row">
-    <span class="q-label">Website or store</span>
-    <input class="q-input" name="website" type="text" autocomplete="url" placeholder="yourbrand.com">
-  </label>
-  <label class="q-row">
-    <span class="q-label">Project deadline</span>
-    <input class="q-input" name="deadline" type="text" placeholder="When do you need it?">
-  </label>
-  <label class="q-row q-gap">
-    <span class="q-label">Name</span>
-    <input class="q-input" name="name" type="text" autocomplete="name" placeholder="What should we call you?" data-required="Name">
+    <span class="q-label">Brand</span>
+    <input class="q-input" name="company" type="text" autocomplete="organization" placeholder="Your brand name" data-required="Brand">
   </label>
   <label class="q-row">
     <span class="q-label">Email</span>
     <input class="q-input" name="email" type="email" autocomplete="email" placeholder="@" data-required="Email">
   </label>
-  <label class="q-row">
-    <span class="q-label">References</span>
-    <input class="q-input" name="refs" type="text" placeholder="Links to looks or ads you like">
-  </label>
-  <div class="q-files">
-    <label class="q-attach-btn"><input type="file" name="files" id="q-file" multiple accept="image/*,.pdf,.zip,.mp4,.mov">Attach file</label>
-    <p class="q-file-note mono small">Up to 5 files · 8 MB each · images, PDF, ZIP, MP4</p>
-    <ul class="q-file-list" id="q-file-list"></ul>
-  </div>
+  <p class="q-enough">That's all we need. The rest is a bonus.</p>
+
   <!-- For bots only: people never see or fill this -->
   <label class="q-trap" aria-hidden="true">Fax <input type="text" name="fax" tabindex="-1" autocomplete="off"></label>
   <input type="hidden" name="t" id="q-t">
 
   <div class="q-foot">
     <p class="q-missing" id="q-missing" aria-live="polite"></p>
-    <button class="q-submit" type="submit" id="q-submit">Submit</button>
+    <button class="q-submit" type="submit">Submit</button>
   </div>
   <p class="q-sent" id="q-sent" hidden></p>
+
+  <!-- Optional extras, folded away; folded fields are still sent with the form -->
+  <details class="q-more" id="q-more">
+    <summary class="q-more-toggle"><span class="q-more-plus" aria-hidden="true">+</span> Add more details (optional)</summary>
+    <label class="q-row">
+      <span class="q-label">Name</span>
+      <input class="q-input" name="name" type="text" autocomplete="name" placeholder="What should we call you?">
+    </label>
+    <label class="q-row">
+      <span class="q-label">Project idea</span>
+      <textarea class="q-input" name="idea" rows="2" placeholder="What are you selling, and what do you need?"></textarea>
+    </label>
+    <label class="q-row">
+      <span class="q-label">Website or store</span>
+      <input class="q-input" name="website" type="text" autocomplete="url" placeholder="yourbrand.com">
+    </label>
+    <label class="q-row">
+      <span class="q-label">Project deadline</span>
+      <input class="q-input" name="deadline" type="text" placeholder="When do you need it?">
+    </label>
+    <label class="q-row">
+      <span class="q-label">References</span>
+      <input class="q-input" name="refs" type="text" placeholder="Links to looks or ads you like">
+    </label>
+    <div class="q-files">
+      <label class="q-attach-btn"><input type="file" name="files" id="q-file" multiple accept="image/*,.pdf,.zip,.mp4,.mov">Attach file</label>
+      <p class="q-file-note mono small">Up to 5 files · 8 MB each · images, PDF, ZIP, MP4</p>
+      <ul class="q-file-list" id="q-file-list"></ul>
+    </div>
+    <div class="q-foot q-foot-end">
+      <p class="q-missing q-missing-end" aria-hidden="true"></p>
+      <button class="q-submit" type="submit">Submit</button>
+    </div>
+  </details>
 </form>
 
 <!-- Other ways to reach us -->

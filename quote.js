@@ -10,29 +10,38 @@ toggle.addEventListener('click', () => {
   toggle.setAttribute('aria-expanded', open);
 });
 
-// Required fields: listed under the form until filled in; Submit darkens once all are
+// Required: Interested in, Budget, Brand, Email (marked data-required in quote.html).
+// Both Submit buttons stay disabled, with the missing ones listed, until all four are in.
 const form = document.getElementById('q-form');
-const missingEl = document.getElementById('q-missing');
-const submit = document.getElementById('q-submit');
+const missingEls = [...form.querySelectorAll('.q-missing')];
+const submits = [...form.querySelectorAll('.q-submit')];
 const sent = document.getElementById('q-sent');
 const required = [...form.querySelectorAll('[data-required]')];
 const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-const isFilled = (el) => (el.name === 'email' ? emailOk(el.value.trim()) : el.value.trim() !== '');
-let tried = false; // after a first Submit, empty rows are marked too
+// A chip group (fieldset) counts once anything in it is chosen; "Not sure yet" is a choice too
+const isFilled = (el) => {
+  if (el.tagName === 'FIELDSET') return !!el.querySelector('input:checked');
+  return el.name === 'email' ? emailOk(el.value.trim()) : el.value.trim() !== '';
+};
+let sending = false;
 
 function check() {
   const missing = required.filter((el) => !isFilled(el));
-  missingEl.replaceChildren();
-  if (missing.length) {
-    missingEl.append('Following fields need to be filled in: ');
+  missingEls.forEach((m) => {
+    m.replaceChildren();
+    if (!missing.length) return;
+    m.append('Following fields need to be filled in: ');
     // Built with textContent, so nothing typed can become markup
-    missing.forEach((el) => missingEl.append(Object.assign(document.createElement('b'), { textContent: el.dataset.required }), ' '));
-  }
-  submit.classList.toggle('is-ready', missing.length === 0);
-  required.forEach((el) => el.closest('.q-row').classList.toggle('is-missing', tried && !isFilled(el)));
+    missing.forEach((el) => m.append(Object.assign(document.createElement('b'), { textContent: el.dataset.required }), ' '));
+  });
+  submits.forEach((b) => {
+    b.classList.toggle('is-ready', missing.length === 0);
+    b.disabled = sending || missing.length > 0;
+  });
   return missing;
 }
 form.addEventListener('input', check);
+form.addEventListener('change', check);
 check();
 
 // Attached files: kept in our own list (a file input forgets earlier picks) and copied
@@ -80,34 +89,34 @@ function say(text, link) {
   sent.replaceChildren(text);
   if (link) sent.append(' ', Object.assign(document.createElement('a'), { href: `mailto:${TO}`, textContent: TO }), '.');
   sent.hidden = false;
+  sent.scrollIntoView({ block: 'center', behavior: 'smooth' }); // also when sent from the lower button
 }
 
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  tried = true;
-  const missing = check();
-  if (missing.length) { missing[0].focus(); return; }
-  const data = new FormData(form);
-  submit.disabled = true;
-  submit.textContent = 'Sending…';
+  if (sending || check().length) return;
+  const data = new FormData(form); // folded optional fields are included too
+  sending = true;
+  check();
+  submits.forEach((b) => { b.classList.add('is-sending'); b.textContent = 'Sending…'; });
   sent.hidden = true;
   let res = null, out = null;
   try {
     res = await fetch('/api/quote', { method: 'POST', body: data });
     out = await res.json();
   } catch (err) { /* offline, or no function on this host */ }
-  submit.disabled = false;
-  submit.textContent = 'Submit';
+  sending = false;
+  submits.forEach((b) => { b.classList.remove('is-sending'); b.textContent = 'Submit'; });
+  check();
   if (out && out.ok) {
     form.reset();
     files = [];
     syncFiles();
     renderFiles();
     document.getElementById('q-t').value = Date.now();
-    tried = false;
+    document.getElementById('q-more').open = false;
     check();
     say('Thank you. Your request is with us, and we will reply by email.');
-    sent.scrollIntoView({ block: 'center', behavior: 'smooth' });
     return;
   }
   if (res && res.status === 400 && out) {

@@ -8,6 +8,10 @@
 // The from address must be on a domain onboarded to Cloudflare Email Sending.
 //   QUOTE_TO    where requests go,  default hello@leeframes.com
 //   QUOTE_FROM  sender,             default quote@leeframes.com
+//   REPLY_FROM  auto-reply sender and Reply-To, default hello@leeframes.com
+// After the studio is notified, the visitor gets an automatic reply (best effort: on the
+// Workers Free plan Cloudflare only delivers to verified destination addresses, so for
+// other visitors it fails quietly and the request still counts as sent).
 
 export default {
   async fetch(request, env) {
@@ -26,14 +30,14 @@ const MAX_FILE_BYTES = 8 * 1024 * 1024;   // per file
 const MAX_TOTAL_BYTES = 15 * 1024 * 1024; // all files; base64 adds a third, the API caps a message at 25 MiB
 const ALLOWED_TYPE = /^(image\/(jpeg|png|webp|gif|heic|heif)|application\/(pdf|zip|x-zip-compressed)|video\/(mp4|quicktime))$/;
 const FIELDS = {
+  company: ['Brand', 200, true],
+  email: ['Email', 254, true],
+  budget: ['Budget', 50, true],
+  name: ['Name', 200, false],
   idea: ['Project idea', 4000, false],
-  company: ['Company', 200, false],
   website: ['Website', 300, false],
   deadline: ['Deadline', 200, false],
-  name: ['Name', 200, true],
-  email: ['Email', 254, true],
   refs: ['References', 2000, false],
-  budget: ['Budget', 50, false],
 };
 const INTERESTS = ['Lookbook', 'Meta ad creatives'];
 const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
@@ -75,9 +79,10 @@ async function handleQuote(request, env) {
     if (required && !raw) missing.push(label);
     v[key] = raw;
   }
+  const interests = form.getAll('interest').map(String).filter((x) => INTERESTS.includes(x));
+  if (!interests.length) missing.unshift('Interested in');
   if (missing.length) return json(400, { ok: false, error: 'missing', fields: missing });
   if (!EMAIL_RE.test(v.email)) return json(400, { ok: false, error: 'bad_email' });
-  const interests = form.getAll('interest').map(String).filter((x) => INTERESTS.includes(x));
 
   const files = form.getAll('files').filter((f) => typeof f === 'object' && f && f.size > 0);
   if (files.length > MAX_FILES) return json(400, { ok: false, error: 'too_many_files', max: MAX_FILES });
@@ -98,7 +103,7 @@ async function handleQuote(request, env) {
   const rows = [
     ['Interested in', interests.join(', ')],
     ['Budget', v.budget],
-    ['Company', v.company],
+    ['Brand', v.company],
     ['Website', v.website],
     ['Deadline', v.deadline],
     ['Name', v.name],
@@ -107,14 +112,15 @@ async function handleQuote(request, env) {
     ['Files', files.map((f) => f.name).join(', ')],
   ].filter(([, x]) => x);
   const idea = v.idea || '(No project idea written: just say hello back.)';
-  const text = `${idea}\n\n${rows.map(([k, x]) => `${k}: ${x}`).join('\n')}\n\nReply to this email to answer ${v.name}.\n`;
+  const who = v.name || `the ${v.company} team`;
+  const text = `${idea}\n\n${rows.map(([k, x]) => `${k}: ${x}`).join('\n')}\n\nReply to this email to answer ${who}.\n`;
   const html = `<p style="font-size:16px;white-space:pre-wrap">${escapeHtml(idea)}</p>
 <table cellpadding="6" style="border-collapse:collapse;font-size:14px">${rows.map(([k, x]) => `<tr><td style="color:#666;vertical-align:top">${escapeHtml(k)}</td><td>${escapeHtml(x)}</td></tr>`).join('')}</table>
-<p style="color:#666;font-size:13px">Reply to this email to answer ${escapeHtml(v.name)}.</p>`;
+<p style="color:#666;font-size:13px">Reply to this email to answer ${escapeHtml(who)}.</p>`;
 
   const from = env.QUOTE_FROM || 'quote@leeframes.com';
   const to = env.QUOTE_TO || 'hello@leeframes.com';
-  const subject = oneLine(`Quote request: ${v.company ? `${v.company} (${v.name})` : v.name}`).slice(0, 200);
+  const subject = oneLine(`Quote request: ${v.company}${v.name ? ` (${v.name})` : ''}`).slice(0, 200);
   try {
     if (env.EMAIL) {
       await env.EMAIL.send({
@@ -144,5 +150,51 @@ async function handleQuote(request, env) {
     // Cloudflare's error code (e.g. E_RECIPIENT_PLAN_RESTRICTED) says which setting is missing
     return json(502, { ok: false, error: 'send_failed', code: String((err && err.code) || (err && err.name) || 'unknown').slice(0, 80) });
   }
-  return json(200, { ok: true });
+
+  // Automatic reply to the visitor, same binding. Never turns a delivered request into an error.
+  let reply = 'skipped';
+  if (env.EMAIL) {
+    const mail = autoReply(v, files.length > 0);
+    const replyFrom = env.REPLY_FROM || 'hello@leeframes.com';
+    try {
+      await env.EMAIL.send({
+        from: { email: replyFrom, name: 'Leeframes Studio' },
+        to: v.email,
+        replyTo: replyFrom,
+        subject: 'Got it — your Leeframes quote request',
+        text: mail.text,
+        html: mail.html,
+      });
+      reply = 'sent';
+    } catch (err) {
+      console.log('auto-reply failed', err && err.code, err && err.message);
+      reply = 'failed:' + String((err && err.code) || 'unknown').slice(0, 60);
+    }
+  }
+  return json(200, { ok: true, reply });
+}
+
+// Auto-reply body. Asks only for what the form left out, numbered 1, 2, … in order:
+// a photo or link (no files and no references), a timeline (no deadline),
+// where the images will run (no project idea). "[24h]" stays as written.
+function autoReply(v, hasFiles) {
+  const asks = [];
+  if (!hasFiles && !v.refs) asks.push('A product photo or link');
+  if (!v.deadline) asks.push('Your ideal timeline');
+  if (!v.idea) asks.push('Where the images will run (Feed, Stories, website, etc.)');
+  // The brand is typed by the visitor and the reply goes to whatever address was typed,
+  // so a brand that carries a link or runs long becomes a plain greeting
+  const brand = oneLine(v.company);
+  const plain = brand.length <= 60 && !/(https?:|www\.|\.[a-z]{2,}\/|[<>])/i.test(brand);
+  const paras = [plain ? `Hi ${brand} team,` : 'Hi there,', 'Thanks for reaching out — your request is in.'];
+  if (asks.length) {
+    paras.push('To get you an accurate quote faster, just reply with:\n' + asks.map((q, i) => `${i + 1}. ${q}`).join('\n'));
+    paras.push("No worries if you don't have everything yet. We'll get back to you within [24h] either way.");
+  } else {
+    paras.push("We'll get back to you within [24h].");
+  }
+  paras.push('— Leeframes Studio\nhello@leeframes.com');
+  const text = paras.join('\n\n') + '\n';
+  const html = paras.map((p) => `<p style="font-size:15px;line-height:1.5;margin:0 0 14px">${escapeHtml(p).replace(/\n/g, '<br>')}</p>`).join('\n');
+  return { text, html };
 }
