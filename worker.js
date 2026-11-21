@@ -1,14 +1,25 @@
-// POST /api/quote — Cloudflare Pages Function behind the Get a quote form (quote.html).
-// Emails the answers and any attached files to the studio through the Cloudflare
-// Email Sending REST API (Pages Functions can't use the send_email binding).
+// Worker for leeframes.com (Cloudflare Workers with static assets, see wrangler.jsonc).
+// Every page and file is served straight from the assets; only /api/* reaches this code.
 //
-// Settings (Pages project → Settings → Variables and Secrets):
-//   CF_ACCOUNT_ID   account id                                   (required)
-//   CF_EMAIL_TOKEN  API token with "Email Sending Write", secret (required)
-//   QUOTE_TO        where requests go,  default hello@leeframes.com
-//   QUOTE_FROM      sender on the onboarded domain, default quote@leeframes.com
-// Until the first two exist this answers 503 not_configured and the form falls back
-// to opening the visitor's email app.
+// POST /api/quote: the Get a quote form (quote.html). Emails the answers and any attached
+// files to the studio, reply-to set to the visitor. Sends through the send_email binding
+// (EMAIL); without it, through the Email Sending REST API if CF_ACCOUNT_ID and the
+// CF_EMAIL_TOKEN secret are set; with neither it answers 503 not_configured.
+// The from address must be on a domain onboarded to Cloudflare Email Sending.
+//   QUOTE_TO    where requests go,  default hello@leeframes.com
+//   QUOTE_FROM  sender,             default quote@leeframes.com
+
+export default {
+  async fetch(request, env) {
+    const { pathname } = new URL(request.url);
+    if (pathname === '/api/quote') {
+      if (request.method !== 'POST') return json(405, { ok: false, error: 'method_not_allowed' });
+      return handleQuote(request, env);
+    }
+    if (pathname.startsWith('/api/')) return json(404, { ok: false, error: 'not_found' });
+    return env.ASSETS.fetch(request);
+  },
+};
 
 const MAX_FILES = 5;
 const MAX_FILE_BYTES = 8 * 1024 * 1024;   // per file
@@ -41,8 +52,8 @@ function toBase64(buf) {
   return btoa(bin);
 }
 
-export async function onRequestPost({ request, env }) {
-  if (!env.CF_ACCOUNT_ID || !env.CF_EMAIL_TOKEN) return json(503, { ok: false, error: 'not_configured' });
+async function handleQuote(request, env) {
+  if (!env.EMAIL && !(env.CF_ACCOUNT_ID && env.CF_EMAIL_TOKEN)) return json(503, { ok: false, error: 'not_configured' });
 
   let form;
   try {
@@ -78,7 +89,7 @@ export async function onRequestPost({ request, env }) {
   }
   if (total > MAX_TOTAL_BYTES) return json(400, { ok: false, error: 'files_too_big' });
   const attachments = await Promise.all(files.map(async (f) => ({
-    content: toBase64(await f.arrayBuffer()),
+    content: await f.arrayBuffer(),
     filename: oneLine(f.name).replace(/[\\/]/g, '_').slice(0, 120) || 'file',
     type: f.type,
     disposition: 'attachment',
@@ -100,24 +111,35 @@ export async function onRequestPost({ request, env }) {
 <table cellpadding="6" style="border-collapse:collapse;font-size:14px">${rows.map(([k, x]) => `<tr><td style="color:#666;vertical-align:top">${escapeHtml(k)}</td><td>${escapeHtml(x)}</td></tr>`).join('')}</table>
 <p style="color:#666;font-size:13px">Reply to this email to answer ${escapeHtml(v.name)}.</p>`;
 
-  const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/email/sending/send`, {
-    method: 'POST',
-    headers: { authorization: `Bearer ${env.CF_EMAIL_TOKEN}`, 'content-type': 'application/json' },
-    body: JSON.stringify({
-      from: env.QUOTE_FROM || 'quote@leeframes.com',
-      to: env.QUOTE_TO || 'hello@leeframes.com',
-      reply_to: v.email,
-      subject: oneLine(`Quote request: ${v.company} (${v.name})`).slice(0, 200),
-      text,
-      html,
-      ...(attachments.length ? { attachments } : {}),
-    }),
-  }).catch(() => null);
-
-  const out = res ? await res.json().catch(() => null) : null;
-  if (!res || !res.ok || !out || !out.success) {
-    // The reason goes to the Pages Functions log; the visitor gets the email fallback
-    console.log('quote send failed', res && res.status, out && JSON.stringify(out.errors));
+  const from = env.QUOTE_FROM || 'quote@leeframes.com';
+  const to = env.QUOTE_TO || 'hello@leeframes.com';
+  const subject = oneLine(`Quote request: ${v.company} (${v.name})`).slice(0, 200);
+  try {
+    if (env.EMAIL) {
+      await env.EMAIL.send({
+        from: { email: from, name: 'Leeframes quote form' },
+        to,
+        replyTo: v.email,
+        subject,
+        text,
+        html,
+        ...(attachments.length ? { attachments } : {}),
+      });
+    } else {
+      const res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/email/sending/send`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${env.CF_EMAIL_TOKEN}`, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          from, to, reply_to: v.email, subject, text, html,
+          ...(attachments.length ? { attachments: attachments.map((a) => ({ ...a, content: toBase64(a.content) })) } : {}),
+        }),
+      });
+      const out = await res.json().catch(() => null);
+      if (!res.ok || !out || !out.success) throw Object.assign(new Error('rest send failed'), { code: res.status + ' ' + JSON.stringify(out && out.errors) });
+    }
+  } catch (err) {
+    // The reason goes to the Worker's logs; the visitor is asked to email directly
+    console.log('quote send failed', err && err.code, err && err.message);
     return json(502, { ok: false, error: 'send_failed' });
   }
   return json(200, { ok: true });

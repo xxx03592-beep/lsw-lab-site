@@ -1,5 +1,5 @@
-// Get a quote page. The site has no server, so Submit opens the visitor's email app
-// with a message to the studio that already holds every answer.
+// Get a quote page. Submit posts the form to /api/quote (worker.js), which emails it
+// with any attached files to hello@leeframes.com.
 (() => {
 const TO = 'hello@leeframes.com';
 
@@ -82,27 +82,6 @@ function say(text, link) {
   sent.hidden = false;
 }
 
-// No server set up (or it failed): open the visitor's email app with the answers instead
-function sendByEmailApp(data) {
-  const val = (k) => (data.get(k) || '').toString().trim();
-  const lines = [
-    ['Interested in', data.getAll('interest').join(', ')],
-    ['Budget', val('budget')],
-    ['Company', val('company')],
-    ['Website', val('website')],
-    ['Deadline', val('deadline')],
-    ['Name', val('name')],
-    ['Email', val('email')],
-    ['References', val('refs')],
-  ].filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`);
-  const body = `${val('idea')}\n\n${lines.join('\n')}\n`;
-  const subject = `Quote request${val('company') ? ' — ' + val('company') : ''}`;
-  location.href = `mailto:${TO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  say(files.length
-    ? 'Your email app should now be open with your answers. Attach your files there and press send. Nothing opened? Write to'
-    : 'Your email app should now be open with your answers. Press send there. Nothing opened? Write to', true);
-}
-
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   tried = true;
@@ -143,7 +122,8 @@ form.addEventListener('submit', async (e) => {
     }[out.error];
     if (why) { say(why); return; }
   }
-  sendByEmailApp(data);
+  // Sending failed or isn't set up: keep the answers in the form and offer the address
+  say('Sorry, your request could not be sent just now. Please try again in a minute, or write to', true);
 });
 
 // Copy the address

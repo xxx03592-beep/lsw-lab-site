@@ -2,7 +2,7 @@
 
 ## 프로젝트 정보
 - 순수 HTML/CSS/JS 정적 웹사이트
-- Cloudflare Pages로 배포 (main 브랜치 push 시 자동 배포)
+- Cloudflare Workers(정적 assets)로 배포 (master 브랜치 push 시 Workers Builds가 자동 배포)
 - GitHub 저장소: xxx03592-beep/lsw-lab-site (private)
 - 도메인: leeframes.com
 
@@ -11,7 +11,9 @@
 - lookbook.html: Lookbook 페이지 (meta.js / meta.css 사용)
 - meta-ad-creatives.html: Meta Ad Creatives 페이지 (lookbook.js / lookbook.css 사용)
 - quote.html / quote.css / quote.js: Get a quote 견적 문의 페이지
-- functions/api/quote.js: 견적 폼 전송용 Cloudflare Pages Function (Email Sending REST API로 hello@leeframes.com에 발송, 첨부 포함). CF_ACCOUNT_ID·CF_EMAIL_TOKEN 미설정 시 503 → 폼이 메일 앱 열기로 대체
+- worker.js: Cloudflare Worker. 정적 파일은 그대로 서빙하고 /api/quote(견적 폼)만 처리해 hello@leeframes.com으로 메일 발송(send_email 바인딩 EMAIL)
+- wrangler.jsonc: Workers 배포 설정 (Workers Builds가 master push 시 사용)
+- .assetsignore: 공개하면 안 되는 파일 목록 (새 내부 파일을 추가하면 여기에도 추가)
 - styles.css: 메인 스타일
 - lookbook.css: lookbook/meta 공통 스타일
 - meta.css: meta-ad-creatives 전용 스타일

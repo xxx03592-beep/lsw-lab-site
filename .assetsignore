@@ -1,0 +1,15 @@
+# Not part of the public site (same format as .gitignore)
+.git
+.github
+.claude
+.wrangler
+.dev.vars*
+node_modules
+.assetsignore
+.gitignore
+wrangler.jsonc
+wrangler.toml
+worker.js
+functions
+CLAUDE.md
+serve.ps1
