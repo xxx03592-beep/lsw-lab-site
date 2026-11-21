@@ -11,7 +11,7 @@
 - lookbook.html: Lookbook 페이지 (meta.js / meta.css 사용)
 - meta-ad-creatives.html: Meta Ad Creatives 페이지 (lookbook.js / lookbook.css 사용)
 - quote.html / quote.css / quote.js: Get a quote 견적 문의 페이지
-- worker.js: Cloudflare Worker. 정적 파일은 그대로 서빙하고 /api/quote(견적 폼)만 처리해 hello@leeframes.com으로 메일 발송(send_email 바인딩 EMAIL)
+- worker.js: Cloudflare Worker. 정적 파일은 그대로 서빙하고 /api/quote(견적 폼)만 처리해 메일 발송(send_email 바인딩 EMAIL). Workers 무료 플랜이라 Email Routing에서 인증된 받는 주소로만 보낼 수 있어서, 받는 주소는 Cloudflare 대시보드의 QUOTE_TO 시크릿(Workers → lsw-lab-site → Settings)으로 지정함
 - wrangler.jsonc: Workers 배포 설정 (Workers Builds가 master push 시 사용)
 - .assetsignore: 공개하면 안 되는 파일 목록 (새 내부 파일을 추가하면 여기에도 추가)
 - styles.css: 메인 스타일
