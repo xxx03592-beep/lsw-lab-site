@@ -10,8 +10,8 @@
     "binding": "ASSETS",
     "run_worker_first": ["/api/*"]
   },
-  // Quote form email (worker.js): uncomment once leeframes.com is onboarded to Cloudflare
-  // Email Sending (Email Routing on, a verified address). Until then /api/quote answers 503.
-  // "send_email": [{ "name": "EMAIL" }],
+  // Quote form email (worker.js). Needs leeframes.com onboarded to Cloudflare Email Sending
+  // (Email Routing on, a verified address); without that the build fails.
+  "send_email": [{ "name": "EMAIL" }],
   "observability": { "enabled": true }
 }
