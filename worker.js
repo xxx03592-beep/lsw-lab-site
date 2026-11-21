@@ -179,7 +179,7 @@ async function handleQuote(request, env) {
 
 // Auto-reply body. Asks only for what the form left out, numbered 1, 2, … in order:
 // a photo or link (no files and no references), a timeline (no deadline),
-// where the images will run (no project idea). "[24h]" stays as written.
+// where the images will run (no project idea). "within 24h" wording matches the website pop-up.
 function autoReply(v, hasFiles) {
   const asks = [];
   if (!hasFiles && !v.refs) asks.push('A product photo or link');
@@ -192,9 +192,9 @@ function autoReply(v, hasFiles) {
   const paras = [plain ? `Hi ${brand} team,` : 'Hi there,', 'Thanks for reaching out — your request is in.'];
   if (asks.length) {
     paras.push('To get you an accurate quote faster, just reply with:\n' + asks.map((q, i) => `${i + 1}. ${q}`).join('\n'));
-    paras.push("No worries if you don't have everything yet. We'll get back to you within [24h] either way.");
+    paras.push("No worries if you don't have everything yet. We'll get back to you within 24h either way.");
   } else {
-    paras.push("We'll get back to you within [24h].");
+    paras.push("We'll get back to you within 24h.");
   }
   paras.push('— Leeframes Studio\nhello@leeframes.com');
   const text = paras.join('\n\n') + '\n';

@@ -89,9 +89,9 @@ function buildReply(r) {
   const paras = [plain ? `Hi ${brand} team,` : 'Hi there,', 'Thanks for reaching out — your request is in.'];
   if (asks.length) {
     paras.push('To get you an accurate quote faster, just reply with:\n' + asks.map((q, i) => `${i + 1}. ${q}`).join('\n'));
-    paras.push("No worries if you don't have everything yet. We'll get back to you within [24h] either way.");
+    paras.push("No worries if you don't have everything yet. We'll get back to you within 24h either way.");
   } else {
-    paras.push("We'll get back to you within [24h].");
+    paras.push("We'll get back to you within 24h.");
   }
   paras.push('— Leeframes Studio\nhello@leeframes.com');
   const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
