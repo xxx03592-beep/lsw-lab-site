@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self'; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Get a Quote | Leeframes Studio</title>
+  <meta name="description" content="Tell us about your product and what you need: lookbooks, Meta ad creatives or AI video. We reply with a quote and the first concepts we would make.">
+  <!-- Search and sharing (see index.html for the shared notes) -->
+  <link rel="canonical" href="https://leeframes.com/quote.html">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#D8D4E0">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Leeframes Studio">
+  <meta property="og:title" content="Get a Quote | Leeframes Studio">
+  <meta property="og:description" content="Lookbooks, Meta ad creatives and AI video for DTC fashion and accessory brands. Tell us what you need.">
+  <meta property="og:url" content="https://leeframes.com/quote.html">
+  <meta property="og:image" content="https://leeframes.com/images/lookbook/6a-6a-on-beach/cover.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ContactPage",
+        "name": "Get a Quote",
+        "url": "https://leeframes.com/quote.html",
+        "inLanguage": "en",
+        "isPartOf": { "@id": "https://leeframes.com/#website" },
+        "about": { "@id": "https://leeframes.com/#org" }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Leeframes Studio", "item": "https://leeframes.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Get a Quote", "item": "https://leeframes.com/quote.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="quote.css">
+</head>
+<body class="q-page">
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo" aria-label="Leeframes Studio home">
+      <span class="logo-mark">Leeframes</span>
+    </a>
+    <nav class="nav" id="nav">
+      <a href="lookbook.html" class="mono">Lookbook</a>
+      <a href="meta-ad-creatives.html" class="mono">Meta Ads</a>
+      <a href="index.html#faq" class="mono">FAQ</a>
+      <a href="quote.html" class="mono" aria-current="page">Get a quote</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span></button>
+  </div>
+</header>
+
+<main>
+
+<!-- Running band: two identical groups so translateX(-50%) loops seamlessly -->
+<div class="q-band" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="ticker-group"><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span></span>
+    <span class="ticker-group"><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span><span>Get a quote<i>✦</i></span><span>Let's talk<i>✦</i></span></span>
+  </div>
+</div>
+<h1 class="q-tab"><span class="q-tab-arrow" aria-hidden="true">↓</span>Got a product to show? Let's make it look good.</h1>
+
+<!-- Quote form. No server: Submit opens an email to the studio with every answer filled in (quote.js) -->
+<form class="q-form container" id="q-form" novalidate>
+  <fieldset class="q-row">
+    <legend class="q-label">I am interested in</legend>
+    <div class="q-chips">
+      <label class="q-chip"><input type="checkbox" name="interest" value="Lookbook"><span>Lookbook</span></label>
+      <label class="q-chip"><input type="checkbox" name="interest" value="Meta ad creatives"><span>Meta ad creatives</span></label>
+      <label class="q-chip"><input type="checkbox" name="interest" value="AI video"><span>AI video</span></label>
+      <label class="q-chip"><input type="checkbox" name="interest" value="Media buying"><span>Media buying</span></label>
+    </div>
+  </fieldset>
+  <fieldset class="q-row">
+    <legend class="q-label">Budget range for this project (USD)</legend>
+    <!-- Ranges: edit freely, the value is what lands in the email -->
+    <div class="q-chips">
+      <label class="q-chip"><input type="radio" name="budget" value="Under $3k"><span>&lt;3k</span></label>
+      <label class="q-chip"><input type="radio" name="budget" value="$3k–6k"><span>3k—6k</span></label>
+      <label class="q-chip"><input type="radio" name="budget" value="$6k–12k"><span>6k—12k</span></label>
+      <label class="q-chip"><input type="radio" name="budget" value="$12k+"><span>12k+</span></label>
+      <span class="q-or mono">or</span>
+      <label class="q-chip"><input type="radio" name="budget" value="Not sure yet"><span>Not sure yet</span></label>
+    </div>
+  </fieldset>
+  <label class="q-row">
+    <span class="q-label">Project idea</span>
+    <textarea class="q-input" name="idea" rows="2" placeholder="What are you selling, and what do you need?" data-required="Project idea"></textarea>
+  </label>
+  <label class="q-row">
+    <span class="q-label">Company</span>
+    <input class="q-input" name="company" type="text" autocomplete="organization" placeholder="Brand or company name" data-required="Company">
+  </label>
+  <label class="q-row">
+    <span class="q-label">Website or store</span>
+    <input class="q-input" name="website" type="text" autocomplete="url" placeholder="yourbrand.com">
+  </label>
+  <label class="q-row">
+    <span class="q-label">Project deadline</span>
+    <input class="q-input" name="deadline" type="text" placeholder="When do you need it?">
+  </label>
+  <label class="q-row q-gap">
+    <span class="q-label">Name</span>
+    <input class="q-input" name="name" type="text" autocomplete="name" placeholder="What should we call you?" data-required="Name">
+  </label>
+  <label class="q-row">
+    <span class="q-label">Email</span>
+    <input class="q-input" name="email" type="email" autocomplete="email" placeholder="@" data-required="Email">
+  </label>
+  <label class="q-row">
+    <span class="q-label">References</span>
+    <input class="q-input" name="refs" type="text" placeholder="Links to looks or ads you like">
+  </label>
+  <p class="q-attach">Got files? Attach them to the email that opens when you press Submit.</p>
+
+  <div class="q-foot">
+    <p class="q-missing" id="q-missing" aria-live="polite"></p>
+    <button class="q-submit" type="submit" id="q-submit">Submit</button>
+  </div>
+  <p class="q-sent" id="q-sent" hidden>Your email app should now be open with everything filled in. Press send there. Nothing opened? Write to <a href="mailto:hello@leeframes.com">hello@leeframes.com</a>.</p>
+</form>
+
+<!-- Other ways to reach us -->
+<section class="q-alt container">
+  <p class="q-alt-label">Alternatives</p>
+  <ul class="q-alt-list">
+    <li><a href="mailto:hello@leeframes.com" class="q-alt-link">hello@leeframes.com</a><button type="button" class="q-copy mono" id="q-copy" data-copy="hello@leeframes.com">Copy</button></li>
+  </ul>
+</section>
+
+<!-- Seoul clock and a strip of lookbook covers (filled in by quote.js) -->
+<section class="q-strip" aria-label="Recent lookbook work">
+  <div class="q-clock" aria-hidden="true">
+    <svg viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="48" class="q-clock-face"/>
+      <g class="q-clock-ticks"></g>
+      <line x1="50" y1="50" x2="50" y2="26" class="q-hand q-hand-h" id="q-hand-h"/>
+      <line x1="50" y1="50" x2="50" y2="14" class="q-hand q-hand-m" id="q-hand-m"/>
+      <line x1="50" y1="58" x2="50" y2="10" class="q-hand q-hand-s" id="q-hand-s"/>
+      <circle cx="50" cy="50" r="3.2" class="q-clock-pin"/>
+    </svg>
+    <p class="mono small">Seoul</p>
+  </div>
+  <div class="q-photos"><div class="q-photos-track" id="q-photos"></div></div>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="wordmark" aria-hidden="true">Leeframes</div>
+    <div class="footer-grid">
+      <div>
+        <p class="mono"><b>Leeframes Studio</b></p>
+        <p class="mono small">Performance creative and Meta ads for DTC</p>
+        <p class="mono small" id="clock">--:--:--</p>
+      </div>
+    </div>
+    <div class="footer-bottom mono"><span>© 2026 Leeframes Studio</span><span>Seoul · DTC performance creative since 2026</span></div>
+  </div>
+</footer>
+
+<script src="site-data.js"></script>
+<script src="quote.js"></script>
+</body>
+</html>

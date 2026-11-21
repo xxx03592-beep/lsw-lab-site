@@ -10,6 +10,7 @@
 - index.html: 메인 페이지
 - lookbook.html: Lookbook 페이지 (meta.js / meta.css 사용)
 - meta-ad-creatives.html: Meta Ad Creatives 페이지 (lookbook.js / lookbook.css 사용)
+- quote.html / quote.css / quote.js: Get a quote 견적 문의 페이지 (제출 시 hello@leeframes.com 메일 작성)
 - styles.css: 메인 스타일
 - lookbook.css: lookbook/meta 공통 스타일
 - meta.css: meta-ad-creatives 전용 스타일
