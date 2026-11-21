@@ -9,6 +9,7 @@
 //   QUOTE_TO    where requests go,  default hello@leeframes.com
 //   QUOTE_FROM  sender,             default quote@leeframes.com
 //   REPLY_FROM  auto-reply sender and Reply-To, default hello@leeframes.com
+//   WORKER_AUTO_REPLY  "on" to send the auto-reply from here (needs Workers Paid + Email Sending)
 // After the studio is notified, the visitor gets an automatic reply (best effort: on the
 // Workers Free plan Cloudflare only delivers to verified destination addresses, so for
 // other visitors it fails quietly and the request still counts as sent).
@@ -151,9 +152,11 @@ async function handleQuote(request, env) {
     return json(502, { ok: false, error: 'send_failed', code: String((err && err.code) || (err && err.name) || 'unknown').slice(0, 80) });
   }
 
-  // Automatic reply to the visitor, same binding. Never turns a delivered request into an error.
+  // Automatic reply to the visitor, same binding. Off unless WORKER_AUTO_REPLY is "on":
+  // on the Workers Free plan it can't reach visitors, so Gmail answers them instead
+  // (apps-script/quote-auto-reply.gs). Never turns a delivered request into an error.
   let reply = 'skipped';
-  if (env.EMAIL) {
+  if (env.EMAIL && env.WORKER_AUTO_REPLY === 'on') {
     const mail = autoReply(v, files.length > 0);
     const replyFrom = env.REPLY_FROM || 'hello@leeframes.com';
     try {
