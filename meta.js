@@ -405,7 +405,7 @@ function frame(now) {
   energy += (raw - energy) * (1 - Math.exp(-(raw > energy ? 8 : 6) * dt));
 
   // Detail view: the opened card grows into the column, the others shrink into side previews
-  spread += (spreadTarget - spread) * (1 - Math.exp(-(spreadTarget > spread ? 6 : 8) * dt));
+  spread += (spreadTarget - spread) * (1 - Math.exp(-6 * dt));
   if (spreadTarget === 0 && spread < 0.001) { spread = 0; openK = -1; }
   const ease = spread * spread * (3 - 2 * spread);
   if (openK >= 0) updateDetailLayout(dt, false);
@@ -568,9 +568,8 @@ detail.setAttribute('aria-modal', 'true');
 const dView = el('div', 'mcd-view', { tabIndex: -1 });
 const dList = el('div', 'mcd-list');
 const dCount = el('p', 'mcd-count mono');
-const dClose = el('button', 'mcd-close mono', { type: 'button', textContent: 'Close ×' });
 dView.append(dList);
-detail.append(dView, dCount, dClose);
+detail.append(dView, dCount);
 if (!gl) detail.classList.add('no-gl');
 document.body.append(detail);
 
@@ -652,14 +651,21 @@ const dEnd = (e) => {
 dView.addEventListener('pointerup', dEnd);
 dView.addEventListener('pointercancel', dEnd);
 
-// A tap on a side preview opens that project
+// A tap on a side preview opens that project, a tap on a photo does nothing,
+// a tap anywhere else (the background) closes the view
 function detailClick(e) {
-  if (!gl || !detailAd) return;
-  const r = stage.getBoundingClientRect();
-  const gx = e.clientX - (r.left + r.width / 2);
-  const gy = r.top + r.height / 2 - e.clientY;
-  const hit = detLayout.findIndex((d, k) => d && k !== openK && Math.abs(gx - d.x) < d.w / 2 && Math.abs(gy - d.y) < d.h / 2);
-  if (hit >= 0) switchDetail(hit);
+  if (!detailAd) return;
+  if (gl) {
+    const r = stage.getBoundingClientRect();
+    const gx = e.clientX - (r.left + r.width / 2);
+    const gy = r.top + r.height / 2 - e.clientY;
+    const hit = detLayout.findIndex((d, k) => d && k !== openK && Math.abs(gx - d.x) < d.w / 2 && Math.abs(gy - d.y) < d.h / 2);
+    if (hit >= 0) { switchDetail(hit); return; }
+  }
+  const along = e.clientY - (innerHeight / 2 - detailH / 2) + dPos; // px down the column
+  const n = Math.floor(along / dStep());
+  const onPhoto = Math.abs(e.clientX - innerWidth / 2) < colW / 2 && n >= 0 && n <= dLast() && along - n * dStep() < detailH;
+  if (!onPhoto) closeDetail();
 }
 
 // Where card k sits in the detail view: the opened one fills the column, the rest line up small on both sides
@@ -749,6 +755,7 @@ function closeDetail() {
   clearTimeout(detailTimer);
   detail.classList.remove('is-open', 'is-ready');
   stage.classList.remove('is-detail');
+  if (detLayout[openK]) detLayout[openK].a = 1; // the grown card reappears under the fading column
   spreadTarget = 0;
   resting = true;
   driftV = 0;
@@ -756,7 +763,6 @@ function closeDetail() {
   detailTimer = setTimeout(() => { detail.hidden = true; dList.replaceChildren(); }, reduceMotion ? 0 : 400);
   stage.focus({ preventScroll: true });
 }
-dClose.addEventListener('click', closeDetail);
 document.addEventListener('keydown', (e) => {
   if (!detailOpen) return;
   if (e.key === 'Escape') closeDetail();

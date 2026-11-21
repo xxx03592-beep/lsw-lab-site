@@ -43,11 +43,9 @@
 /* Every photo in the same box, cropped to fit, never stretched */
 .mcd-list img { display: block; flex: none; width: var(--mcd-w); height: var(--mcd-h); object-fit: cover; border-radius: 10px; background: #cfc9d6; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
 .mc-detail.is-ready .mcd-list img { opacity: 1; transition: opacity .35s ease; }
-.mcd-count, .mcd-close { position: absolute; z-index: 6; opacity: 0; transition: opacity .3s ease; }
-.mc-detail.is-open :is(.mcd-count, .mcd-close) { opacity: 1; transition-delay: .45s; }
+.mcd-count { position: absolute; z-index: 6; opacity: 0; transition: opacity .3s ease; }
+.mc-detail.is-open .mcd-count { opacity: 1; transition-delay: .45s; }
 .mcd-count { right: var(--gutter); bottom: 36px; font-size: 13px; }
-.mcd-close { top: calc(var(--announce-h, 0px) + 80px); right: var(--gutter); background: none; border: 0; padding: 8px 0; color: inherit; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; cursor: pointer; }
-.mcd-close:hover { opacity: .6; }
 .mc-detail .mono { font-weight: 400; letter-spacing: 0.04em; }
 /* The slider's bottom-left title and progress step aside while a project is open */
 .mc-stage .mc-bottom, .mc-stage .mc-hint { transition: opacity .3s ease; }
