@@ -86,8 +86,8 @@
     <label class="q-label" for="q-budget-range">Budget range for this project (USD)</label>
     <!-- Slider in 1k steps; the hidden "budget" field is only filled once the visitor picks a value -->
     <div class="q-budget is-untouched" id="q-budget">
-      <div class="q-budget-head"><span class="q-budget-value" id="q-budget-value" aria-hidden="true">Slide to choose</span></div>
       <input class="q-range" id="q-budget-range" type="range" min="1" max="10" step="1" value="1" aria-valuetext="Not chosen yet">
+      <div class="q-ticks" aria-hidden="true"><span>1k</span><span>2k</span><span>3k</span><span>4k</span><span>5k</span><span>6k</span><span>7k</span><span>8k</span><span>9k</span><span>10k</span></div>
       <input type="hidden" name="budget" id="q-budget-field" data-required="Budget">
     </div>
   </div>

@@ -11,7 +11,7 @@
 /* Form, laid out like the reference connect page: labels in the left third, answers in the
    right two thirds, both at 15px, no rules between rows */
 .q-form { max-width: calc(1194px + 2 * var(--gutter)); margin-top: clamp(56px, 8vw, 110px); }
-.q-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items: end; gap: 4px; min-width: 0; margin: 0; padding: 10px 0; min-height: 49px; border: 0; }
+.q-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); align-items: end; gap: 4px; min-width: 0; margin: 0; padding: 10px 0; min-height: 52px; border: 0; } /* same height for every row: chips, slider and text rows line up evenly */
 fieldset.q-row > legend { float: left; } /* legends ignore grid; floated they line up with the labels */
 .q-label { display: block; font-size: 15px; line-height: 20px; padding: 0 0 4px; }
 .q-input { width: 100%; min-width: 0; border: 0; padding: 0 0 4px; background: none; color: var(--white); font: inherit; font-size: 15px; line-height: 20px; letter-spacing: 0; outline: none; resize: none; }
@@ -19,7 +19,7 @@ fieldset.q-row > legend { float: left; } /* legends ignore grid; floated they li
 textarea.q-input { min-height: 20px; field-sizing: content; } /* one line like the other rows; grows as they type */
 
 /* Choice chips: lilac, black once chosen */
-.q-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 2px; }
+.q-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .q-chip { position: relative; cursor: pointer; }
 .q-chip input { position: absolute; opacity: 0; pointer-events: none; }
 .q-chip span { display: inline-block; padding: 6px 10px; border-radius: 6px; background: #aea4b3; font-size: 15px; line-height: 20px; transition: background .2s, color .2s; }
@@ -28,12 +28,8 @@ textarea.q-input { min-height: 20px; field-sizing: content; } /* one line like t
 .q-chip input:focus-visible + span { outline: 2px solid var(--white); outline-offset: 2px; }
 .q-or { margin: 0 10px; color: var(--white); font-size: 10px; }
 
-/* Budget slider: 1k–10k in 1k steps. Untouched it reads
-   "Slide to choose" with a pale thumb; the first touch picks a value */
-.q-budget { padding-bottom: 2px; }
-.q-budget-head { display: flex; justify-content: flex-end; margin-bottom: 6px; }
-.q-budget-value { font-size: 15px; line-height: 20px; }
-.q-budget.is-untouched .q-budget-value { color: #8d8393; }
+/* Budget slider: 1k–10k in 1k steps, numbers under the track (the chosen one dark).
+   Untouched the thumb is pale and nothing is chosen; the first touch picks a value */
 .q-range { --fill: 0%; display: block; width: 100%; height: 18px; margin: 0; background: transparent; cursor: pointer; -webkit-appearance: none; appearance: none; }
 .q-range:focus { outline: none; }
 .q-range::-webkit-slider-runnable-track { height: 2px; border-radius: 2px; background: linear-gradient(to right, var(--white) var(--fill), #aea4b3 var(--fill)); }
@@ -45,6 +41,19 @@ textarea.q-input { min-height: 20px; field-sizing: content; } /* one line like t
 .q-range:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--white); outline-offset: 3px; }
 .q-budget.is-untouched .q-range::-webkit-slider-thumb { background: #aea4b3; }
 .q-budget.is-untouched .q-range::-moz-range-thumb { background: #aea4b3; }
+.q-ticks { position: relative; height: 12px; margin-top: 2px; }
+.q-ticks span { position: absolute; top: 0; transform: translateX(-50%); color: #8d8393; white-space: nowrap; }
+.q-ticks span:nth-child(1) { left: calc(9px + (100% - 18px) * 0 / 9); }
+.q-ticks span:nth-child(2) { left: calc(9px + (100% - 18px) * 1 / 9); }
+.q-ticks span:nth-child(3) { left: calc(9px + (100% - 18px) * 2 / 9); }
+.q-ticks span:nth-child(4) { left: calc(9px + (100% - 18px) * 3 / 9); }
+.q-ticks span:nth-child(5) { left: calc(9px + (100% - 18px) * 4 / 9); }
+.q-ticks span:nth-child(6) { left: calc(9px + (100% - 18px) * 5 / 9); }
+.q-ticks span:nth-child(7) { left: calc(9px + (100% - 18px) * 6 / 9); }
+.q-ticks span:nth-child(8) { left: calc(9px + (100% - 18px) * 7 / 9); }
+.q-ticks span:nth-child(9) { left: calc(9px + (100% - 18px) * 8 / 9); }
+.q-ticks span:nth-child(10) { left: calc(9px + (100% - 18px) * 9 / 9); }
+.q-ticks span.is-on { color: var(--white); }
 
 /* Buttons sit in a centred 595px column: Attach file full width, Submit on its right half */
 .q-files { width: min(595px, 100%); margin: 64px auto 0; }
@@ -79,10 +88,12 @@ textarea.q-input { min-height: 20px; field-sizing: content; } /* one line like t
 
 /* Small text set like the main page's menu, buttons and eyebrows: KHTekaMono capitals.
    Typed answers, placeholders and the "That's all we need" line stay in KHTeka */
-.q-label, .q-more-title, .q-chip span, .q-budget-value,   font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em;
+.q-label, .q-more-title, .q-chip span, .q-ticks span, .q-attach-btn, .q-submit, .q-alt-label, .q-done-close {
+  font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em;
 }
 .q-label, .q-more-title, .q-alt-label { font-size: 13px; line-height: 20px; }
-.q-chip span, .q-budget-value { font-size: 13px; line-height: 20px; }
+.q-chip span { font-size: 13px; line-height: 20px; }
+.q-ticks span { font-size: 11px; line-height: 12px; }
 .q-attach-btn, .q-submit { font-size: 13px; font-weight: 500; }
 
 /* Success pop-up after sending */

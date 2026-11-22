@@ -36,15 +36,15 @@ function check() {
 // Budget slider: 1k–10k in 1k steps. The first touch (drag, click, or a key) picks a value
 const budget = document.getElementById('q-budget');
 const range = document.getElementById('q-budget-range');
-const budgetOut = document.getElementById('q-budget-value');
 const budgetField = document.getElementById('q-budget-field');
+const budgetTicks = [...budget.querySelectorAll('.q-ticks span')];
 function showBudget(touched) {
   const k = Number(range.value);
   range.style.setProperty('--fill', touched ? ((k - 1) / 9) * 100 + '%' : '0%');
   budget.classList.toggle('is-untouched', !touched);
-  budgetOut.textContent = touched ? `$${k}k` : 'Slide to choose';
   range.setAttribute('aria-valuetext', touched ? `${k} thousand dollars` : 'Not chosen yet');
   budgetField.value = touched ? `$${k}k` : '';
+  budgetTicks.forEach((t, i) => t.classList.toggle('is-on', touched && i + 1 === k));
 }
 const touchBudget = () => { showBudget(true); check(); };
 range.addEventListener('input', touchBudget);
