@@ -82,19 +82,16 @@
       <label class="q-chip"><input type="checkbox" name="interest" value="Meta ad creatives"><span>Meta ad creatives</span></label>
     </div>
   </fieldset>
-  <fieldset class="q-row" data-required="Budget">
-    <legend class="q-label">Budget range for this project (USD)</legend>
-    <!-- Ranges: edit freely, the value is what lands in the email -->
-    <div class="q-chips">
-      <label class="q-chip"><input type="radio" name="budget" value="Under $1k"><span>&lt;1k</span></label>
-      <label class="q-chip"><input type="radio" name="budget" value="$1k–3k"><span>1k—3k</span></label>
-      <label class="q-chip"><input type="radio" name="budget" value="$3k–6k"><span>3k—6k</span></label>
-      <label class="q-chip"><input type="radio" name="budget" value="$6k–12k"><span>6k—12k</span></label>
-      <label class="q-chip"><input type="radio" name="budget" value="$12k+"><span>12k+</span></label>
-      <span class="q-or mono">or</span>
-      <label class="q-chip"><input type="radio" name="budget" value="Not sure yet"><span>Not sure yet</span></label>
+  <div class="q-row">
+    <label class="q-label" for="q-budget-range">Budget range for this project (USD)</label>
+    <!-- Slider in 1k steps; the hidden "budget" field is only filled once the visitor picks a value -->
+    <div class="q-budget is-untouched" id="q-budget">
+      <div class="q-budget-head"><span class="q-budget-value" id="q-budget-value" aria-hidden="true">Slide to choose</span></div>
+      <input class="q-range" id="q-budget-range" type="range" min="1" max="10" step="1" value="1" aria-valuetext="Not chosen yet">
+      <div class="q-ticks" aria-hidden="true"><span>1k</span><span>2k</span><span>3k</span><span>4k</span><span>5k</span><span>6k</span><span>7k</span><span>8k</span><span>9k</span><span>10k</span></div>
+      <input type="hidden" name="budget" id="q-budget-field" data-required="Budget">
     </div>
-  </fieldset>
+  </div>
   <label class="q-row">
     <span class="q-label">Brand</span>
     <input class="q-input" name="company" type="text" autocomplete="organization" placeholder="Your brand name" data-required="Brand">

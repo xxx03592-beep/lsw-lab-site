@@ -17,7 +17,8 @@ const submits = [...form.querySelectorAll('.q-submit')];
 const sent = document.getElementById('q-sent');
 const required = [...form.querySelectorAll('[data-required]')];
 const emailOk = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-// A chip group (fieldset) counts once anything in it is chosen; "Not sure yet" is a choice too
+// A chip group (fieldset) counts once anything in it is chosen; the budget counts once the
+// slider has been touched (its hidden field is empty until then)
 const isFilled = (el) => {
   if (el.tagName === 'FIELDSET') return !!el.querySelector('input:checked');
   return el.name === 'email' ? emailOk(el.value.trim()) : el.value.trim() !== '';
@@ -32,6 +33,28 @@ function check() {
   });
   return missing;
 }
+// Budget slider: 1k–10k in 1k steps. The first touch (drag, click, or a key) picks a value
+const budget = document.getElementById('q-budget');
+const range = document.getElementById('q-budget-range');
+const budgetOut = document.getElementById('q-budget-value');
+const budgetField = document.getElementById('q-budget-field');
+const budgetTicks = [...budget.querySelectorAll('.q-ticks span')];
+function showBudget(touched) {
+  const k = Number(range.value);
+  range.style.setProperty('--fill', touched ? ((k - 1) / 9) * 100 + '%' : '0%');
+  budget.classList.toggle('is-untouched', !touched);
+  budgetOut.textContent = touched ? `$${k}k` : 'Slide to choose';
+  range.setAttribute('aria-valuetext', touched ? `${k} thousand dollars` : 'Not chosen yet');
+  budgetField.value = touched ? `$${k}k` : '';
+  budgetTicks.forEach((t, i) => t.classList.toggle('is-on', touched && i + 1 === k));
+}
+const touchBudget = () => { showBudget(true); check(); };
+range.addEventListener('input', touchBudget);
+range.addEventListener('pointerdown', touchBudget); // choosing 1k needs no movement
+range.addEventListener('keydown', (e) => { if (e.key.startsWith('Arrow') || e.key === 'Home' || e.key === 'End') setTimeout(touchBudget); });
+form.addEventListener('reset', () => setTimeout(() => { showBudget(false); check(); }));
+showBudget(false);
+
 form.addEventListener('input', check);
 form.addEventListener('change', check);
 check();
