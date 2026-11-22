@@ -377,3 +377,16 @@ section[id] { scroll-margin-top: 72px; } /* menu links land below the sticky hea
   .mc-page .mc-hint, .lb-page .lb-hint { display: none; }
   .lb-page .lb-section { padding-bottom: 72px; }
 }
+
+/* Type system, shared by every page: small text is KHTekaMono capitals at 0.04em tracking,
+   11px (10px for fine print such as badges, tickers and notes), weight 400 (500 on buttons).
+   Body copy and headings stay in KHTeka. Placed last so it settles earlier one-off values. */
+.mono, .nav a, .btn, .mono-link, .eyebrow, .tag, .ticker-group, .footer-bottom, .tile-badge,
+.play-step .step, .announce p { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.mono, .eyebrow, .tag, .mono-link, .footer-bottom, .play-step .step, .announce p { font-size: 11px; }
+.nav a { font-size: 11px; }
+.small, .mono.small, .tile-badge, .ticker-group, .ctr-note, .tags li { font-size: 10px; }
+.mono, .footer-bottom, .announce p { font-weight: 400; }
+.btn, .mono-link { font-weight: 500; }
+.announce p { line-height: 1.6; }
+@media (max-width: 760px) { .nav a { font-size: 13px; } } /* the opened phone menu keeps its larger rows */

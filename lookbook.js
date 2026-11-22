@@ -33,7 +33,6 @@ META_COLUMNS.forEach((column, col) => {
     items.push(li);
   });
 });
-document.getElementById('lb-total').textContent = items.length;
 
 // Columns: each column loops vertically and only moves when scrolled (neighbouring
 // columns go opposite ways) or dragged. Hovering a tile shows its name bottom-left;
@@ -118,11 +117,14 @@ function buildStrip() {
     [...track.children].slice(list.length).forEach((c) => { c.setAttribute('aria-hidden', 'true'); c.tabIndex = -1; });
     // Even columns drift up, odd columns down; offsets staggered so rows never line up
     const kids = [...track.children];
-    const lane = { col, track, setH, offset: -setH * ((k * 0.37) % 1), dir: k % 2 ? 1 : -1, vel: 0, snap: 0,
+    const lane = { k, col, track, setH, offset: -setH * ((k * 0.37) % 1), dir: k % 2 ? 1 : -1, vel: 0, snap: 0,
       tiles: kids, tileH: kids[0].offsetHeight, pitch: kids.length > 1 ? kids[1].offsetTop - kids[0].offsetTop : kids[0].offsetHeight };
     lane.vel = AUTO * lane.dir;
     lanes.push(lane);
   }
+  // Column centres in stage px (glBuild refines them; the viewer needs them without WebGL too)
+  const sr = stageEl.getBoundingClientRect();
+  lanes.forEach((l) => { const r = l.col.getBoundingClientRect(); l.cx = r.left + r.width / 2 - sr.left; });
   glBuild();
 }
 
@@ -150,6 +152,7 @@ uniform float uCrop;
 uniform float uParallax;
 uniform vec2 uSize;    // drawn size in px
 uniform float uRadius; // corner radius in px
+uniform float uAlpha;  // fades the opened ad's column
 varying vec2 vUv;
 float roundBox(vec2 p, vec2 b, float r) {
   vec2 q = abs(p) - b + r;
@@ -162,7 +165,7 @@ void main() {
   // Narrower tiles crop the picture (cover) instead of squashing it; the
   // picture is zoomed 1.08x inside the tile and slides against the motion
   vec2 uv = vec2((vUv.x - 0.5) * uCrop, vUv.y - 0.5) / 1.08 + 0.5 + vec2(0.0, uParallax * 0.04);
-  gl_FragColor = vec4(texture2D(uTex, uv).rgb, edge);
+  gl_FragColor = vec4(texture2D(uTex, uv).rgb, edge * uAlpha);
 }`;
 
 // 1 through the middle of the screen, easing to 0 only in the last stretch
@@ -294,7 +297,7 @@ function glBuild() {
         fragmentShader: TILE_FRAG,
         transparent: true,
         depthTest: false,
-        uniforms: { uTex: { value: makeTexture(src) }, uCrop: { value: 1 }, uParallax: { value: 0 }, uSize: { value: new THREE.Vector2(1, 1) }, uRadius: { value: innerWidth < 760 ? 6 : 10 } },
+        uniforms: { uTex: { value: makeTexture(src) }, uCrop: { value: 1 }, uParallax: { value: 0 }, uSize: { value: new THREE.Vector2(1, 1) }, uRadius: { value: innerWidth < 760 ? 6 : 10 }, uAlpha: { value: 1 } },
       });
       const mesh = new THREE.Mesh(gl.geometry, mat);
       scene.add(mesh);
@@ -313,7 +316,25 @@ function placeTiles(now, dt) {
   lanes.forEach((lane) => { fastest = Math.max(fastest, Math.abs(lane.vel)); });
   const raw = reduceMotion ? 0 : Math.pow(Math.min(fastest / 2600, 1), 0.75);
   energy += (raw - energy) * (1 - Math.exp(-(raw > energy ? 8 : 6) * dt));
+  // Viewer open: the ad sits in the middle, columns on each side slide out just far enough
+  // to clear it, and the ad's own column fades away
+  const sw = stageEl.clientWidth, mid = sw / 2;
+  const tw = lanes.length ? lanes[0].tiles[0].offsetWidth : 0;
+  let pushL = 0, pushR = 0;
+  if (viewEase > 0) {
+    const clear = mediaWidth() / 2 + (innerWidth < 760 ? 12 : 32);
+    lanes.forEach((l) => {
+      if (l.k === viewCol || l.cx === undefined) return;
+      if (l.cx < mid) pushL = Math.max(pushL, l.cx + tw / 2 - (mid - clear));
+      else pushR = Math.max(pushR, mid + clear - (l.cx - tw / 2));
+    });
+  }
   lanes.forEach((lane) => {
+    const own = lane.k === viewCol;
+    const shift = own ? 0 : (lane.cx < mid ? -pushL : pushR) * viewEase;
+    const alpha = own ? 1 - viewEase : 1;
+    lane.col.style.transform = shift ? `translateX(${shift.toFixed(1)}px)` : '';
+    lane.col.style.opacity = alpha < 1 ? alpha.toFixed(3) : '';
     const laneEnergy = reduceMotion ? 0 : Math.pow(Math.min(Math.abs(lane.vel) / 2600, 1), 0.75);
     const stretch = 1 + 0.1 * laneEnergy; // slight stretch along the motion with speed
     const top = lane.top ?? 0;
@@ -328,7 +349,9 @@ function placeTiles(now, dt) {
       mesh.visible = visible;
       if (!visible) return;
       // Narrowed tiles stay centred on their column
-      mesh.position.set(lane.cx - stageEl.clientWidth / 2, half - cy, 0);
+      mesh.position.set(lane.cx + shift - sw / 2, half - cy, 0);
+      mesh.material.uniforms.uAlpha.value = alpha;
+      mesh.visible = alpha > 0.01;
       mesh.scale.set(s, stretch, 1);
       mesh.material.uniforms.uCrop.value = s;
       mesh.material.uniforms.uSize.value.set(gl.tileW * s, lane.tileH * stretch); // drawn size, so the corner radius stays round
@@ -350,9 +373,12 @@ function placeTiles(now, dt) {
 function frameLoop(now) {
   const dt = Math.min((now - last) / 1000, 0.05);
   last = now;
+  viewT += (viewTarget - viewT) * (1 - Math.exp(-7 * dt));
+  if (viewTarget === 0 && viewT < 0.001) { viewT = 0; viewCol = -1; }
+  viewEase = viewT * viewT * (3 - 2 * viewT);
   lanes.forEach((lane) => {
     if (!drag) {
-      const target = AUTO * lane.dir;
+      const target = AUTO * lane.dir * (1 - viewEase);
       lane.vel += (target - lane.vel) * Math.min(1, dt * (Math.abs(lane.vel) > AUTO * 2 ? 2.5 : 6)); // wheel flings coast longer
       lane.offset += lane.vel * dt;
       if (lane.snap) {
@@ -416,6 +442,13 @@ const playIcon = frame.querySelector('.play-icon');
 const nameEl = document.getElementById('lb-name');
 const countEl = document.getElementById('lb-count');
 let current = 0;
+// Viewer state: 0 closed .. 1 open, eased in frameLoop; viewCol is the opened ad's column
+let viewT = 0, viewTarget = 0, viewEase = 0, viewCol = -1;
+function mediaWidth() {
+  const m = boxImg.hidden ? boxVideo : boxImg;
+  const w = m.getBoundingClientRect().width;
+  return w > 10 ? w : (innerHeight - 140) * 9 / 16; // before the picture loads, assume 9:16
+}
 
 const visibleTiles = () => items.filter((li) => !li.classList.contains('is-hidden')).map((li) => li.querySelector('.tile'));
 
@@ -434,6 +467,7 @@ function show(i) {
   const group = tiles.filter((x) => Number(x.closest('li').dataset.col) === boxCol);
   const at = group.indexOf(t);
   current = tiles.indexOf(t);
+  if (viewTarget) viewCol = boxCol;
   const film = 'film' in t.dataset;
   boxImg.hidden = film;
   boxVideo.hidden = !film;
@@ -456,13 +490,30 @@ function stepBox(d) {
   const at = group.indexOf(tiles[current]);
   show(tiles.indexOf(group[(at + d + group.length) % group.length]));
 }
-function open(i) { show(i); box.hidden = false; document.body.style.overflow = 'hidden'; }
+let closeTimer = 0;
+function open(i) {
+  show(i);
+  clearTimeout(closeTimer);
+  viewCol = boxCol;
+  viewTarget = 1;
+  box.hidden = false;
+  document.body.style.overflow = 'hidden';
+  document.body.classList.add('lb-viewing');
+  requestAnimationFrame(() => box.classList.add('is-open'));
+}
 function close() {
-  box.hidden = true;
+  if (box.hidden) return;
+  viewTarget = 0;
+  box.classList.remove('is-open');
   document.body.style.overflow = '';
+  document.body.classList.remove('lb-viewing');
   boxVideo.pause();
-  boxVideo.removeAttribute('src');
-  boxVideo.load();
+  clearTimeout(closeTimer);
+  closeTimer = setTimeout(() => {
+    box.hidden = true;
+    boxVideo.removeAttribute('src');
+    boxVideo.load();
+  }, reduceMotion ? 0 : 300);
 }
 
 buildStrip();
@@ -491,7 +542,8 @@ if (startQ.has('col')) {
 box.querySelector('.lb-close').addEventListener('click', close);
 box.querySelector('.lb-prev').addEventListener('click', () => stepBox(-1));
 box.querySelector('.lb-next').addEventListener('click', () => stepBox(1));
-box.addEventListener('click', (e) => e.target === box && close());
+// A click anywhere but the ad itself closes the viewer (like the Lookbook page)
+box.addEventListener('click', (e) => { if (!e.target.closest('.lb-media')) close(); });
 document.addEventListener('keydown', (e) => {
   if (box.hidden) return;
   if (e.key === 'Escape') close();

@@ -88,13 +88,13 @@ textarea.q-input { min-height: 20px; field-sizing: content; } /* one line like t
 
 /* Small text set like the main page's menu, buttons and eyebrows: KHTekaMono capitals.
    Typed answers, placeholders and the "That's all we need" line stay in KHTeka */
-.q-label, .q-more-title, .q-chip span, .q-ticks span, .q-attach-btn, .q-submit, .q-alt-label, .q-done-close {
+.q-label, .q-more-title, .q-chip span, .q-ticks span, .q-attach-btn, .q-submit, .q-alt-label, .q-done .q-done-close {
   font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em;
 }
 .q-label, .q-more-title, .q-alt-label { font-size: 13px; line-height: 20px; }
 .q-chip span { font-size: 13px; line-height: 20px; }
 .q-ticks span { font-size: 11px; line-height: 12px; }
-.q-attach-btn, .q-submit { font-size: 13px; font-weight: 500; }
+.q-attach-btn, .q-submit, .q-done .q-done-close { font-size: 13px; font-weight: 500; }
 
 /* Success pop-up after sending */
 .q-done { position: fixed; inset: 0; margin: auto; height: fit-content; width: min(440px, calc(100vw - 32px)); /* centred: the site reset zeroes the dialog default margin */ padding: 36px 32px 28px; border: 0; border-radius: 16px; background: #f4f2f7; color: var(--white); text-align: center; box-shadow: 0 24px 70px rgba(16, 18, 20, .25); }

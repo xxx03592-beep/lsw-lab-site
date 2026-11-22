@@ -148,3 +148,25 @@
   .lightbox .lb-next { grid-column: 4; }
   .lightbox .lb-close { top: auto; bottom: 72px; right: 12px; }
 }
+
+/* Meta Ads page: keep the menu clear. Tiles fade out well below the header, leaving the same
+   breathing room as content gets under the menu on the main page */
+.lb-page .lb-canvas { -webkit-mask-image: linear-gradient(to bottom, transparent 96px, #000 140px); mask-image: linear-gradient(to bottom, transparent 96px, #000 140px); }
+.lb-page:not(.lb-gl) .lb-cols { -webkit-mask-image: linear-gradient(to bottom, transparent 24px, #000 68px, #000 94%, transparent); mask-image: linear-gradient(to bottom, transparent 24px, #000 68px, #000 94%, transparent); }
+
+/* Meta Ads viewer, like the Lookbook page: no dark cover, the ad centred from under the menu
+   to the bottom of the window while the columns part to either side (lookbook.js) */
+.lb-page .lightbox { background: transparent; grid-template-rows: 100dvh; cursor: default; }
+.lb-page .lightbox .lb-close, .lb-page .lightbox .lb-prev, .lb-page .lightbox .lb-next { display: none; }
+.lb-page .lightbox .lb-frame.has-media { height: calc(100dvh - 72px - 24px); align-self: start; margin-top: 80px; }
+.lb-page .lightbox .lb-media { height: calc(100dvh - 72px - 24px); max-width: calc(100vw - 2 * var(--gutter)); border-radius: 12px; object-fit: contain; opacity: 0; transform: scale(.96); transition: opacity .3s ease, transform .4s cubic-bezier(.2, .8, .2, 1); }
+.lb-page .lightbox.is-open .lb-media { opacity: 1; transform: none; transition-delay: .12s; }
+.lb-page .lightbox #lb-name, .lb-page .lightbox #lb-count { color: var(--white); opacity: 0; transition: opacity .3s ease; }
+.lb-page .lightbox.is-open #lb-name, .lb-page .lightbox.is-open #lb-count { opacity: 1; transition-delay: .2s; }
+.lb-viewing .lb-bottom, .lb-viewing .quote-cta { opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+@media (max-width: 760px) {
+  .lb-page .lightbox { grid-template-rows: 1fr 56px; }
+  .lb-page .lightbox .lb-frame.has-media, .lb-page .lightbox .lb-media { height: calc(100dvh - 72px - 56px - 16px); }
+  .lb-page .lightbox .lb-frame.has-media { margin-top: 80px; }
+}
+@media (prefers-reduced-motion: reduce) { .lb-page .lightbox .lb-media, .lb-page .lightbox #lb-name, .lb-page .lightbox #lb-count { transition: none; } }
