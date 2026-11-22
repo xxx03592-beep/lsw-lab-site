@@ -43,12 +43,11 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
 .q-file-error { color: #a2445c; }
 .q-trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
-.q-foot { display: flex; justify-content: flex-end; width: min(595px, 100%); margin: 0 auto; }
+.q-foot { display: flex; justify-content: center; width: min(595px, 100%); margin: 0 auto; }
 .q-foot-end { margin-top: 64px; }
-.q-submit { width: min(295px, 100%); height: 54px; border: 0; border-radius: 16px; background: #e6dfe4; color: #a399a8; font: inherit; font-size: 20px; cursor: pointer; transition: background .25s, color .25s; }
+.q-submit { width: min(295px, 100%); height: 54px; border: 0; border-radius: 16px; background: var(--white); color: #fff; font: inherit; font-size: 20px; cursor: pointer; transition: background .25s, color .25s; }
 .q-submit:disabled { cursor: not-allowed; }
-.q-submit.is-ready { background: var(--white); color: #fff; }
-.q-submit.is-ready:hover { background: #2a2d31; }
+.q-submit:not(:disabled):hover { background: #2a2d31; }
 .q-submit.is-sending { cursor: progress; opacity: .7; }
 .q-sent { width: min(595px, 100%); margin: 20px auto 0; padding: 16px 20px; border-radius: 16px; background: #e6dfe4; font-size: 16px; }
 .q-sent a { text-decoration: underline; text-underline-offset: 3px; }
@@ -58,7 +57,7 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
 
 /* Optional details, always shown, a group of its own like the reference's spaced blocks */
 .q-more { margin-top: 72px; }
-.q-more-title { margin-bottom: 4px; font-size: 15px; font-weight: 400; letter-spacing: 0; line-height: 20px; color: #8d8393; }
+.q-more-title { margin-bottom: 24px; font-size: 15px; font-weight: 400; letter-spacing: 0; line-height: 20px; color: #8d8393; }
 
 /* Success pop-up after sending */
 .q-done { position: fixed; inset: 0; margin: auto; height: fit-content; width: min(440px, calc(100vw - 32px)); /* centred: the site reset zeroes the dialog default margin */ padding: 36px 32px 28px; border: 0; border-radius: 16px; background: #f4f2f7; color: var(--white); text-align: center; box-shadow: 0 24px 70px rgba(16, 18, 20, .25); }
@@ -111,7 +110,7 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
   .q-enough { font-size: 26px; }
   .q-more { margin-top: 56px; }
   .q-files { margin-top: 44px; }
-  .q-foot-end { margin-top: 16px; }
+  .q-foot-end { margin-top: 40px; }
   .q-submit { width: 100%; }
   .q-alt { grid-template-columns: 1fr; gap: 10px; margin-top: 80px; }
   .q-strip { margin-top: 80px; }
