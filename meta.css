@@ -2,6 +2,8 @@
 .mc-page { overflow: hidden; height: 100dvh; }
 .mc-stage { position: fixed; inset: 0; /* full screen: the header sits on the same background */ overflow: hidden; outline: none; cursor: grab; touch-action: none; user-select: none; }
 .mc-stage.is-dragging { cursor: grabbing; }
+/* Lookbook page: no mouse dragging (meta.js), so no grab cursor; cards show they open */
+@media (pointer: fine) { .mc-page .mc-stage, .mc-page .mc-stage.is-dragging { cursor: default; } .mc-page .mc-card { cursor: pointer; } }
 /* Home page: the same gallery as the first screen, in the page flow; vertical swipes still scroll the page */
 .mc-stage.mc-embed { position: relative; inset: auto; margin-top: -72px; height: calc(100svh - var(--announce-h, 0px)); min-height: 592px; touch-action: pan-y; }
 

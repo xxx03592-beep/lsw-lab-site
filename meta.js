@@ -500,6 +500,10 @@ stage.addEventListener('pointerdown', (e) => {
 });
 stage.addEventListener('pointermove', (e) => {
   if (!dragging) return;
+  moved = Math.max(moved, Math.abs(e.clientX - startX));
+  // Lookbook page: a mouse drag doesn't move the row (wheel, keys and clicks do);
+  // touch swipes still do, since phones have no other way to move it
+  if (!embedded && e.pointerType === 'mouse') return;
   const now = performance.now();
   const dtMs = Math.max(now - lastT, 1);
   const v = ((lastX - e.clientX) * 1.1 * 1000) / dtMs;
