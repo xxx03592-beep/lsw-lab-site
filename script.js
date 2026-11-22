@@ -103,3 +103,25 @@ function tint() {
 }
 addEventListener('scroll', () => { if (!tintQueued) { tintQueued = true; requestAnimationFrame(tint); } }, { passive: true });
 tint();
+
+// What we make: a small preview of each linked page follows the cursor over its card.
+// Images load the first time the cursor enters the section; the preview sits beside the cursor,
+// flipping left/up near the window edge so it never runs off screen.
+document.querySelectorAll('.lf-card--link').forEach((card) => {
+  const peek = card.querySelector('.lf-peek');
+  if (!peek) return;
+  const load = () => peek.querySelectorAll('img[data-src]').forEach((img) => { img.src = img.dataset.src; img.removeAttribute('data-src'); });
+  (card.closest('.lf-sec') || card).addEventListener('pointerenter', load, { once: true });
+  card.addEventListener('pointermove', (e) => {
+    const r = card.getBoundingClientRect();
+    const w = peek.offsetWidth, h = peek.offsetHeight, gap = 18;
+    const left = e.clientX + gap + w > innerWidth - 8;
+    const up = e.clientY + gap + h > innerHeight - 8;
+    const x = e.clientX - r.left + (left ? -gap - w : gap);
+    const y = e.clientY - r.top + (up ? -gap - h : gap);
+    peek.style.setProperty('--x', x + 'px');
+    peek.style.setProperty('--y', y + 'px');
+    peek.style.setProperty('--ox', left ? '100%' : '0');
+    peek.style.setProperty('--oy', up ? '100%' : '0');
+  });
+});
