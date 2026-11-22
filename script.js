@@ -117,14 +117,24 @@ if (liveCards.length && matchMedia('(hover: hover) and (pointer: fine)').matches
       const box = card.querySelector('.lf-live');
       const frame = box && box.querySelector('iframe[data-src]');
       if (!frame) return;
-      frame.addEventListener('load', () => {
-        try { frame.contentDocument.documentElement.classList.add('is-embed'); } // styles.css hides its header
-        catch (e) { /* not same-origin: show the page as it is */ }
+      // Show it once the page's layout is ready (DOMContentLoaded), not after every image has loaded:
+      // the Meta Ads page has dozens of images, so its load event can take many seconds
+      let done = false;
+      const ready = () => {
+        let doc;
+        try { doc = frame.contentDocument; } catch (e) { doc = null; } // not same-origin: show the page as it is
+        if (doc && (doc.URL === 'about:blank' || doc.readyState === 'loading')) return false;
+        if (done) return true;
+        done = true;
+        if (doc) doc.documentElement.classList.add('is-embed'); // styles.css hides its header
         box.classList.add('is-ready');
         // The embedded pages focus their slider on load; hand focus back so arrow keys stay on this page
         if (document.activeElement === frame) frame.blur();
         setTimeout(() => { if (document.activeElement === frame) frame.blur(); }, 500);
-      }, { once: true });
+        return true;
+      };
+      const poll = setInterval(() => { if (ready()) clearInterval(poll); }, 100);
+      frame.addEventListener('load', () => { clearInterval(poll); ready(); if (document.activeElement === frame) frame.blur(); }, { once: true });
       frame.src = frame.dataset.src;
       frame.removeAttribute('data-src');
     });
