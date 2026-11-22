@@ -90,6 +90,16 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
 .q-more { margin-top: 72px; }
 .q-more-title { margin-bottom: 24px; font-size: 15px; font-weight: 400; letter-spacing: 0; line-height: 20px; color: #8d8393; }
 
+/* Small text set like the main page's menu, buttons and eyebrows: KHTekaMono capitals.
+   Typed answers, placeholders and the "That's all we need" line stay in KHTeka */
+.q-label, .q-more-title, .q-chip span, .q-budget-value, .q-ticks span, .q-attach-btn, .q-submit, .q-alt-label, .q-done-close {
+  font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em;
+}
+.q-label, .q-more-title, .q-alt-label { font-size: 13px; line-height: 20px; }
+.q-chip span, .q-budget-value { font-size: 13px; line-height: 20px; }
+.q-ticks span { font-size: 11px; }
+.q-attach-btn, .q-submit { font-size: 13px; font-weight: 500; }
+
 /* Success pop-up after sending */
 .q-done { position: fixed; inset: 0; margin: auto; height: fit-content; width: min(440px, calc(100vw - 32px)); /* centred: the site reset zeroes the dialog default margin */ padding: 36px 32px 28px; border: 0; border-radius: 16px; background: #f4f2f7; color: var(--white); text-align: center; box-shadow: 0 24px 70px rgba(16, 18, 20, .25); }
 .q-done::backdrop { background: rgba(16, 18, 20, .35); backdrop-filter: blur(4px); }
@@ -136,7 +146,7 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
   .q-tab { padding: 12px 18px 13px; gap: 12px; }
   .q-row { grid-template-columns: 1fr; gap: 6px; padding: 18px 0 6px; }
   fieldset.q-row > legend { float: none; padding-bottom: 10px; }
-  .q-label { font-size: 15px; line-height: 20px; padding: 0; }
+  .q-label { font-size: 12px; line-height: 18px; padding: 0; }
   .q-input { font-size: 16px; line-height: 20px; } /* 16px+: phones don't zoom in on focus */
   .q-enough { font-size: 26px; }
   .q-more { margin-top: 56px; }
