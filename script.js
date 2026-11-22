@@ -104,24 +104,29 @@ function tint() {
 addEventListener('scroll', () => { if (!tintQueued) { tintQueued = true; requestAnimationFrame(tint); } }, { passive: true });
 tint();
 
-// What we make: a small preview of each linked page follows the cursor over its card.
-// Images load the first time the cursor enters the section; the preview sits beside the cursor,
-// flipping left/up near the window edge so it never runs off screen.
-document.querySelectorAll('.lf-card--link').forEach((card) => {
-  const peek = card.querySelector('.lf-peek');
-  if (!peek) return;
-  const load = () => peek.querySelectorAll('img[data-src]').forEach((img) => { img.src = img.dataset.src; img.removeAttribute('data-src'); });
-  (card.closest('.lf-sec') || card).addEventListener('pointerenter', load, { once: true });
-  card.addEventListener('pointermove', (e) => {
-    const r = card.getBoundingClientRect();
-    const w = peek.offsetWidth, h = peek.offsetHeight, gap = 18;
-    const left = e.clientX + gap + w > innerWidth - 8;
-    const up = e.clientY + gap + h > innerHeight - 8;
-    const x = e.clientX - r.left + (left ? -gap - w : gap);
-    const y = e.clientY - r.top + (up ? -gap - h : gap);
-    peek.style.setProperty('--x', x + 'px');
-    peek.style.setProperty('--y', y + 'px');
-    peek.style.setProperty('--ox', left ? '100%' : '0');
-    peek.style.setProperty('--oy', up ? '100%' : '0');
-  });
-});
+// What we make: on hover each card shows a live, scaled-down view of the page it links to.
+// The real page loads in an iframe the first time the cursor enters the section (never on touch screens),
+// laid out at 1440px wide and scaled to the card; its header is hidden so the content fills the card.
+const liveCards = [...document.querySelectorAll('.lf-card--link')];
+const fitLive = () => liveCards.forEach((card) => card.style.setProperty('--s', card.clientWidth / 1440));
+if (liveCards.length && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  fitLive();
+  addEventListener('resize', fitLive);
+  liveCards[0].closest('.lf-sec').addEventListener('pointerenter', () => {
+    liveCards.forEach((card) => {
+      const box = card.querySelector('.lf-live');
+      const frame = box && box.querySelector('iframe[data-src]');
+      if (!frame) return;
+      frame.addEventListener('load', () => {
+        try { frame.contentDocument.documentElement.classList.add('is-embed'); } // styles.css hides its header
+        catch (e) { /* not same-origin: show the page as it is */ }
+        box.classList.add('is-ready');
+        // The embedded pages focus their slider on load; hand focus back so arrow keys stay on this page
+        if (document.activeElement === frame) frame.blur();
+        setTimeout(() => { if (document.activeElement === frame) frame.blur(); }, 500);
+      }, { once: true });
+      frame.src = frame.dataset.src;
+      frame.removeAttribute('data-src');
+    });
+  }, { once: true });
+}

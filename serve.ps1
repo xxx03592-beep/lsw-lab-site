@@ -9,13 +9,13 @@ Write-Host "Serving $root at http://localhost:$Port/"
 # Only these file types are served; anything else (this script, backups, dotfiles) is a 404
 $types = @{ '.html' = 'text/html; charset=utf-8'; '.css' = 'text/css; charset=utf-8'; '.js' = 'text/javascript; charset=utf-8'; '.svg' = 'image/svg+xml'; '.png' = 'image/png'; '.jpg' = 'image/jpeg'; '.webp' = 'image/webp'; '.ico' = 'image/x-icon'; '.mp4' = 'video/mp4'; '.txt' = 'text/plain; charset=utf-8'; '.xml' = 'application/xml; charset=utf-8'; '.woff' = 'font/woff'; '.woff2' = 'font/woff2'; '.ttf' = 'font/ttf'; '.otf' = 'font/otf' }
 # Same policy as the <meta> tags in the pages, plus the parts a <meta> tag can't set
-$csp = "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self'; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+$csp = "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self'; style-src-attr 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
 while ($listener.IsListening) {
   $ctx = $listener.GetContext()
   $res = $ctx.Response
   $res.Headers['X-Content-Type-Options'] = 'nosniff'
   $res.Headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-  $res.Headers['X-Frame-Options'] = 'DENY'
+  $res.Headers['X-Frame-Options'] = 'SAMEORIGIN'  # the home page shows Lookbook and Meta Ads in iframes
   $res.Headers['Permissions-Policy'] = 'camera=(), microphone=(), geolocation=()'
   if ($ctx.Request.HttpMethod -notin @('GET', 'HEAD')) {
     $res.StatusCode = 405
