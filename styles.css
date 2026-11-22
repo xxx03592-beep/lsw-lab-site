@@ -396,3 +396,15 @@ section[id] { scroll-margin-top: 72px; } /* menu links land below the sticky hea
 p, li, figcaption, summary, blockquote, label, legend { text-wrap: pretty; }
 h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-enough, .q-done-title, .q-done-text,
 .mc-title, .lb-cur-title, .tag, .ctr-note, .faq p, .faq summary, .play-step p, .compare li { text-wrap: balance; }
+
+/* Zoom view (zoom-view.js): one photo alone on the page gradient; wheel/pinch zooms, drag moves */
+.zoom-view { position: fixed; inset: 0; z-index: 300; overflow: hidden; cursor: zoom-in; touch-action: none; user-select: none; outline: none; }
+.zoom-view[hidden] { display: none; }
+.zoom-view::before { content: ""; position: absolute; inset: 0; background: var(--page-bg); opacity: 0; transition: opacity .45s ease; }
+.zoom-view.is-open::before { opacity: 1; }
+.zoom-view img { position: absolute; max-width: none; object-fit: cover; transform-origin: 0 0; border-radius: 10px; -webkit-user-drag: none; will-change: transform; }
+.zoom-view.is-open img { border-radius: 0; }
+.zoom-view.is-moving img { transition: left .5s cubic-bezier(.2, .75, .2, 1), top .5s cubic-bezier(.2, .75, .2, 1), width .5s cubic-bezier(.2, .75, .2, 1), height .5s cubic-bezier(.2, .75, .2, 1), border-radius .5s ease, transform .5s cubic-bezier(.2, .75, .2, 1); }
+.zoom-view.is-zoomed { cursor: grab; }
+.zoom-view.is-dragging { cursor: grabbing; }
+@media (prefers-reduced-motion: reduce) { .zoom-view::before, .zoom-view.is-moving img { transition: none; } }

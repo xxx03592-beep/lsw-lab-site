@@ -542,10 +542,22 @@ if (startQ.has('col')) {
 box.querySelector('.lb-close').addEventListener('click', close);
 box.querySelector('.lb-prev').addEventListener('click', () => stepBox(-1));
 box.querySelector('.lb-next').addEventListener('click', () => stepBox(1));
-// A click anywhere but the ad itself closes the viewer (like the Lookbook page)
-box.addEventListener('click', (e) => { if (!e.target.closest('.lb-media')) close(); });
+// A click on the picture opens it alone in the zoom view (zoom-view.js: wheel zooms, drag moves);
+// a click anywhere but the ad closes the viewer (like the Lookbook page)
+box.addEventListener('click', (e) => {
+  if (e.target === boxImg && !boxImg.hidden && window.ZoomView) {
+    const r = boxImg.getBoundingClientRect();
+    const a = boxImg.naturalWidth ? boxImg.naturalWidth / boxImg.naturalHeight : r.width / r.height;
+    let w = r.width, h = r.height; // the picture inside its contain box
+    if (w / h > a) w = h * a; else h = w / a;
+    const rect = { x: r.left + (r.width - w) / 2, y: r.top + (r.height - h) / 2, w, h };
+    ZoomView.open(boxImg, rect);
+    return;
+  }
+  if (!e.target.closest('.lb-media')) close();
+});
 document.addEventListener('keydown', (e) => {
-  if (box.hidden) return;
+  if (box.hidden || (window.ZoomView && ZoomView.isOpen())) return;
   if (e.key === 'Escape') close();
   if (e.key === 'ArrowLeft') stepBox(-1);
   if (e.key === 'ArrowRight') stepBox(1);

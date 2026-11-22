@@ -170,3 +170,5 @@
   .lb-page .lightbox .lb-frame.has-media { margin-top: 80px; }
 }
 @media (prefers-reduced-motion: reduce) { .lb-page .lightbox .lb-media, .lb-page .lightbox #lb-name, .lb-page .lightbox #lb-count { transition: none; } }
+
+.lb-page .lightbox img.lb-media { cursor: zoom-in; } /* a click opens the zoom view */

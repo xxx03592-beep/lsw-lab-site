@@ -576,13 +576,10 @@ const dCount = el('p', 'mcd-count mono');
 dView.append(dList);
 detail.append(dView, dCount);
 
-// Full screen: a second tap on a photo grows it from its place in the column to the whole
-// window height (whole picture, uncropped); any tap brings it back
-const dFull = el('div', 'mcd-full', { hidden: true });
-const dFullImg = el('img', '', { alt: '', draggable: false });
-dFull.append(dFullImg);
-detail.append(dFull);
-let fullOpen = false, fullAt = 0, fullTimer = 0;
+// Zoom: a second tap on a photo opens it alone in the shared zoom view (zoom-view.js), where
+// wheel/pinch zooms and a drag moves it; a tap or Esc sends it back into the column
+let fullAt = 0;
+const fullOpen = () => !!(window.ZoomView && ZoomView.isOpen());
 // Where a photo's picture actually shows inside its box (the box letterboxes wide photos)
 function pictureRect(img) {
   const r = img.getBoundingClientRect();
@@ -591,37 +588,14 @@ function pictureRect(img) {
   if (w / h > a) w = h * a; else h = w / a;
   return { x: r.left + (r.width - w) / 2, y: r.top + (r.height - h) / 2, w, h };
 }
-const fullFrom = () => (dList.children[fullAt] ? pictureRect(dList.children[fullAt]) : { x: innerWidth / 2 - colW / 2, y: colTop, w: colW, h: detailH });
-function placeFull(b) { Object.assign(dFullImg.style, { left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px' }); }
 function openFull(n) {
   const src = dList.children[n];
-  if (!src) return;
-  fullOpen = true;
+  if (!src || !window.ZoomView) return;
   fullAt = n;
   dVel = 0;
   dTarget = n * dStep(); // settle the column on this photo underneath
-  const aspect = src.naturalWidth ? src.naturalWidth / src.naturalHeight : ASPECT;
-  let h = innerHeight, w = h * aspect;
-  if (w > innerWidth) { w = innerWidth; h = w / aspect; }
-  clearTimeout(fullTimer);
-  dFullImg.src = src.currentSrc || src.src;
-  dFullImg.alt = src.alt;
-  dFull.hidden = false;
-  dFull.classList.remove('is-full');
-  placeFull(fullFrom());
-  void dFull.offsetWidth; // start the transition from the photo's place
-  dFull.classList.add('is-full');
-  placeFull({ x: (innerWidth - w) / 2, y: (innerHeight - h) / 2, w, h });
+  ZoomView.open(src, pictureRect(src), { getRect: () => pictureRect(dList.children[fullAt] || src) });
 }
-function closeFull(instant) {
-  if (!fullOpen) return;
-  fullOpen = false;
-  dFull.classList.remove('is-full');
-  placeFull(fullFrom());
-  clearTimeout(fullTimer);
-  fullTimer = setTimeout(() => { dFull.hidden = true; }, instant || reduceMotion ? 0 : 520);
-}
-dFull.addEventListener('click', () => closeFull());
 if (!gl) detail.classList.add('no-gl');
 document.body.append(detail);
 
@@ -669,7 +643,7 @@ function resetColumn() { dPos = 0; dVel = 0; dTarget = null; }
 
 detail.addEventListener('wheel', (e) => {
   e.preventDefault();
-  if (fullOpen) return;
+  if (fullOpen()) return;
   const d = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
   dVel = clamp(dVel + (e.deltaMode === 1 ? d * 30 : d) * WHEEL_GAIN, -MAX_SPEED, MAX_SPEED);
   dTarget = null;
@@ -808,7 +782,7 @@ function switchDetail(k) {
 }
 function closeDetail() {
   if (!detailOpen) return;
-  if (fullOpen) closeFull(true);
+  if (fullOpen()) ZoomView.close(true);
   detailOpen = false;
   columnReady = false;
   clearTimeout(readyTimer);
@@ -825,7 +799,7 @@ function closeDetail() {
 }
 document.addEventListener('keydown', (e) => {
   if (!detailOpen) return;
-  if (fullOpen) { if (e.key === 'Escape' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); closeFull(); } return; }
+  if (fullOpen()) return; // the zoom view handles its own keys
   if (e.key === 'Escape') closeDetail();
   const down = ['ArrowDown', 'PageDown', ' '].includes(e.key), up = ['ArrowUp', 'PageUp'].includes(e.key);
   if (down || up) { e.preventDefault(); dTarget = clamp(dIndex() + (down ? 1 : -1), 0, dLast()) * dStep(); dVel = 0; }
