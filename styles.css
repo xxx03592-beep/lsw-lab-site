@@ -390,3 +390,9 @@ section[id] { scroll-margin-top: 72px; } /* menu links land below the sticky hea
 .btn, .mono-link { font-weight: 500; }
 .announce p { line-height: 1.6; }
 @media (max-width: 760px) { .nav a { font-size: 13px; } } /* the opened phone menu keeps its larger rows */
+
+/* Line breaks, every page: paragraphs never leave a single word on their last line, and
+   headings and short centred lines split into even lines instead of a long line and a stub */
+p, li, figcaption, summary, blockquote, label, legend { text-wrap: pretty; }
+h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-enough, .q-done-title, .q-done-text,
+.mc-title, .lb-cur-title, .tag, .ctr-note, .faq p, .faq summary, .play-step p, .compare li { text-wrap: balance; }
