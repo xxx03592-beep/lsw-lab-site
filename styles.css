@@ -397,6 +397,122 @@ p, li, figcaption, summary, blockquote, label, legend { text-wrap: pretty; }
 h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-enough, .q-done-title, .q-done-text,
 .mc-title, .lb-cur-title, .tag, .ctr-note, .faq p, .faq summary, .play-step p, .compare li { text-wrap: balance; }
 
+/* Home sections from "What we make" to the FAQ (.lf-sec): transparent so the page gradient shows, split by thin lines */
+.lf-sec {
+  --ink: #101214;
+  --ink-70: #3a3940;
+  --ink-55: #4a4850;
+  --line: rgba(16, 18, 20, 0.2);
+  --line-soft: rgba(16, 18, 20, 0.15);
+  --lav: #d8d4e0;
+  --card-glass: rgba(255, 255, 255, 0.45);
+  background: transparent;
+  color: var(--ink);
+  font-family: KHTeka, system-ui, -apple-system, sans-serif;
+  border-top: 1px solid var(--line);
+}
+.lf-sec * { box-sizing: border-box; }
+.lf-sec__inner {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 112px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.lf-sec__inner--split { flex-direction: row; flex-wrap: wrap; gap: 48px; }
+.lf-sec__head { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+/* flex-basis only side by side; in a column it would become a 340px-tall gap */
+.lf-sec__inner--split > .lf-sec__head { flex: 1 1 340px; }
+.lf-sec__body { flex: 2 1 560px; min-width: 0; }
+
+.lf-label {
+  margin: 0;
+  font-family: KHTekaMono, KHTeka, ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-55);
+}
+.lf-h2 {
+  margin: 0;
+  font-weight: 400;
+  font-size: clamp(32px, 3.8vw, 52px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.lf-h3 { margin: 0; font-weight: 400; font-size: 34px; line-height: 1.1; letter-spacing: -0.02em; }
+.lf-h4 { margin: 0; font-size: 18px; font-weight: 500; letter-spacing: 0.01em; text-transform: uppercase; }
+.lf-text { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink-70); }
+
+.lf-grid { display: grid; gap: 16px; }
+.lf-grid--2 { grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); }
+.lf-grid--3 { grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr)); }
+.lf-grid--4 { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+
+.lf-card { padding: 32px; display: flex; flex-direction: column; gap: 18px; }
+.lf-card--white { background: #fff; }
+.lf-card--glass { background: var(--card-glass); border: 1px solid var(--line-soft); }
+.lf-card--dark { background: var(--ink); color: #fff; }
+.lf-card--dark .lf-label,
+.lf-card--dark .lf-text { color: var(--lav); }
+
+.lf-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; font-size: 15px; }
+.lf-list--ruled { border-top: 1px solid #e4e1ea; }
+.lf-list--ruled li { padding: 12px 0; border-bottom: 1px solid #e4e1ea; }
+.lf-list--ruled li:last-child { border-bottom: 0; }
+.lf-list--plain { gap: 10px; color: var(--ink-70); flex-grow: 1; }
+.lf-card--dark .lf-list--plain { color: var(--lav); }
+
+.lf-price { margin: 0; font-weight: 400; font-size: 40px; letter-spacing: -0.03em; }
+.lf-price small { font-size: 16px; color: var(--lav); }
+
+.lf-btn {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  padding: 16px;
+  background: var(--ink);
+  color: #fff;
+  font-family: KHTekaMono, KHTeka, ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.lf-btn:hover { opacity: 0.85; }
+.lf-btn--light { background: var(--lav); color: var(--ink); }
+
+.lf-fit { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--ink); }
+.lf-fit li {
+  display: flex; gap: 28px; padding: 26px 0;
+  border-bottom: 1px solid rgba(16, 18, 20, 0.25);
+  font-size: 20px; line-height: 1.4;
+}
+.lf-fit span:first-child {
+  font-family: KHTekaMono, KHTeka, ui-monospace, Menlo, monospace;
+  font-size: 12px; padding-top: 6px;
+}
+
+.lf-about { display: flex; flex-wrap: wrap; gap: 56px; align-items: center; }
+.lf-about__photo {
+  flex: 1 1 300px; min-width: 0; max-width: 400px; aspect-ratio: 4 / 5;
+  border-radius: 10px; overflow: hidden; background: #b9b3c6;
+}
+.lf-about__photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lf-about__text { flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+.lf-quote { margin: 0; font-weight: 400; font-size: clamp(28px, 3vw, 40px); line-height: 1.12; letter-spacing: -0.02em; }
+
+.lf-faq { border-top: 1px solid var(--ink); }
+.lf-faq details { border-bottom: 1px solid rgba(16, 18, 20, 0.25); padding: 22px 0; }
+.lf-faq summary { cursor: pointer; list-style: none; font-size: 18px; }
+.lf-faq summary::-webkit-details-marker { display: none; }
+.lf-faq details p { margin: 14px 0 0; }
+
+@media (max-width: 640px) {
+  .lf-sec__inner { padding: 80px 20px; }
+  .lf-fit li { font-size: 17px; gap: 18px; }
+}
+
 /* Zoom view (zoom-view.js): one photo alone on the page gradient; wheel/pinch zooms, drag moves */
 .zoom-view { position: fixed; inset: 0; z-index: 300; overflow: hidden; cursor: zoom-in; touch-action: none; user-select: none; outline: none; }
 .zoom-view[hidden] { display: none; }
