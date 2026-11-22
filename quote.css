@@ -16,7 +16,7 @@ fieldset.q-row > legend { float: left; } /* legends ignore grid; floated they li
 .q-label { display: block; font-size: 15px; line-height: 20px; padding: 0 0 4px; }
 .q-input { width: 100%; min-width: 0; border: 0; padding: 0 0 4px; background: none; color: var(--white); font: inherit; font-size: 15px; line-height: 20px; letter-spacing: 0; outline: none; resize: none; }
 .q-input::placeholder { color: #a399a8; }
-textarea.q-input { min-height: 40px; field-sizing: content; }
+textarea.q-input { min-height: 20px; field-sizing: content; } /* one line like the other rows; grows as they type */
 
 /* Choice chips: lilac, black once chosen */
 .q-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-bottom: 2px; }
@@ -28,7 +28,7 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
 .q-chip input:focus-visible + span { outline: 2px solid var(--white); outline-offset: 2px; }
 .q-or { margin: 0 10px; color: var(--white); font-size: 10px; }
 
-/* Budget slider: 1k–10k in 1k steps, numbers under the track. Untouched it reads
+/* Budget slider: 1k–10k in 1k steps. Untouched it reads
    "Slide to choose" with a pale thumb; the first touch picks a value */
 .q-budget { padding-bottom: 2px; }
 .q-budget-head { display: flex; justify-content: flex-end; margin-bottom: 6px; }
@@ -45,19 +45,6 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
 .q-range:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--white); outline-offset: 3px; }
 .q-budget.is-untouched .q-range::-webkit-slider-thumb { background: #aea4b3; }
 .q-budget.is-untouched .q-range::-moz-range-thumb { background: #aea4b3; }
-.q-ticks { position: relative; height: 20px; margin-top: 8px; }
-.q-ticks span { position: absolute; top: 0; transform: translateX(-50%); font-size: 13px; line-height: 20px; color: #8d8393; white-space: nowrap; }
-.q-ticks span:nth-child(1) { left: calc(9px + (100% - 18px) * 0 / 9); }
-.q-ticks span:nth-child(2) { left: calc(9px + (100% - 18px) * 1 / 9); }
-.q-ticks span:nth-child(3) { left: calc(9px + (100% - 18px) * 2 / 9); }
-.q-ticks span:nth-child(4) { left: calc(9px + (100% - 18px) * 3 / 9); }
-.q-ticks span:nth-child(5) { left: calc(9px + (100% - 18px) * 4 / 9); }
-.q-ticks span:nth-child(6) { left: calc(9px + (100% - 18px) * 5 / 9); }
-.q-ticks span:nth-child(7) { left: calc(9px + (100% - 18px) * 6 / 9); }
-.q-ticks span:nth-child(8) { left: calc(9px + (100% - 18px) * 7 / 9); }
-.q-ticks span:nth-child(9) { left: calc(9px + (100% - 18px) * 8 / 9); }
-.q-ticks span:nth-child(10) { left: calc(9px + (100% - 18px) * 9 / 9); }
-.q-ticks span.is-on { color: var(--white); }
 
 /* Buttons sit in a centred 595px column: Attach file full width, Submit on its right half */
 .q-files { width: min(595px, 100%); margin: 64px auto 0; }
@@ -92,12 +79,10 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
 
 /* Small text set like the main page's menu, buttons and eyebrows: KHTekaMono capitals.
    Typed answers, placeholders and the "That's all we need" line stay in KHTeka */
-.q-label, .q-more-title, .q-chip span, .q-budget-value, .q-ticks span, .q-attach-btn, .q-submit, .q-alt-label, .q-done-close {
-  font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em;
+.q-label, .q-more-title, .q-chip span, .q-budget-value,   font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em;
 }
 .q-label, .q-more-title, .q-alt-label { font-size: 13px; line-height: 20px; }
 .q-chip span, .q-budget-value { font-size: 13px; line-height: 20px; }
-.q-ticks span { font-size: 11px; }
 .q-attach-btn, .q-submit { font-size: 13px; font-weight: 500; }
 
 /* Success pop-up after sending */
@@ -134,13 +119,14 @@ textarea.q-input { min-height: 40px; field-sizing: content; }
 .q-hand-s { stroke: #d2384f; stroke-width: 1.2; }
 .q-clock-pin { fill: #d2384f; }
 .q-photos { flex: 1; min-width: 0; overflow: hidden; -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); }
-.q-photos-track { display: flex; width: max-content; animation: marquee 60s linear infinite; }
-.q-photos:hover .q-photos-track { animation-play-state: paused; }
+.q-photos { cursor: grab; touch-action: pan-y; user-select: none; }
+.q-photos.is-dragging { cursor: grabbing; }
+.q-photos-track { display: flex; width: max-content; will-change: transform; } /* moved by quote.js: drifts, and follows a drag */
 .q-photos a { flex: none; display: block; margin-right: 10px; /* margin, not gap, so -50% loops seamlessly */ width: clamp(140px, 14vw, 210px); aspect-ratio: 2 / 3; border-radius: 14px; overflow: hidden; background: #cfc9d6; }
 .q-photos img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s ease; }
 .q-photos a:hover img { transform: scale(1.05); }
 
-@media (prefers-reduced-motion: reduce) { .q-tab-arrow, .q-photos-track { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .q-tab-arrow { animation: none; } }
 
 @media (max-width: 760px) {
   .q-tab { padding: 12px 18px 13px; gap: 12px; }

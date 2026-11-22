@@ -38,7 +38,6 @@ const budget = document.getElementById('q-budget');
 const range = document.getElementById('q-budget-range');
 const budgetOut = document.getElementById('q-budget-value');
 const budgetField = document.getElementById('q-budget-field');
-const budgetTicks = [...budget.querySelectorAll('.q-ticks span')];
 function showBudget(touched) {
   const k = Number(range.value);
   range.style.setProperty('--fill', touched ? ((k - 1) / 9) * 100 + '%' : '0%');
@@ -46,7 +45,6 @@ function showBudget(touched) {
   budgetOut.textContent = touched ? `$${k}k` : 'Slide to choose';
   range.setAttribute('aria-valuetext', touched ? `${k} thousand dollars` : 'Not chosen yet');
   budgetField.value = touched ? `$${k}k` : '';
-  budgetTicks.forEach((t, i) => t.classList.toggle('is-on', touched && i + 1 === k));
 }
 const touchBudget = () => { showBudget(true); check(); };
 range.addEventListener('input', touchBudget);
@@ -193,16 +191,64 @@ function tick() {
 tick();
 setInterval(tick, 1000);
 
-// Strip of lookbook covers (twice, so the loop is seamless); each opens the Lookbook page
+// Strip of lookbook covers (twice, so the loop is seamless); each opens the Lookbook page.
+// It drifts left on its own; grab it (mouse or finger) to pull it either way, and a fling
+// keeps it gliding for a moment. A drag never counts as a click on a photo.
 const track = document.getElementById('q-photos');
 if (typeof LOOKBOOK_SETS !== 'undefined') { // a top-level const in site-data.js, not a window property
   const make = (set, i, copy) => {
-    const a = Object.assign(document.createElement('a'), { href: 'lookbook.html' });
+    const a = Object.assign(document.createElement('a'), { href: 'lookbook.html', draggable: false });
     a.setAttribute('aria-label', `${set.brand}: ${set.title}`);
     if (copy) { a.tabIndex = -1; a.setAttribute('aria-hidden', 'true'); }
-    a.append(Object.assign(document.createElement('img'), { src: set.cover, alt: '', loading: 'lazy', decoding: 'async' }));
+    a.append(Object.assign(document.createElement('img'), { src: set.cover, alt: '', loading: 'lazy', decoding: 'async', draggable: false }));
     return a;
   };
   track.append(...LOOKBOOK_SETS.map((s, i) => make(s, i, false)), ...LOOKBOOK_SETS.map((s, i) => make(s, i, true)));
+
+  const strip = track.parentElement;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DRIFT = 30; // px/s
+  let x = 0, vel = 0, dragging = false, hovering = false, startX = 0, startOff = 0, lastX = 0, lastT = 0, moved = 0;
+  let last = performance.now();
+  const wrap = () => { const half = track.scrollWidth / 2; if (half > 0) x = ((x % half) - half) % half; }; // keep x in (-half, 0]
+  function step(now) {
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+    if (!dragging) {
+      if (Math.abs(vel) > 5) { x += vel * dt; vel *= Math.exp(-4 * dt); } // glide after a fling
+      else { vel = 0; if (!reduce && !hovering) x -= DRIFT * dt; }
+    }
+    wrap();
+    track.style.transform = `translate3d(${x.toFixed(1)}px, 0, 0)`;
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+
+  strip.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hovering = true; });
+  strip.addEventListener('pointerleave', () => { hovering = false; });
+  strip.addEventListener('pointerdown', (e) => {
+    dragging = true; moved = 0; vel = 0;
+    startX = lastX = e.clientX; startOff = x; lastT = performance.now();
+    strip.setPointerCapture(e.pointerId);
+    strip.classList.add('is-dragging');
+  });
+  strip.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const now = performance.now();
+    vel = vel * 0.6 + (((e.clientX - lastX) * 1000) / Math.max(now - lastT, 1)) * 0.4;
+    lastX = e.clientX; lastT = now;
+    moved = Math.max(moved, Math.abs(e.clientX - startX));
+    x = startOff + (e.clientX - startX);
+  });
+  const end = () => {
+    if (!dragging) return;
+    dragging = false;
+    strip.classList.remove('is-dragging');
+    if (performance.now() - lastT > 80) vel = 0; // held still before letting go: no fling
+  };
+  strip.addEventListener('pointerup', end);
+  strip.addEventListener('pointercancel', end);
+  // After a drag, swallow the click that follows so the photo link doesn't open
+  strip.addEventListener('click', (e) => { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
 }
 })();
