@@ -583,7 +583,15 @@ const dFullImg = el('img', '', { alt: '', draggable: false });
 dFull.append(dFullImg);
 detail.append(dFull);
 let fullOpen = false, fullAt = 0, fullTimer = 0;
-const fullFrom = () => ({ x: innerWidth / 2 - colW / 2, y: colTop + fullAt * dStep() - dPos, w: colW, h: detailH });
+// Where a photo's picture actually shows inside its box (the box letterboxes wide photos)
+function pictureRect(img) {
+  const r = img.getBoundingClientRect();
+  const a = img.naturalWidth ? img.naturalWidth / img.naturalHeight : r.width / (r.height || 1);
+  let w = r.width, h = r.height;
+  if (w / h > a) w = h * a; else h = w / a;
+  return { x: r.left + (r.width - w) / 2, y: r.top + (r.height - h) / 2, w, h };
+}
+const fullFrom = () => (dList.children[fullAt] ? pictureRect(dList.children[fullAt]) : { x: innerWidth / 2 - colW / 2, y: colTop, w: colW, h: detailH });
 function placeFull(b) { Object.assign(dFullImg.style, { left: b.x + 'px', top: b.y + 'px', width: b.w + 'px', height: b.h + 'px' }); }
 function openFull(n) {
   const src = dList.children[n];
@@ -623,8 +631,10 @@ function detailSize() {
   const headerBottom = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--announce-h')) || 0) + (mobile ? 72 : 66);
   colTop = headerBottom + (mobile ? 12 : 16);
   detailH = innerHeight - colTop - (mobile ? 12 : 16);
-  colW = Math.round(Math.min(detailH * ASPECT, innerWidth * (mobile ? 0.72 : 0.6))); // narrow screens: keep room for the previews
-  detailH = Math.round(Math.min(detailH, colW / ASPECT));
+  // The column is as wide as a 4:5 photo at full height: photos keep their own proportions inside it
+  // (narrower ones are simply narrower, wider ones shrink to fit), so nothing is ever cropped
+  colW = Math.round(Math.min(detailH * 0.8, innerWidth * (mobile ? 0.72 : 0.6))); // narrow screens: keep room for the previews
+  detailH = Math.round(Math.min(detailH, colW / 0.8));
   detail.style.setProperty('--mcd-top', colTop + 'px');
   detail.style.setProperty('--mcd-h', detailH + 'px');
   detail.style.setProperty('--mcd-w', colW + 'px');
@@ -712,7 +722,8 @@ function detailClick(e) {
   }
   const along = e.clientY - colTop + dPos; // px down the column
   const n = Math.floor(along / dStep());
-  const onPhoto = Math.abs(e.clientX - innerWidth / 2) < colW / 2 && n >= 0 && n <= dLast() && along - n * dStep() < detailH;
+  const pic = n >= 0 && n <= dLast() && dList.children[n] ? pictureRect(dList.children[n]) : null;
+  const onPhoto = pic && e.clientX >= pic.x && e.clientX <= pic.x + pic.w && e.clientY >= pic.y && e.clientY <= pic.y + pic.h;
   if (onPhoto) openFull(n); else closeDetail();
 }
 

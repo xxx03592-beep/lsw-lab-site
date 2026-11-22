@@ -41,9 +41,10 @@
 .mc-detail.no-gl { background: var(--page-bg); } /* without WebGL there are no previews to show */
 .mcd-view { position: absolute; inset: 0; overflow: hidden; outline: none; cursor: grab; touch-action: none; user-select: none; -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--mcd-top) - 22px), #000 calc(var(--mcd-top) - 2px)); mask-image: linear-gradient(to bottom, transparent calc(var(--mcd-top) - 22px), #000 calc(var(--mcd-top) - 2px)); } /* photos scrolling up fade out under the menu */
 .mcd-view:active { cursor: grabbing; }
-.mcd-list { position: absolute; left: calc(50% - var(--mcd-w) / 2); top: var(--mcd-top); width: var(--mcd-w); display: flex; flex-direction: column; gap: var(--mcd-gap); will-change: transform; }
-/* Every photo in the same box, cropped to fit, never stretched */
-.mcd-list img { display: block; flex: none; width: var(--mcd-w); height: var(--mcd-h); object-fit: cover; border-radius: 10px; background: #cfc9d6; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
+.mcd-list { position: absolute; left: calc(50% - var(--mcd-w) / 2); top: var(--mcd-top); width: var(--mcd-w); display: flex; flex-direction: column; align-items: center; gap: var(--mcd-gap); will-change: transform; }
+/* Every photo at full height in its own proportions, never cropped: narrow ones are narrower,
+   wider ones shrink to the column width (contain) */
+.mcd-list img { display: block; flex: none; width: auto; max-width: var(--mcd-w); height: var(--mcd-h); object-fit: contain; border-radius: 10px; pointer-events: none; opacity: 0; transition: opacity .25s ease; }
 .mc-detail.is-ready .mcd-list img { opacity: 1; transition: opacity .35s ease; }
 .mcd-count { position: absolute; z-index: 6; opacity: 0; transition: opacity .3s ease; }
 .mc-detail.is-open .mcd-count { opacity: 1; transition-delay: .45s; }

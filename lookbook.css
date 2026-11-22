@@ -72,14 +72,14 @@
 /* Vertical columns (Meta Ad Creatives): 4 columns desktop / 2 mobile, each loops vertically */
 .lb-page .lb-section { justify-content: flex-start; padding-bottom: 0; }
 .lb-page .lb-section > .container { position: absolute; }
-.lb-cols { --tile-w: min(calc(min(clamp(660px, 72vw, 1080px), calc((100dvh - 72px - 130px) * 9 / 16)) * 0.392), calc((100vw - 2 * var(--gutter) - 5 * clamp(16px, 3vw, 48px)) / 6)); /* 80% of the earlier size (0.49), never wider than 6 columns allow */ flex: 1; min-height: 0; display: flex; justify-content: center; gap: clamp(16px, 3vw, 48px); overflow: hidden; touch-action: none; -webkit-mask-image: linear-gradient(180deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(180deg, transparent, #000 6%, #000 94%, transparent); }
+.lb-cols { --tile-w: min(calc(min(clamp(660px, 72vw, 1080px), calc((100dvh - 72px - 130px) * 9 / 16)) * 0.4312), calc((100vw - 2 * var(--gutter) - 5 * clamp(10px, 2vw, 32px)) / 6)); /* 10% larger than before (0.392), never wider than 6 columns allow */ flex: 1; min-height: 0; display: flex; justify-content: center; gap: clamp(10px, 2vw, 32px); overflow: hidden; touch-action: none; -webkit-mask-image: linear-gradient(180deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(180deg, transparent, #000 6%, #000 94%, transparent); }
 .lb-col { flex: 0 0 var(--tile-w); }
 .lb-col-track { display: flex; flex-direction: column; will-change: transform; }
-.lb-col-track .tile { aspect-ratio: 9 / 16; border-radius: 10px; width: 100%; margin-bottom: 22px; }
+.lb-col-track .tile { aspect-ratio: 9 / 16; border-radius: 10px; width: 100%; margin-bottom: 14px; }
 @media (max-width: 760px) {
   .lb-top { padding-top: 14px; }
-  .lb-cols { --tile-w: calc((100vw - 2 * var(--gutter) - 5 * 6px) / 6); gap: 6px; } /* all 6 folders side by side */
-  .lb-col-track .tile { margin-bottom: 12px; }
+  .lb-cols { --tile-w: calc((100vw - 2 * var(--gutter) - 5 * 4px) / 6); gap: 4px; } /* all 6 folders side by side */
+  .lb-col-track .tile { margin-bottom: 8px; }
 }
 .lb-page .lb-hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 5; margin: 0; opacity: .6; white-space: nowrap; pointer-events: none; }
 
