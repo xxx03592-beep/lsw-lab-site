@@ -102,41 +102,31 @@
 
 <main>
 
-<!-- Lookbook slider (same gallery as the Lookbook page): drag, swipe or arrow keys -->
-<section class="mc-stage mc-embed" id="mc-stage" tabindex="0" aria-roledescription="carousel" aria-label="Lookbook">
-  <div class="mc-glow" aria-hidden="true"><span></span><span></span><span></span></div>
-  <canvas class="mc-canvas" id="mc-canvas" aria-hidden="true"></canvas>
-  <div class="mc-track" id="mc-track"></div>
-  <div class="mc-bottom">
-    <div class="mc-title-wrap">
-      <p class="mono small" id="mc-cat">6A</p>
-      <p class="mc-title" id="mc-title" aria-live="polite">6A on Beach</p>
-    </div>
-    <div class="mc-progress mono">
-      <span id="mc-index">01</span>
-      <span class="mc-bar"><i id="mc-fill"></i></span>
-      <span id="mc-count">18</span>
-    </div>
-  </div>
-</section>
-
-<!-- Hero -->
-<section class="hero" id="hero">
-  <div class="container hero-grid">
-    <div class="hero-copy">
-      <p class="tag mono">Your CPA climbed again this week. Your ads stayed the same.</p>
-      <h1>Great ads can turn your business around <span class="dim">in a week.</span></h1>
-      <p class="lead">We produce them. Statics, creator content, founder videos and AI video, thousands every month, for growing DTC brands on Meta. Then we run the media buying that scales the winners.</p>
-      <div class="btn-row">
-        <a href="quote.html" class="btn btn-white">Get a quote</a>
-        <a href="meta-ad-creatives.html" class="btn btn-outline">See the ads →</a>
-      </div>
-    </div>
-    <figure class="hero-media">
-      <div class="ph ph-portrait"><button class="play" aria-label="Play video">▶</button></div>
+<!-- Hero: three lookbook covers, then the headline, intro and buttons -->
+<section class="lf-hero" id="hero">
+  <div class="lf-hero__cards">
+    <figure class="lf-hero__card lf-hero__card--left">
+      <figcaption>Rock Festa</figcaption>
+      <img src="images/lookbook/6a-rock-festa/cover.jpg" alt="6A Rock Festa lookbook cover" width="220" height="280">
+    </figure>
+    <figure class="lf-hero__card lf-hero__card--center">
+      <figcaption>6A On Beach</figcaption>
+      <img src="images/lookbook/6a-6a-on-beach/cover.jpg" alt="6A On Beach lookbook cover" width="280" height="360" fetchpriority="high">
+    </figure>
+    <figure class="lf-hero__card lf-hero__card--right">
+      <figcaption>Cool Goth</figcaption>
+      <img src="images/lookbook/6a-cool-goth/cover.jpg" alt="6A Cool Goth lookbook cover" width="220" height="280">
     </figure>
   </div>
-
+  <div class="lf-hero__text">
+    <p class="lf-hero__label">Lookbooks &amp; Meta ad creatives for DTC fashion brands · Seoul</p>
+    <h1 class="lf-hero__h1">Great ads can turn your business around <span>in a week.</span></h1>
+    <p class="lf-hero__lead">We make your lookbook and the Meta ads that sell it: statics and carousels, art-directed in Seoul and produced with AI. New concepts on a fixed schedule, with no photoshoot, no brief to write and no designer to chase.</p>
+    <div class="lf-hero__btns">
+      <a class="lf-hero__btn lf-hero__btn--solid" href="quote.html">Get a quote</a>
+      <a class="lf-hero__btn lf-hero__btn--ghost" href="#services">See the work →</a>
+    </div>
+  </div>
 </section>
 
 <!-- Service ticker: two identical groups so translateX(-50%) loops seamlessly -->
@@ -394,11 +384,6 @@
 </footer>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="lens-shader.js"></script>
-<script src="site-data.js"></script>
 <script src="script.js"></script>
-<script src="zoom-view.js"></script>
-<script src="meta.js"></script>
 </body>
 </html>
