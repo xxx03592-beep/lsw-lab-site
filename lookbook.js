@@ -316,25 +316,25 @@ function placeTiles(now, dt) {
   lanes.forEach((lane) => { fastest = Math.max(fastest, Math.abs(lane.vel)); });
   const raw = reduceMotion ? 0 : Math.pow(Math.min(fastest / 2600, 1), 0.75);
   energy += (raw - energy) * (1 - Math.exp(-(raw > energy ? 8 : 6) * dt));
-  // Viewer open: the ad sits in the middle, columns on each side slide out just far enough
-  // to clear it, and the ad's own column fades away
+  // Viewer open: the ad sits in the middle and the columns split evenly around it, the left
+  // half (in order) sliding left and the right half sliding right, each just far enough to clear
+  // it. The ad's own column stays visible on its side.
   const sw = stageEl.clientWidth, mid = sw / 2;
   const tw = lanes.length ? lanes[0].tiles[0].offsetWidth : 0;
+  const leftCount = Math.ceil(lanes.length / 2);
   let pushL = 0, pushR = 0;
   if (viewEase > 0) {
     const clear = mediaWidth() / 2 + (innerWidth < 760 ? 12 : 32);
-    lanes.forEach((l) => {
-      if (l.k === viewCol || l.cx === undefined) return;
-      if (l.cx < mid) pushL = Math.max(pushL, l.cx + tw / 2 - (mid - clear));
+    lanes.forEach((l, i) => {
+      if (l.cx === undefined) return;
+      if (i < leftCount) pushL = Math.max(pushL, l.cx + tw / 2 - (mid - clear));
       else pushR = Math.max(pushR, mid + clear - (l.cx - tw / 2));
     });
   }
-  lanes.forEach((lane) => {
-    const own = lane.k === viewCol;
-    const shift = own ? 0 : (lane.cx < mid ? -pushL : pushR) * viewEase;
-    const alpha = own ? 1 - viewEase : 1;
+  lanes.forEach((lane, i) => {
+    const shift = (i < leftCount ? -pushL : pushR) * viewEase;
+    const alpha = 1;
     lane.col.style.transform = shift ? `translateX(${shift.toFixed(1)}px)` : '';
-    lane.col.style.opacity = alpha < 1 ? alpha.toFixed(3) : '';
     const laneEnergy = reduceMotion ? 0 : Math.pow(Math.min(Math.abs(lane.vel) / 2600, 1), 0.75);
     const stretch = 1 + 0.1 * laneEnergy; // slight stretch along the motion with speed
     const top = lane.top ?? 0;
