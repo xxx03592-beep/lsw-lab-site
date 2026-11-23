@@ -487,8 +487,8 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 /* What we make: each card links to its page. On hover the card turns into a live, scaled-down view of
    that page (the real page in an iframe, laid out at 1440px wide). script.js loads the iframes when the
    cursor first enters the section and sets --s, the scale that fits 1440px into the card */
-.lf-card--link { position: relative; overflow: hidden; color: inherit; text-decoration: none; transition: transform .45s cubic-bezier(.2, .8, .2, 1), box-shadow .45s ease; }
-.lf-card--link:hover { transform: translateY(-10px); box-shadow: 0 22px 44px rgba(16, 18, 20, .16); }
+.lf-card--link { position: relative; overflow: hidden; color: inherit; text-decoration: none; transition: box-shadow .45s ease; }
+.lf-card--link:hover { box-shadow: 0 22px 44px rgba(16, 18, 20, .16); } /* stays in place */
 .lf-card--link:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
 .lf-card__go { margin-top: auto; color: var(--ink); }
 .lf-live { display: none; }
@@ -502,6 +502,7 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
     position: absolute; left: 50%; top: 50%; width: 1440px; height: calc(100% / var(--s, .45));
     border: 0; transform: translate(-50%, -50%) scale(calc(var(--s, .45) * var(--zoom, 1))); transform-origin: 50% 50%;
   }
+  .lf-live::after { content: ""; position: absolute; inset: 0; background: rgba(16, 18, 20, .45); } /* dims the page so the title reads */
   .lf-live__title {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 1; margin: 0;
     font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400; font-size: clamp(32px, 3.8vw, 52px);
@@ -515,7 +516,8 @@ html.is-embed .announce, html.is-embed .header { display: none !important; }
 html.is-embed { scrollbar-width: none; }
 html.is-embed::-webkit-scrollbar { display: none; }
 html.is-embed .mc-bottom, html.is-embed .mc-hint, html.is-embed .lb-bottom, html.is-embed .quote-cta { visibility: hidden !important; } /* no title, counter or button; hidden, not removed, because meta.js sizes the cards from the title block */
-html.is-embed .lb-page main { padding-top: 0; } /* the 72px kept for the hidden header would leave a gap at the top */
+html.is-embed .lb-page main { padding-top: 0; }
+html.is-embed .lb-page .lb-canvas, html.is-embed .lb-page .lb-cols { -webkit-mask-image: none !important; mask-image: none !important; } /* no fade at the top, which was there for the header */ /* the 72px kept for the hidden header would leave a gap at the top */
 
 /* Process cards on hover (they stay in place): a shadow appears, the fill turns solid (white, or a lighter charcoal for
    the dark card) and a 3px line draws across the top from the left */
