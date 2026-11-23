@@ -490,7 +490,7 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 .lf-card--link { position: relative; overflow: hidden; color: inherit; text-decoration: none; transition: box-shadow .45s ease; }
 .lf-card--link:hover { box-shadow: 0 22px 44px rgba(16, 18, 20, .16); } /* stays in place */
 .lf-card--link:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
-.lf-card__go { margin-top: auto; color: var(--ink); }
+.lf-card__go { margin-top: auto; align-self: flex-start; padding: 16px 22px; background: #101214; color: #fff; } /* black box, like the hero Get a quote */
 .lf-live { display: none; }
 @media (hover: hover) and (pointer: fine) {
   .lf-live {
