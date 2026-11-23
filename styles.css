@@ -517,7 +517,7 @@ html.is-embed::-webkit-scrollbar { display: none; }
 #process .lf-card::after { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--ink); transform: scaleX(0); transform-origin: left; transition: transform .5s ease; }
 #process .lf-card--dark::before { background: #34313b; }
 #process .lf-card--dark::after { background: var(--lav); }
-#process .lf-card--dark:hover { box-shadow: 0 22px 44px rgba(16, 18, 20, .3); }
+#process .lf-card--dark:hover { box-shadow: 0 22px 44px rgba(255, 255, 255, .7); } /* white glow behind the dark card */
 #process .lf-card:hover::before { opacity: 1; }
 #process .lf-card:hover::after { transform: scaleX(1); }
 #process .lf-card > * { position: relative; }
