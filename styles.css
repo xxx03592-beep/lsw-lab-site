@@ -331,11 +331,11 @@ blockquote { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; letter-spac
 }
 
 /* Service ticker (replaces the brand marquee) */
-.ticker { position: relative; overflow: hidden; border-top: 1px solid var(--line); padding: 12px 0; }
+.ticker { position: relative; overflow: hidden; border-top: 1px solid #101214; padding: 12px 0; background: #101214; } /* inverted: black band, white text */
 .ticker-track { display: flex; width: max-content; white-space: nowrap; animation: marquee 35s linear infinite; }
-.ticker-group { display: inline-flex; align-items: center; gap: 32px; padding-right: 32px; font-family: var(--mono); font-weight: 400; font-size: 10px; letter-spacing: .25em; text-transform: uppercase; color: rgba(16, 18, 20, .7); }
+.ticker-group { display: inline-flex; align-items: center; gap: 32px; padding-right: 32px; font-family: var(--mono); font-weight: 400; font-size: 10px; letter-spacing: .25em; text-transform: uppercase; color: #fff; }
 .ticker-group > span { display: inline-flex; align-items: center; gap: 32px; }
-.ticker-group i { font-style: normal; color: var(--white); }
+.ticker-group i { font-style: normal; color: #fff; }
 
 /* Process / playbook: 3 steps in a hairline grid, then a one-line CTA strip */
 .playbook { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 48px; border-top: 1px solid var(--line); border-left: 1px solid var(--line); counter-reset: none; }
@@ -413,7 +413,11 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 .lf-hero__h1 { margin: 0; font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400; font-size: clamp(34px, 3.9vw, 54px); line-height: 1.05; letter-spacing: -0.03em; text-wrap: wrap; }
 .lf-hero__h1 span { color: #615D6A; }
 @media (min-width: 900px) { .lf-hero__h1 { white-space: nowrap; } }
-.lf-hero__lead { margin: 0; font-size: 17px; line-height: 1.55; color: #3A3940; max-width: 600px; }
+.lf-hero__lead { margin: 0; font-size: 17px; line-height: 1.55; color: #3A3940; max-width: 600px; text-wrap: pretty; }
+.lf-hero__lead .nobr { white-space: nowrap; }
+/* Set line breaks on wider screens (one phrase per line); phones wrap on their own */
+.lf-hero__lead br { display: none; }
+@media (min-width: 640px) { .lf-hero__lead br { display: inline; } }
 .lf-hero__btns { display: flex; flex-wrap: wrap; gap: 12px; }
 .lf-hero__btn { display: inline-block; text-decoration: none; font-family: KHTekaMono, KHTeka, ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 0; line-height: 1.2; }
 .lf-hero__btn--solid { background: #101214; color: #fff; padding: 18px 26px; transition: opacity .2s; }
