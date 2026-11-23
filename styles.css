@@ -497,9 +497,15 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
     display: block; position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none;
     background: var(--page-bg); opacity: 0; transition: opacity .4s ease;
   }
+  /* Centred in the card; --zoom (set on the Lookbook card) enlarges it further and crops the edges */
   .lf-live iframe {
-    position: absolute; left: 0; top: 0; width: 1440px; height: calc(100% / var(--s, .45));
-    border: 0; transform: scale(var(--s, .45)); transform-origin: 0 0;
+    position: absolute; left: 50%; top: 50%; width: 1440px; height: calc(100% / var(--s, .45));
+    border: 0; transform: translate(-50%, -50%) scale(calc(var(--s, .45) * var(--zoom, 1))); transform-origin: 50% 50%;
+  }
+  .lf-live__title {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 1; margin: 0;
+    font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400; font-size: clamp(32px, 3.8vw, 52px);
+    line-height: 1.05; letter-spacing: -0.03em; color: #fff; white-space: nowrap; text-shadow: 0 2px 24px rgba(16, 18, 20, .45);
   }
   .lf-card--link:hover .lf-live.is-ready { opacity: 1; }
 }
@@ -508,6 +514,8 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 html.is-embed .announce, html.is-embed .header { display: none !important; }
 html.is-embed { scrollbar-width: none; }
 html.is-embed::-webkit-scrollbar { display: none; }
+html.is-embed .mc-bottom, html.is-embed .mc-hint, html.is-embed .lb-bottom, html.is-embed .quote-cta { visibility: hidden !important; } /* no title, counter or button; hidden, not removed, because meta.js sizes the cards from the title block */
+html.is-embed .lb-page main { padding-top: 0; } /* the 72px kept for the hidden header would leave a gap at the top */
 
 /* Process cards on hover (they stay in place): a shadow appears, the fill turns solid (white, or a lighter charcoal for
    the dark card) and a 3px line draws across the top from the left */
@@ -516,7 +524,7 @@ html.is-embed::-webkit-scrollbar { display: none; }
 #process .lf-card::before { content: ""; position: absolute; inset: 0; background: #fff; opacity: 0; transition: opacity .45s ease; pointer-events: none; }
 #process .lf-card::after { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--ink); transform: scaleX(0); transform-origin: left; transition: transform .5s ease; }
 #process .lf-card--dark::before { background: #34313b; }
-#process .lf-card--dark::after { background: var(--lav); }
+#process .lf-card--dark::after { background: #fff; }
 #process .lf-card--dark:hover { box-shadow: 0 22px 44px rgba(255, 255, 255, .7); } /* white glow behind the dark card */
 #process .lf-card:hover::before { opacity: 1; }
 #process .lf-card:hover::after { transform: scaleX(1); }
