@@ -505,8 +505,8 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
   .lf-live::after { content: ""; position: absolute; inset: 0; background: rgba(16, 18, 20, .45); } /* dims the page so the title reads */
   .lf-live__title {
     position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 1; margin: 0;
-    font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400; font-size: clamp(32px, 3.8vw, 52px);
-    line-height: 1.05; letter-spacing: -0.03em; color: #fff; white-space: nowrap; text-shadow: 0 2px 24px rgba(16, 18, 20, .45);
+    font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400; font-size: clamp(11px, 1.27vw, 17px);
+    line-height: 1.05; letter-spacing: -0.01em; color: #fff; white-space: nowrap; text-shadow: 0 2px 24px rgba(16, 18, 20, .45);
   }
   .lf-card--link:hover .lf-live.is-ready { opacity: 1; }
 }
