@@ -509,10 +509,10 @@ html.is-embed .announce, html.is-embed .header { display: none !important; }
 html.is-embed { scrollbar-width: none; }
 html.is-embed::-webkit-scrollbar { display: none; }
 
-/* Process cards on hover: the card lifts with a shadow, its fill turns solid (white, or a lighter charcoal for
+/* Process cards on hover (they stay in place): a shadow appears, the fill turns solid (white, or a lighter charcoal for
    the dark card) and a 3px line draws across the top from the left */
-#process .lf-card { position: relative; overflow: hidden; transition: transform .45s cubic-bezier(.2, .8, .2, 1), box-shadow .45s ease; }
-#process .lf-card:hover { transform: translateY(-10px); box-shadow: 0 22px 44px rgba(16, 18, 20, .16); }
+#process .lf-card { position: relative; overflow: hidden; transition: box-shadow .45s ease; }
+#process .lf-card:hover { box-shadow: 0 22px 44px rgba(16, 18, 20, .16); }
 #process .lf-card::before { content: ""; position: absolute; inset: 0; background: #fff; opacity: 0; transition: opacity .45s ease; pointer-events: none; }
 #process .lf-card::after { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--ink); transform: scaleX(0); transform-origin: left; transition: transform .5s ease; }
 #process .lf-card--dark::before { background: #34313b; }
