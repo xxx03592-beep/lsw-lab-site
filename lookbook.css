@@ -59,7 +59,7 @@
 /* One-screen layout (no page scroll): header, top bar, then the strip filling the rest */
 .lb-page { overflow: hidden; height: 100dvh; }
 .lb-page main { position: fixed; inset: 0; padding-top: 72px; display: flex; flex-direction: column; } /* full screen: the header sits on the same background */
-.lb-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 20px; padding-bottom: 20px; max-width: none; padding-left: max(var(--gutter), calc((100% - 1360px) / 2 + var(--gutter))); padding-right: var(--gutter); } /* label on the .container edge, filters out at the screen edge */
+.lb-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 20px; padding-bottom: 20px; max-width: none; padding-left: max(var(--page-pad), calc((100% - var(--page-max)) / 2 + var(--page-pad))); padding-right: var(--gutter); } /* label on the .container edge, filters out at the screen edge */
 .lb-top .lb-filters { margin-top: 0; justify-content: flex-end; }
 .lb-page .lb-section { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; padding-bottom: 24px; }
 .lb-page .lb-track .tile { width: min(clamp(660px, 72vw, 1080px), calc((100dvh - 72px - 130px) * 9 / 16)); }
