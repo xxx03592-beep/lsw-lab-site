@@ -22,32 +22,6 @@ document.querySelectorAll('.nav a').forEach((a) =>
   })
 );
 
-// Receipts figures, worked out from the date so every visitor sees the same numbers:
-// [data-grow] values rise 1% of their base a day, simple interest (ticking up between days);
-// Link CTR drifts up and down a little each day around 2.84%, with its multiple of the median
-const GROW_FROM = Date.UTC(2026, 9, 29, 5); // 29 Oct 2026, 14:00 Seoul time: the figures as supplied
-const BASE_DAY = Date.UTC(2026, 9, 28, 15); // 29 Oct 2026, 00:00 Seoul time: CTR changes at Seoul midnight
-const DAILY_GROWTH = 0.01; // share of the base value added per day
-const CTR_BASE = 2.84;
-const CTR_MEDIAN = 1.64; // e-commerce industry median link CTR, %
-const growers = [...document.querySelectorAll('[data-grow]')];
-const ctrEl = document.getElementById('ctr');
-const ctrNote = document.getElementById('ctr-note');
-function tick() {
-  const grown = Math.max(0, (Date.now() - GROW_FROM) / 864e5);
-  growers.forEach((el) => {
-    const n = Math.floor(Number(el.dataset.grow) * (1 + DAILY_GROWTH * grown)).toLocaleString('en-US');
-    el.textContent = 'money' in el.dataset ? '$' + n : n;
-  });
-  // Two slow waves keyed to the Seoul day number: 2.84% on day 0, then roughly 2.71–2.97%
-  const d = Math.max(0, Math.floor((Date.now() - BASE_DAY) / 864e5));
-  const ctr = CTR_BASE + 0.08 * Math.sin(d * 2.1) + 0.05 * Math.sin(d * 0.7);
-  ctrEl.textContent = ctr.toFixed(2) + '%';
-  ctrNote.textContent = `About ${(ctr / CTR_MEDIAN).toFixed(1)}× the e-commerce industry median (${CTR_MEDIAN}%)`;
-}
-tick();
-setInterval(tick, 1000);
-
 // Placeholder play buttons toggle state
 document.querySelectorAll('.play').forEach((b) =>
   b.addEventListener('click', () => {
@@ -55,12 +29,6 @@ document.querySelectorAll('.play').forEach((b) =>
     b.textContent = b.classList.contains('playing') ? '❚❚' : '▶';
   })
 );
-
-// Receipts "As of" label: current month in Seoul time, e.g. "As of October 2026"
-const asOf = document.getElementById('as-of');
-if (asOf) {
-  asOf.textContent = 'As of ' + new Date().toLocaleDateString('en-US', { timeZone: 'Asia/Seoul', month: 'long', year: 'numeric' });
-}
 
 // Footer clock (Seoul time)
 const clock = document.getElementById('clock');

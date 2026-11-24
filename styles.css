@@ -167,16 +167,8 @@ h3 { font-size: 22px; font-weight: 500; line-height: 1.15; letter-spacing: -0.01
 .card-white { background: var(--white); color: var(--blue); border-color: var(--white); }
 .card p + p, .card h3 + p { margin-top: 10px; }
 
-/* Receipts */
-.cockpit.card { background: #FFFFFF; }
-.cockpit-head { display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 24px; font-size: 10px; }
 .live { color: #1f7a4f; animation: blink 1.6s infinite; }
 @keyframes blink { 50% { opacity: .35; } }
-.counter { font-size: clamp(36px, 5vw, 64px); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; margin-top: 6px; }
-/* Link CTR's column sizes to its one-line note; the other three share the rest */
-.cockpit-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
-.counter-sm { font-size: 30px; font-variant-numeric: tabular-nums; }
-.ctr-note { margin-top: 6px; color: var(--dim); line-height: 1.5; font-size: 9.5px; letter-spacing: 0; white-space: nowrap; }
 .fine { font-size: 12px; color: var(--dim); margin-top: 24px; }
 
 /* Work */
@@ -327,10 +319,6 @@ blockquote { font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; letter-spac
   .stat-white strong { font-size: 22px; }
   .marquee-track span { font-size: 22px; padding: 16px 28px; }
   .footer-bottom { flex-direction: column; }
-  /* Brands · Creatives · Purchases on one line, Link CTR full width below so its note stays on one line */
-  .cockpit-row { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 20px; }
-  .cockpit-row > :last-child { grid-column: 1 / -1; }
-  .counter-sm { font-size: 24px; }
   .faq summary { font-size: 17px; }
 }
 
@@ -389,7 +377,7 @@ section[id] { scroll-margin-top: 72px; } /* menu links land below the sticky hea
 .play-step .step, .announce p { font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
 .mono, .eyebrow, .tag, .mono-link, .footer-bottom, .play-step .step, .announce p { font-size: 11px; }
 .nav a { font-size: 11px; }
-.small, .mono.small, .tile-badge, .ticker-group, .ctr-note, .tags li { font-size: 10px; }
+.small, .mono.small, .tile-badge, .ticker-group, .tags li { font-size: 10px; }
 .mono, .footer-bottom, .announce p { font-weight: 400; }
 .btn, .mono-link { font-weight: 500; }
 .announce p { line-height: 1.6; }
@@ -399,16 +387,17 @@ section[id] { scroll-margin-top: 72px; } /* menu links land below the sticky hea
    headings and short centred lines split into even lines instead of a long line and a stub */
 p, li, figcaption, summary, blockquote, label, legend { text-wrap: pretty; }
 h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-enough, .q-done-title, .q-done-text,
-.mc-title, .lb-cur-title, .tag, .ctr-note, .faq p, .faq summary, .play-step p, .compare li { text-wrap: balance; }
+.mc-title, .lb-cur-title, .tag, .faq p, .faq summary, .play-step p, .compare li { text-wrap: balance; }
 
 /* Home hero: "magnifier field". A grid of tiles (Meta ads on even cells, lookbook covers on odd ones) sits small and faint;
    hero-field.js scales up and brightens the tiles near the cursor (a slow figure-8 on touch screens). Centre text on top */
 /* Fills the first screen under the announcement bar and nav: --header-h is measured by hero-field.js */
 .lf-hero { position: relative; isolation: isolate; overflow: hidden; color: #101214; height: calc(100svh - var(--header-h, 110px)); min-height: 640px; }
-.lf-hero__field { position: absolute; inset: 0; z-index: 0; padding: 10px; display: grid; gap: 10px;
-  grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(6, 1fr); }
+/* 5 rows; hero-field.js sets --cols so each cell is close to 9:16 and the tiles sit tight side by side */
+.lf-hero__field { position: absolute; inset: 0; z-index: 0; padding: 6px; display: grid; gap: 6px;
+  grid-template-columns: repeat(var(--cols, 14), 1fr); grid-template-rows: repeat(5, 1fr); }
 /* 9:16, sized by hero-field.js to the largest box that fits a cell (scale 1 = the biggest a tile gets) */
-.lf-hero__tile { position: relative; place-self: center; width: var(--tile-w, 100%); height: var(--tile-h, 100%); transform: scale(0.62); opacity: 0.32;
+.lf-hero__tile { position: relative; place-self: center; width: var(--tile-w, 100%); height: var(--tile-h, 100%); transform: scale(0.8); opacity: 0.32;
   transition: transform .18s ease-out, opacity .18s ease-out; will-change: transform, opacity; }
 .lf-hero__tile img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
 /* Soft haze between the tiles and the centre text, so the text reads over the grown tiles */
@@ -426,7 +415,6 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 .lf-hero__btns { margin-top: 44px; }
 .lf-hero__btns, .lf-hero__btn { pointer-events: auto; }
 @media (max-width: 760px) {
-  .lf-hero__field { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(6, 1fr); }
 }
 .lf-hero__btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 .lf-hero__btn { display: inline-block; text-decoration: none; font-family: KHTekaMono, KHTeka, ui-monospace, Menlo, monospace; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; border-radius: 0; line-height: 1.2; }

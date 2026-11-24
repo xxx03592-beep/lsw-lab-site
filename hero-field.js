@@ -1,5 +1,5 @@
-// Home hero "magnifier field": a grid of 9:16 tiles (even cells = Meta ads, odd cells = lookbook photos from site-data.js),
-// no image shown twice. Each tile grows and brightens by how close its centre is to the cursor, at most to the size of
+// Home hero "magnifier field": 5 rows of 9:16 tiles, as many columns as fit (Meta ads and lookbook photos from
+// site-data.js in a checkerboard), no image shown twice and no grid/collage images. Each tile grows and brightens by how close its centre is to the cursor, at most to the size of
 // its own grid cell, so grown tiles never overlap; on touch screens an invisible cursor
 // traces a slow figure-8 instead (off with reduced motion; the mouse effect stays on).
 (() => {
@@ -9,7 +9,6 @@
   if (!field || typeof LOOKBOOK_SETS === 'undefined' || typeof META_COLUMNS === 'undefined') return;
 
   const DEFAULT_TAG = 'Move the cursor';
-  const narrow = matchMedia('(max-width: 760px)');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const touch = matchMedia('(hover: none)');
 
@@ -17,28 +16,42 @@
   // Lookbook: photos from inside each set (first, middle, then quarter points), not cover.jpg, because several
   // covers are copies of one of their set's photos and would show up twice
   const metaPool = [];
-  const cols = META_COLUMNS.map((c) => ({ label: c.label, items: c.items.filter((i) => typeof i === 'string') }));
-  const longest = Math.max(...cols.map((c) => c.items.length));
+  const folders = META_COLUMNS.map((c) => ({ label: c.label, items: c.items.filter((i) => typeof i === 'string') }));
+  const longest = Math.max(...folders.map((c) => c.items.length));
   for (let i = 0; i < longest; i++) {
-    cols.forEach((c) => { if (c.items[i]) metaPool.push({ src: c.items[i], label: c.label, n: c.items[i].match(/(\d+)\.\w+$/)[1] }); });
+    folders.forEach((c) => { if (c.items[i]) metaPool.push({ src: c.items[i], label: c.label, n: c.items[i].match(/(\d+)\.\w+$/)[1] }); });
   }
+  // Collage images (several photos in a grid in one file) read as clutter at tile size: never used here.
+  // Checked by eye across every Meta and lookbook image; add a path when a new collage is added to site-data.js
+  const GRID_IMAGES = new Set([
+    'images/lookbook/6a-6a-on-beach/01.jpg', 'images/lookbook/6a-us-local-shoot/01.jpg',
+    'images/lookbook/akoihaus-housewear/01.jpg', 'images/lookbook/akoihaus-housewear/06.jpg',
+    'images/lookbook/cleartype-rebranding/01.jpg', 'images/lookbook/produktepr-rebranding-1/01.jpg',
+    'images/lookbook/produktepr-rebranding-2/01.jpg', 'images/lookbook/yar-multiple/01.jpg',
+  ]);
   const lookPool = [];
   const seen = new Set();
   [0, 0.5, 0.25, 0.75].forEach((at) => LOOKBOOK_SETS.forEach((s) => {
-    const src = s.images[Math.floor(s.images.length * at)];
-    if (!src || seen.has(src)) return;
-    seen.add(src);
-    lookPool.push({ src, name: s.title.toLowerCase().startsWith(s.brand.toLowerCase()) ? s.title : s.brand + ' ' + s.title });
+    // from this point in the set, the first photo that is neither a collage nor already taken
+    for (let i = Math.floor(s.images.length * at); i < s.images.length; i++) {
+      const src = s.images[i];
+      if (GRID_IMAGES.has(src) || seen.has(src)) continue;
+      seen.add(src);
+      lookPool.push({ src, name: s.title.toLowerCase().startsWith(s.brand.toLowerCase()) ? s.title : s.brand + ' ' + s.title });
+      return;
+    }
   }));
 
+  const ROWS = 5;
   let tiles = []; // { el, cx, cy, label, z }
+  let cols = 0;
   function build() {
-    const count = narrow.matches ? 5 * 6 : 12 * 6;
+    field.style.setProperty('--cols', cols);
     field.textContent = '';
     tiles = [];
     let m = 0, l = 0;
-    for (let i = 0; i < count; i++) {
-      const isMeta = i % 2 === 0;
+    for (let i = 0; i < cols * ROWS; i++) {
+      const isMeta = (Math.floor(i / cols) + (i % cols)) % 2 === 0; // checkerboard
       const d = isMeta ? metaPool[m++] : lookPool[l++];
       if (!d) break; // out of images: fewer tiles rather than a repeat
       const el = document.createElement('div');
@@ -69,6 +82,20 @@
   // Tiles under the centre text (label, title, buttons) may only grow to k = 0.5, so the text stays readable
   // Tile size: the largest 9:16 box that fits one grid cell (that is the tile at scale 1, its biggest)
   let width = 1;
+  // Columns: as many 9:16 tiles (at the height 5 rows allow) as fit across, so the side spacing matches the row gap.
+  // Returns true when the count changed and the tiles were rebuilt
+  function fitColumns() {
+    const cs = getComputedStyle(field);
+    const gap = parseFloat(cs.columnGap) || 0;
+    const ah = field.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    const aw = field.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const tw = ((ah - gap * (ROWS - 1)) / ROWS) * 9 / 16;
+    const n = Math.max(3, Math.floor((aw + gap) / (tw + gap)));
+    if (n === cols) return false;
+    cols = n;
+    build();
+    return true;
+  }
   function sizeTiles() {
     const cs = getComputedStyle(field);
     const ncol = cs.gridTemplateColumns.split(' ').length, nrow = cs.gridTemplateRows.split(' ').length;
@@ -116,7 +143,7 @@
       t.k = k;
       const s = t.el.style;
       if (k === 0) { s.transform = s.opacity = s.zIndex = ''; return; }
-      s.transform = `scale(${(0.62 + k * 0.38).toFixed(3)})`; // 1 at most: the tile fills its own cell, no overlap
+      s.transform = `scale(${(0.8 + k * 0.2).toFixed(3)})`; // 1 at most: the tile fills its own cell, no overlap
       s.opacity = (0.32 + k * 0.68).toFixed(3);
       s.zIndex = String(1 + Math.round(k * 100));
     });
@@ -153,12 +180,11 @@
 
   function reset() { point(null, null); startLoop(); }
   [touch, reduced].forEach((q) => q.addEventListener('change', reset));
-  narrow.addEventListener('change', () => { build(); reset(); });
-  const resize = () => { setHeaderH(); measure(); point(px, py); };
+  const resize = () => { setHeaderH(); if (!fitColumns()) measure(); point(px, py); };
   addEventListener('resize', resize);
   window.addEventListener('load', resize);
   if (document.fonts) document.fonts.ready.then(measure); // the text box depends on the web font
   setHeaderH();
-  build();
+  fitColumns();
   startLoop();
 })();
