@@ -1,5 +1,6 @@
-// Home hero "magnifier field": a grid of tiles (even cells = Meta ads, odd cells = lookbook covers from site-data.js).
-// Each tile grows and brightens by how close its centre is to the cursor; on touch screens an invisible cursor
+// Home hero "magnifier field": a grid of 9:16 tiles (even cells = Meta ads, odd cells = lookbook photos from site-data.js),
+// no image shown twice. Each tile grows and brightens by how close its centre is to the cursor, at most to the size of
+// its own grid cell, so grown tiles never overlap; on touch screens an invisible cursor
 // traces a slow figure-8 instead (off with reduced motion; the mouse effect stays on).
 (() => {
   const hero = document.getElementById('hero');
@@ -12,15 +13,22 @@
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const touch = matchMedia('(hover: none)');
 
-  // Meta images taken round-robin across the folders so every product shows up
+  // Every image appears once. Meta: round-robin across the folders so every product shows up.
+  // Lookbook: photos from inside each set (first, middle, then quarter points), not cover.jpg, because several
+  // covers are copies of one of their set's photos and would show up twice
   const metaPool = [];
   const cols = META_COLUMNS.map((c) => ({ label: c.label, items: c.items.filter((i) => typeof i === 'string') }));
-  for (let i = 0; metaPool.length < 40 && i < 40; i++) {
+  const longest = Math.max(...cols.map((c) => c.items.length));
+  for (let i = 0; i < longest; i++) {
     cols.forEach((c) => { if (c.items[i]) metaPool.push({ src: c.items[i], label: c.label, n: c.items[i].match(/(\d+)\.\w+$/)[1] }); });
   }
-  const lookPool = LOOKBOOK_SETS.map((s) => ({
-    src: s.cover,
-    name: s.title.toLowerCase().startsWith(s.brand.toLowerCase()) ? s.title : s.brand + ' ' + s.title,
+  const lookPool = [];
+  const seen = new Set();
+  [0, 0.5, 0.25, 0.75].forEach((at) => LOOKBOOK_SETS.forEach((s) => {
+    const src = s.images[Math.floor(s.images.length * at)];
+    if (!src || seen.has(src)) return;
+    seen.add(src);
+    lookPool.push({ src, name: s.title.toLowerCase().startsWith(s.brand.toLowerCase()) ? s.title : s.brand + ' ' + s.title });
   }));
 
   let tiles = []; // { el, cx, cy, label, z }
@@ -31,7 +39,8 @@
     let m = 0, l = 0;
     for (let i = 0; i < count; i++) {
       const isMeta = i % 2 === 0;
-      const d = isMeta ? metaPool[m++ % metaPool.length] : lookPool[l++ % lookPool.length];
+      const d = isMeta ? metaPool[m++] : lookPool[l++];
+      if (!d) break; // out of images: fewer tiles rather than a repeat
       const el = document.createElement('div');
       el.className = 'lf-hero__tile';
       const img = document.createElement('img');
@@ -58,8 +67,20 @@
 
   // Untransformed tile boxes relative to the section (offset* ignores the scale transform).
   // Tiles under the centre text (label, title, buttons) may only grow to k = 0.5, so the text stays readable
+  // Tile size: the largest 9:16 box that fits one grid cell (that is the tile at scale 1, its biggest)
   let width = 1;
+  function sizeTiles() {
+    const cs = getComputedStyle(field);
+    const ncol = cs.gridTemplateColumns.split(' ').length, nrow = cs.gridTemplateRows.split(' ').length;
+    const gx = parseFloat(cs.columnGap) || 0, gy = parseFloat(cs.rowGap) || 0;
+    const cw = (field.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - gx * (ncol - 1)) / ncol;
+    const ch = (field.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - gy * (nrow - 1)) / nrow;
+    const h = Math.min(ch, cw * 16 / 9);
+    field.style.setProperty('--tile-w', (h * 9 / 16).toFixed(2) + 'px');
+    field.style.setProperty('--tile-h', h.toFixed(2) + 'px');
+  }
   function measure() {
+    sizeTiles();
     width = hero.clientWidth || 1;
     const hr = hero.getBoundingClientRect();
     const boxes = [...hero.querySelectorAll('.lf-hero__center > *')].map((el) => el.getBoundingClientRect());
@@ -95,7 +116,7 @@
       t.k = k;
       const s = t.el.style;
       if (k === 0) { s.transform = s.opacity = s.zIndex = ''; return; }
-      s.transform = `scale(${(0.62 + k * 0.88).toFixed(3)})`;
+      s.transform = `scale(${(0.62 + k * 0.38).toFixed(3)})`; // 1 at most: the tile fills its own cell, no overlap
       s.opacity = (0.32 + k * 0.68).toFixed(3);
       s.zIndex = String(1 + Math.round(k * 100));
     });

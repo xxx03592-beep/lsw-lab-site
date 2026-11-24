@@ -403,7 +403,8 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 .lf-hero { position: relative; isolation: isolate; overflow: hidden; color: #101214; height: calc(100svh - var(--header-h, 110px)); min-height: 640px; }
 .lf-hero__field { position: absolute; inset: 0; z-index: 0; padding: 10px; display: grid; gap: 10px;
   grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(6, 1fr); }
-.lf-hero__tile { position: relative; min-width: 0; min-height: 0; transform: scale(0.62); opacity: 0.32;
+/* 9:16, sized by hero-field.js to the largest box that fits a cell (scale 1 = the biggest a tile gets) */
+.lf-hero__tile { position: relative; place-self: center; width: var(--tile-w, 100%); height: var(--tile-h, 100%); transform: scale(0.62); opacity: 0.32;
   transition: transform .18s ease-out, opacity .18s ease-out; will-change: transform, opacity; }
 .lf-hero__tile img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
 /* Soft haze between the tiles and the centre text, so the text reads over the grown tiles */
