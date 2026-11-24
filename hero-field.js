@@ -79,7 +79,7 @@
   }
 
   // Untransformed tile boxes relative to the section (offset* ignores the scale transform).
-  // Tiles under the centre text (label, title, buttons) may only grow to k = 0.5, so the text stays readable
+  // Tiles under the centre text (label, title, buttons) may only grow to k = 0.25, so the text stays readable
   // Tile size: the largest 9:16 box that fits one grid cell (that is the tile at scale 1, its biggest)
   let width = 1;
   // Columns: as many 9:16 tiles (at the height 5 rows allow) as fit across, so the side spacing matches the row gap.
@@ -120,7 +120,7 @@
       const w = t.el.offsetWidth, h = t.el.offsetHeight;
       t.cx = x + w / 2;
       t.cy = y + h / 2;
-      t.maxK = x < tb.right && x + w > tb.left && y < tb.bottom && y + h > tb.top ? 0.5 : 1;
+      t.maxK = x < tb.right && x + w > tb.left && y < tb.bottom && y + h > tb.top ? 0.25 : 1;
       t.k = -1; // re-apply on the next frame
     });
   }
