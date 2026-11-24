@@ -517,13 +517,14 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 @media (hover: hover) {
   .lf-blind:hover .lf-blind__strip { transform: translateY(0); transition-delay: calc(var(--i) * .045s); }
   .lf-blind:hover .lf-blind__name, .lf-blind:hover .lf-blind__top, .lf-blind:hover .lf-card__go { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
-  .lf-blind:hover .lf-blind__desc, .lf-blind:hover .lf-blind__list { opacity: 0; }
+  .lf-blind:hover .lf-blind__desc, .lf-blind:hover .lf-blind__list, .lf-blind:hover .lf-blind__body { opacity: 0; }
   .lf-blind:hover .lf-blind__count { opacity: 1; transition-delay: .35s; }
 }
 .lf-blind:focus-visible .lf-blind__strip, .lf-blind.is-open .lf-blind__strip { transform: translateY(0); transition-delay: calc(var(--i) * .045s); }
 .lf-blind:focus-visible .lf-blind__name, .lf-blind.is-open .lf-blind__name, .lf-blind:focus-visible .lf-blind__top, .lf-blind.is-open .lf-blind__top,
 .lf-blind:focus-visible .lf-card__go, .lf-blind.is-open .lf-card__go { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
-.lf-blind:focus-visible .lf-blind__desc, .lf-blind.is-open .lf-blind__desc, .lf-blind:focus-visible .lf-blind__list, .lf-blind.is-open .lf-blind__list { opacity: 0; }
+.lf-blind:focus-visible .lf-blind__desc, .lf-blind.is-open .lf-blind__desc, .lf-blind:focus-visible .lf-blind__list, .lf-blind.is-open .lf-blind__list,
+.lf-blind:focus-visible .lf-blind__body, .lf-blind.is-open .lf-blind__body { opacity: 0; }
 .lf-blind:focus-visible .lf-blind__count, .lf-blind.is-open .lf-blind__count { opacity: 1; transition-delay: .35s; }
 @media (max-width: 760px) { .lf-blind { padding: 24px; } .lf-blind__count { left: 24px; bottom: 52px; } }
 
@@ -590,6 +591,9 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 .lf-faq details { border-bottom: 1px solid rgba(16, 18, 20, 0.25); padding: 22px 0; }
 .lf-faq summary { cursor: pointer; list-style: none; font-size: 18px; }
 .lf-faq summary::-webkit-details-marker { display: none; }
+/* Why Leeframes: stacked points, each a small heading and its paragraphs */
+.lf-why { display: flex; flex-direction: column; gap: 40px; }
+.lf-why__item { display: flex; flex-direction: column; gap: 14px; }
 .lf-faq details p { margin: 14px 0 0; max-width: var(--text-max); }
 
 @media (max-width: 640px) {

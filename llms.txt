@@ -1,21 +1,20 @@
 # Leeframes Studio
 
-> Leeframes Studio is a performance creative studio in Seoul, founded in 2026. It makes Meta (Facebook and Instagram) ad creatives, AI video and AI-made lookbooks for DTC fashion and accessory brands, and runs the media buying that scales the winning ads.
+> Leeframes Studio is a Seoul creative studio, founded in 2026, making art-directed AI lookbooks and Meta (Facebook and Instagram) ad creatives for DTC fashion, beauty and lifestyle brands. Every image is art-directed by hand and produced with AI, so there is no photoshoot.
 
 ## Services
 
-- Meta ad creative production: statics, video, founder ads, creator (UGC) ads and AI video
-- AI lookbook and campaign imagery, no photoshoot required
-- Media buying on Meta: the same team that makes the ads runs and scales them
-- Creative only or full service
+- AI lookbooks: a full season of editorial imagery per collection (10–15 final images), from a direction board approved before production
+- Meta ad creatives: static and carousel ads, image only with no copy, in 1:1, 4:5 and 9:16, delivered every 2 weeks as a subscription
+- Creative only: Leeframes does not run media buying; it works alongside the brand's in-house team or agency
 
 ## Who it works with
 
-DTC brands selling physical products that already spend on Meta, especially fashion, jewellery and accessories. Brands in the portfolio include 6A, Akoihaus, Cleartype, Coffery, Produktepr and YAR.
+DTC brands that sell online and run Meta ads, especially fashion, accessory, beauty and lifestyle brands. Brands in the portfolio include 6A, Akoihaus, Cleartype, Coffery, Produktepr and YAR.
 
 ## How it works
 
-Three steps: brief, first drafts, final files.
+Four steps: brief, first drafts (two revision rounds included), final files, then a next batch built on what performed.
 
 ## Contact
 
@@ -23,7 +22,7 @@ Get a quote: https://leeframes.com/quote.html or hello@leeframes.com
 
 ## Pages
 
-- [Home](https://leeframes.com/): services, results, process and FAQ
+- [Home](https://leeframes.com/): services, process, plans and FAQ
 - [Lookbook](https://leeframes.com/lookbook.html): 18 lookbook projects for 6A, Akoihaus, Cleartype, Coffery, Produktepr and YAR
 - [Meta Ad Creatives](https://leeframes.com/meta-ad-creatives.html): 88 static and video Meta ads for rings, necklaces, bags, slippers and more
-- [Get a Quote](https://leeframes.com/quote.html): quote form for lookbooks, Meta ad creatives and AI video
+- [Get a Quote](https://leeframes.com/quote.html): quote form for lookbooks and Meta ad creatives
