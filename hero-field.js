@@ -1,6 +1,6 @@
 // Home hero "magnifier field": a grid of tiles (even cells = Meta ads, odd cells = lookbook covers from site-data.js).
 // Each tile grows and brightens by how close its centre is to the cursor; on touch screens an invisible cursor
-// traces a slow figure-8 instead. With reduced motion the tiles stay at one fixed size (styles.css).
+// traces a slow figure-8 instead (off with reduced motion; the mouse effect stays on).
 (() => {
   const hero = document.getElementById('hero');
   const field = hero && hero.querySelector('.lf-hero__field');
@@ -37,7 +37,8 @@
       const img = document.createElement('img');
       img.src = d.src;
       img.alt = '';
-      img.loading = 'lazy';
+      img.loading = i < 20 ? 'eager' : 'lazy'; // the first rows show at once
+      if (i < 10) img.fetchPriority = 'high';
       img.decoding = 'async';
       el.appendChild(img);
       field.appendChild(el);
@@ -88,7 +89,7 @@
 
   // Mouse
   hero.addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse' || reduced.matches || touch.matches) return;
+    if (e.pointerType !== 'mouse' || touch.matches) return;
     const r = hero.getBoundingClientRect();
     point(e.clientX - r.left, e.clientY - r.top);
   });
