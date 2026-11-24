@@ -15,6 +15,7 @@
 - apps-script/quote-auto-reply.gs: Gmail(script.google.com)에서 5분마다 돌며 견적 알림 메일의 Reply-To 고객에게 자동 회신. 사이트에 배포되지 않음(.assetsignore). 수정하면 script.google.com에도 다시 붙여넣어야 함
 - wrangler.jsonc: Workers 배포 설정 (Workers Builds가 master push 시 사용)
 - .assetsignore: 공개하면 안 되는 파일 목록 (새 내부 파일을 추가하면 여기에도 추가)
+- hero-field.js: 메인 히어로 "돋보기 필드" (site-data.js의 Meta 광고·룩북 커버로 타일 그리드를 만들고 커서 가까운 타일을 키움, 터치 기기는 가상 커서 8자 자동 재생). 스타일은 styles.css의 .lf-hero
 - zoom-view.js: Lookbook·Meta Ads 공용 확대 보기 (크게 보기에서 사진을 한 번 더 누르면 열림, 휠/핀치 확대·드래그 이동). 스타일은 styles.css 끝
 - styles.css: 메인 스타일
 - lookbook.css: lookbook/meta 공통 스타일

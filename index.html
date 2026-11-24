@@ -102,26 +102,13 @@
 
 <main>
 
-<!-- Hero: three lookbook covers, then the headline, intro and buttons -->
+<!-- Hero: magnifier field. Tiles (Meta ads and lookbook covers) are built by hero-field.js from site-data.js;
+     tiles near the cursor grow and brighten. The centre text sits above them -->
 <section class="lf-hero" id="hero">
-  <div class="lf-hero__cards">
-    <figure class="lf-hero__card lf-hero__card--left">
-      <figcaption>Rock Festa</figcaption>
-      <img src="images/lookbook/6a-rock-festa/cover.jpg" alt="6A Rock Festa lookbook cover" width="220" height="280">
-    </figure>
-    <figure class="lf-hero__card lf-hero__card--center">
-      <figcaption>6A On Beach</figcaption>
-      <img src="images/lookbook/6a-6a-on-beach/cover.jpg" alt="6A On Beach lookbook cover" width="280" height="360" fetchpriority="high">
-    </figure>
-    <figure class="lf-hero__card lf-hero__card--right">
-      <figcaption>Cool Goth</figcaption>
-      <img src="images/lookbook/6a-cool-goth/cover.jpg" alt="6A Cool Goth lookbook cover" width="220" height="280">
-    </figure>
-  </div>
-  <div class="lf-hero__text">
-    <p class="lf-hero__label">Lookbooks &amp; Meta ad creatives for DTC fashion brands · Seoul</p>
-    <h1 class="lf-hero__h1">Great ads can turn your business around <span>in a week.</span></h1>
-    <p class="lf-hero__lead">We make your lookbook and the Meta ads that sell it:<br> statics and carousels, <span class="nobr">art-directed</span> in Seoul and produced with AI.<br> New concepts on a fixed schedule, with no photoshoot,<br> no brief to write and no designer to chase.</p>
+  <div class="lf-hero__field" aria-hidden="true"></div>
+  <div class="lf-hero__center">
+    <p class="lf-hero__tag" aria-live="off">Move the cursor</p>
+    <h1 class="lf-hero__title"><span>Meta Ads</span><span><em>&amp;</em> Lookbook</span></h1>
     <div class="lf-hero__btns">
       <a class="lf-hero__btn lf-hero__btn--solid" href="quote.html">Get a quote</a>
       <a class="lf-hero__btn lf-hero__btn--ghost" href="#services">See the work →</a>
@@ -373,6 +360,8 @@
 </footer>
 
 
+<script src="site-data.js"></script>
+<script src="hero-field.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
