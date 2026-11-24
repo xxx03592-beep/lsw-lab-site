@@ -402,25 +402,17 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 .lf-hero__tile img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
 /* Soft haze between the tiles and the centre text, so the text reads over the grown tiles */
 .lf-hero__veil { position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background: radial-gradient(ellipse 44% 50% at 50% 50%, rgba(201, 196, 210, 0.94), rgba(201, 196, 210, 0.6) 55%, rgba(201, 196, 210, 0) 78%); }
+  background: radial-gradient(ellipse 36% 28% at 50% 52%, rgba(201, 196, 210, 0.85), rgba(201, 196, 210, 0) 70%); }
 .lf-hero__center { position: absolute; inset: 0; z-index: 2; pointer-events: none; padding: 0 16px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .lf-hero__tag { margin: 0; background: #101214; color: #fff; padding: 6px 10px; font-family: KHTekaMono, KHTeka, ui-monospace, Menlo, monospace;
   font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.2; white-space: nowrap; margin-bottom: 20px; }
 /* Two lines left-aligned with each other, the pair centred; the "&" hangs outside the left edge */
 .lf-hero__title { margin: 0; align-items: flex-start; text-align: left; display: flex; flex-direction: column; font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400;
-  font-size: clamp(56px, min(10.4vw, 15svh), 150px); line-height: 0.86; letter-spacing: -0.055em; text-shadow: 0 0 40px rgba(201, 196, 210, 0.9); } /* 15svh: shorter screens keep room for the copy below */
-/* The copy around the big title: eyebrow above, then the headline (the page's h1), intro and one-line promise */
-.lf-hero__eyebrow, .lf-hero__sub { margin: 0; font-family: KHTekaMono, KHTeka, ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: 0.04em;
-  text-transform: uppercase; line-height: 1.5; color: #3A3940; text-shadow: 0 0 16px rgba(201, 196, 210, 1); }
-.lf-hero__eyebrow { margin-bottom: 14px; }
-.lf-hero__headline { margin: 28px 0 0; max-width: 680px; font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400;
-  font-size: clamp(20px, 2vw, 28px); line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; text-shadow: 0 0 24px rgba(201, 196, 210, 1); }
-.lf-hero__lead { margin: 12px 0 0; max-width: 560px; font-size: 15px; line-height: 1.5; color: #3A3940; text-wrap: pretty; text-shadow: 0 0 18px rgba(201, 196, 210, 1); }
-.lf-hero__sub { margin-top: 14px; color: #101214; }
+  font-size: clamp(56px, 10.4vw, 150px); line-height: 0.86; letter-spacing: -0.055em; text-shadow: 0 0 40px rgba(201, 196, 210, 0.9); }
 .lf-hero__title span { position: relative; white-space: nowrap; }
 .lf-hero__title em { position: absolute; right: 100%; bottom: 0.2em; margin-right: 0.12em; font-style: normal; font-size: 56px; line-height: 1; color: #615D6A; }
-.lf-hero__btns { margin-top: 32px; }
+.lf-hero__btns { margin-top: 44px; }
 .lf-hero__btns, .lf-hero__btn { pointer-events: auto; }
 @media (max-width: 760px) {
 }
