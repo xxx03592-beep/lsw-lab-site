@@ -399,23 +399,28 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 
 /* Home hero: "magnifier field". A grid of tiles (Meta ads on even cells, lookbook covers on odd ones) sits small and faint;
    hero-field.js scales up and brightens the tiles near the cursor (a slow figure-8 on touch screens). Centre text on top */
-.lf-hero { position: relative; overflow: hidden; color: #101214; height: 100vh; min-height: 760px; }
-.lf-hero__field { position: absolute; inset: 0; padding: 14px; display: grid; gap: 14px;
-  grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(5, 1fr); }
-.lf-hero__tile { position: relative; min-width: 0; min-height: 0; transform: scale(0.55); opacity: 0.28;
+/* Fills the first screen under the announcement bar and nav: --header-h is measured by hero-field.js */
+.lf-hero { position: relative; isolation: isolate; overflow: hidden; color: #101214; height: calc(100svh - var(--header-h, 110px)); min-height: 640px; }
+.lf-hero__field { position: absolute; inset: 0; z-index: 0; padding: 10px; display: grid; gap: 10px;
+  grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(6, 1fr); }
+.lf-hero__tile { position: relative; min-width: 0; min-height: 0; transform: scale(0.62); opacity: 0.32;
   transition: transform .18s ease-out, opacity .18s ease-out; will-change: transform, opacity; }
 .lf-hero__tile img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
-.lf-hero__center { position: absolute; inset: 0; z-index: 200; pointer-events: none; padding: 0 16px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; text-align: center; }
+/* Soft haze between the tiles and the centre text, so the text reads over the grown tiles */
+.lf-hero__veil { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: radial-gradient(ellipse 36% 28% at 50% 52%, rgba(201, 196, 210, 0.85), rgba(201, 196, 210, 0) 70%); }
+.lf-hero__center { position: absolute; inset: 0; z-index: 2; pointer-events: none; padding: 0 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .lf-hero__tag { margin: 0; background: #101214; color: #fff; padding: 6px 10px; font-family: KHTekaMono, KHTeka, ui-monospace, Menlo, monospace;
-  font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.2; white-space: nowrap; }
-.lf-hero__title { margin: 0; display: flex; flex-direction: column; font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400;
-  font-size: clamp(56px, 10.4vw, 150px); line-height: 0.9; letter-spacing: -0.055em; text-shadow: 0 0 40px rgba(201, 196, 210, 0.9); }
-.lf-hero__title span { white-space: nowrap; }
-.lf-hero__title em { font-style: normal; font-size: 56px; color: #615D6A; }
+  font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; line-height: 1.2; white-space: nowrap; margin-bottom: 20px; }
+/* Two lines left-aligned with each other, the pair centred; the "&" hangs outside the left edge */
+.lf-hero__title { margin: 0; align-items: flex-start; text-align: left; display: flex; flex-direction: column; font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400;
+  font-size: clamp(56px, 10.4vw, 150px); line-height: 0.86; letter-spacing: -0.055em; text-shadow: 0 0 40px rgba(201, 196, 210, 0.9); }
+.lf-hero__title span { position: relative; white-space: nowrap; }
+.lf-hero__title em { position: absolute; right: 100%; bottom: 0.2em; margin-right: 0.12em; font-style: normal; font-size: 56px; line-height: 1; color: #615D6A; }
+.lf-hero__btns { margin-top: 44px; }
 .lf-hero__btns, .lf-hero__btn { pointer-events: auto; }
 @media (max-width: 760px) {
-  .lf-hero { height: 85vh; min-height: 0; }
   .lf-hero__field { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(6, 1fr); }
 }
 .lf-hero__btns { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
@@ -488,13 +493,16 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 .lf-card--link { position: relative; overflow: hidden; color: inherit; text-decoration: none; transition: box-shadow .45s ease; }
 .lf-card--link:hover { box-shadow: 0 22px 44px rgba(16, 18, 20, .16); } /* stays in place */
 .lf-card--link:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
-.lf-card__go { margin-top: auto; align-self: flex-start; padding: 16px 22px; background: #101214; color: #fff; } /* black box, like the hero Get a quote */
+/* Text link at the foot of the card (32px under the list: 16px margin + the card's 16px gap) */
+.lf-card__go { margin-top: 16px; align-self: flex-start; padding: 0; background: none; color: #101214; }
 /* What we make "blind cards": six photo strips sit below the card (translateY 101%) and rise left to right on hover/focus
    (.is-open on touch screens, set by script.js), falling back right to left. The service name stays on top in white */
-.lf-blind { height: 580px; border-radius: 14px; gap: 16px; }
+.lf-blind { height: auto; min-height: 520px; border-radius: 14px; gap: 16px; }
 .lf-blind > * { position: relative; z-index: 2; transition: color .4s ease, opacity .35s ease, text-shadow .4s ease; }
-.lf-blind > .lf-blind__photos { position: absolute; inset: 0; z-index: 1; display: flex; gap: 4px; pointer-events: none; }
-.lf-blind__strip { --i: 0; flex: 1 1 0; min-width: 0; overflow: hidden; transform: translateY(101%);
+.lf-blind > .lf-blind__photos { position: absolute; inset: 0; z-index: 1; display: flex; gap: 2px; pointer-events: none; }
+/* Black 2px seams between the strips: drawn by each strip (shadow into the gap) so they rise with it
+   and the white card is untouched while the strips are down */
+.lf-blind__strip { --i: 0; flex: 1 1 0; min-width: 0; overflow: hidden; transform: translateY(101%); background: #101214; box-shadow: -2px 0 0 #101214;
   transition: transform .6s cubic-bezier(.2, .8, .2, 1); transition-delay: calc((5 - var(--i)) * .045s); }
 .lf-blind__strip:nth-child(2) { --i: 1; }
 .lf-blind__strip:nth-child(3) { --i: 2; }
@@ -502,25 +510,29 @@ h1, h2, h3, h4, .huge, .lead, .body, .playbook-line, .announce p, .q-tab, .q-eno
 .lf-blind__strip:nth-child(5) { --i: 4; }
 .lf-blind__strip:nth-child(6) { --i: 5; }
 .lf-blind__strip img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.lf-blind__count { position: absolute; left: 32px; bottom: 100px; margin: 0; color: #fff; opacity: 0; transition: opacity .3s ease;
+.lf-blind__count { position: absolute; left: 32px; bottom: 60px; margin: 0; color: #fff; opacity: 0; transition: opacity .3s ease;
   font-family: KHTekaMono, KHTeka, ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
   text-shadow: 0 1px 12px rgba(0, 0, 0, .45); }
 .lf-blind__top { display: flex; justify-content: space-between; }
-.lf-blind__name { margin: 8px 0 0; font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400;
-  font-size: clamp(56px, 6vw, 96px); line-height: 0.95; letter-spacing: -0.05em; }
+/* margin-top: auto: when the content is shorter than min-height, the spare room goes between the top label row and the
+   name, so the link always sits at the foot of the card (and the photo count just above it) with no gap below */
+.lf-blind__name { margin: auto 0 0; padding-top: 8px; font-family: KHTeka, system-ui, -apple-system, sans-serif; font-weight: 400;
+  font-size: clamp(64px, 7.8vw, 112px); line-height: 0.9; letter-spacing: -0.055em; }
+#services .lf-h2 { font-size: 40px; }
 .lf-blind__desc { margin: 0; font-size: 22px; line-height: 1.2; letter-spacing: -0.015em; }
 /* Open: hover only where hovering is real (a tap would otherwise leave it stuck open), keyboard focus, or .is-open */
 @media (hover: hover) {
   .lf-blind:hover .lf-blind__strip { transform: translateY(0); transition-delay: calc(var(--i) * .045s); }
-  .lf-blind:hover .lf-blind__name, .lf-blind:hover .lf-blind__top { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
+  .lf-blind:hover .lf-blind__name, .lf-blind:hover .lf-blind__top, .lf-blind:hover .lf-card__go { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
   .lf-blind:hover .lf-blind__desc, .lf-blind:hover .lf-blind__list { opacity: 0; }
   .lf-blind:hover .lf-blind__count { opacity: 1; transition-delay: .35s; }
 }
 .lf-blind:focus-visible .lf-blind__strip, .lf-blind.is-open .lf-blind__strip { transform: translateY(0); transition-delay: calc(var(--i) * .045s); }
-.lf-blind:focus-visible .lf-blind__name, .lf-blind.is-open .lf-blind__name, .lf-blind:focus-visible .lf-blind__top, .lf-blind.is-open .lf-blind__top { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
+.lf-blind:focus-visible .lf-blind__name, .lf-blind.is-open .lf-blind__name, .lf-blind:focus-visible .lf-blind__top, .lf-blind.is-open .lf-blind__top,
+.lf-blind:focus-visible .lf-card__go, .lf-blind.is-open .lf-card__go { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
 .lf-blind:focus-visible .lf-blind__desc, .lf-blind.is-open .lf-blind__desc, .lf-blind:focus-visible .lf-blind__list, .lf-blind.is-open .lf-blind__list { opacity: 0; }
 .lf-blind:focus-visible .lf-blind__count, .lf-blind.is-open .lf-blind__count { opacity: 1; transition-delay: .35s; }
-@media (max-width: 760px) { .lf-blind { height: 520px; padding: 24px; } .lf-blind__count { left: 24px; bottom: 92px; } }
+@media (max-width: 760px) { .lf-blind { padding: 24px; } .lf-blind__count { left: 24px; bottom: 52px; } }
 
 
 /* Process cards on hover (they stay in place): a shadow appears, the fill turns solid (white, or a lighter charcoal for

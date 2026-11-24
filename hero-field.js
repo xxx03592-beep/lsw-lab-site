@@ -25,7 +25,7 @@
 
   let tiles = []; // { el, cx, cy, label, z }
   function build() {
-    const count = narrow.matches ? 5 * 6 : 10 * 5;
+    const count = narrow.matches ? 5 * 6 : 12 * 6;
     field.textContent = '';
     tiles = [];
     let m = 0, l = 0;
@@ -47,27 +47,47 @@
     measure();
   }
 
-  // Untransformed tile centres relative to the section (offset* ignores the scale transform)
+  // The hero fills the screen under the announcement bar and nav (styles.css: 100svh - --header-h).
+  // script.js fires a resize when the bar is closed, which lands here again
+  const announce = document.getElementById('announce');
+  const header = document.querySelector('.header');
+  function setHeaderH() {
+    const h = (announce ? announce.offsetHeight : 0) + (header ? header.offsetHeight : 0);
+    document.documentElement.style.setProperty('--header-h', h + 'px');
+  }
+
+  // Untransformed tile boxes relative to the section (offset* ignores the scale transform).
+  // Tiles under the centre text (label, title, buttons) may only grow to k = 0.5, so the text stays readable
   let width = 1;
   function measure() {
     width = hero.clientWidth || 1;
+    const hr = hero.getBoundingClientRect();
+    const boxes = [...hero.querySelectorAll('.lf-hero__center > *')].map((el) => el.getBoundingClientRect());
+    const tb = {
+      left: Math.min(...boxes.map((b) => b.left)) - hr.left, right: Math.max(...boxes.map((b) => b.right)) - hr.left,
+      top: Math.min(...boxes.map((b) => b.top)) - hr.top, bottom: Math.max(...boxes.map((b) => b.bottom)) - hr.top,
+    };
     tiles.forEach((t) => {
-      t.cx = field.offsetLeft + t.el.offsetLeft + t.el.offsetWidth / 2;
-      t.cy = field.offsetTop + t.el.offsetTop + t.el.offsetHeight / 2;
+      const x = field.offsetLeft + t.el.offsetLeft, y = field.offsetTop + t.el.offsetTop;
+      const w = t.el.offsetWidth, h = t.el.offsetHeight;
+      t.cx = x + w / 2;
+      t.cy = y + h / 2;
+      t.maxK = x < tb.right && x + w > tb.left && y < tb.bottom && y + h > tb.top ? 0.5 : 1;
+      t.k = -1; // re-apply on the next frame
     });
   }
 
   let px = null, py = null, queued = false;
   function apply() {
     queued = false;
-    const radius = width * 0.32;
+    const radius = width * 0.24;
     let best = null, bestD = Infinity;
     tiles.forEach((t) => {
       let k = 0;
       if (px !== null) {
         const dx = (t.cx - px) * 1.6, dy = t.cy - py;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        k = Math.max(0, 1 - dist / radius);
+        k = Math.min(t.maxK, Math.max(0, 1 - dist / radius));
         if (dist < bestD) { bestD = dist; best = t; }
       }
       k = Math.round(k * 1000) / 1000;
@@ -75,8 +95,8 @@
       t.k = k;
       const s = t.el.style;
       if (k === 0) { s.transform = s.opacity = s.zIndex = ''; return; }
-      s.transform = `scale(${(0.55 + k * 0.75).toFixed(3)})`;
-      s.opacity = (0.28 + k * 0.72).toFixed(3);
+      s.transform = `scale(${(0.62 + k * 0.88).toFixed(3)})`;
+      s.opacity = (0.32 + k * 0.68).toFixed(3);
       s.zIndex = String(1 + Math.round(k * 100));
     });
     const text = best && bestD < radius ? best.label : DEFAULT_TAG;
@@ -113,8 +133,11 @@
   function reset() { point(null, null); startLoop(); }
   [touch, reduced].forEach((q) => q.addEventListener('change', reset));
   narrow.addEventListener('change', () => { build(); reset(); });
-  addEventListener('resize', measure);
-  window.addEventListener('load', measure);
+  const resize = () => { setHeaderH(); measure(); point(px, py); };
+  addEventListener('resize', resize);
+  window.addEventListener('load', resize);
+  if (document.fonts) document.fonts.ready.then(measure); // the text box depends on the web font
+  setHeaderH();
   build();
   startLoop();
 })();
