@@ -150,30 +150,32 @@
       <p class="lf-label">What we make</p>
       <h2 class="lf-h2">Two things, done properly.</h2>
     </div>
+    <!-- Blind cards: on hover/focus six photo strips rise one after another (left first) and drop back right first.
+         Touch screens play it once when the card is 70% in view. Counts in .lf-blind__count come from site-data.js (script.js) -->
     <div class="lf-grid lf-grid--2">
-      <a class="lf-card lf-card--white lf-card--link" href="lookbook.html">
-        <div class="lf-live" aria-hidden="true" style="--zoom: 1.2"><iframe data-src="lookbook.html" tabindex="-1" title=""></iframe><p class="lf-live__title">Lookbook</p></div>
-        <p class="lf-label">01 — Lookbook</p>
-        <h3 class="lf-h3">A season of editorial images, no studio.</h3>
-        <p class="lf-text">From your product photos to finished lookbook: art direction, styling, scenes and models, produced with AI and finished by hand.</p>
-        <ul class="lf-list lf-list--ruled">
-          <li>✓ [N] final images per collection</li>
-          <li>✓ Direction board before production</li>
-          <li>✓ Sized for your site, socials and print</li>
-        </ul>
-        <p class="lf-label lf-card__go">See the lookbook →</p>
-      </a>
-      <a class="lf-card lf-card--white lf-card--link" href="meta-ad-creatives.html">
-        <div class="lf-live" aria-hidden="true"><iframe data-src="meta-ad-creatives.html" tabindex="-1" title=""></iframe><p class="lf-live__title">Meta ad creatives</p></div>
-        <p class="lf-label">02 — Meta ad creatives</p>
-        <h3 class="lf-h3">Statics and carousels built to be tested.</h3>
-        <p class="lf-text">Every ad is a distinct concept with its own angle, hook, visual and copy, so each test tells you something new.</p>
-        <ul class="lf-list lf-list--ruled">
+      <a class="lf-card lf-card--white lf-card--link lf-blind" href="meta-ad-creatives.html" aria-label="Meta Ads: see the ads">
+        <div class="lf-blind__photos" aria-hidden="true"><span class="lf-blind__strip"><img src="images/meta/bag/01.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/meta/necklace/02.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/meta/ring-k/02.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/meta/ring-foreign/07.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/meta/slippers/01.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/meta/etc/05.jpg" alt="" loading="lazy" decoding="async"></span><p class="lf-blind__count" data-count="meta"></p></div>
+        <div class="lf-blind__top lf-label"><span>LF / MTA.ADS</span><span>01</span></div>
+        <h3 class="lf-blind__name">Meta Ads</h3>
+        <p class="lf-blind__desc">Statics and carousels built to be tested.</p>
+        <ul class="lf-list lf-list--ruled lf-blind__list">
           <li>✓ Research, concept, copy and design included</li>
           <li>✓ Every ad in 1:1, 4:5 and 9:16</li>
           <li>✓ Built from your lookbook's visual language</li>
         </ul>
         <p class="lf-label lf-card__go">See the ads →</p>
+      </a>
+      <a class="lf-card lf-card--white lf-card--link lf-blind" href="lookbook.html" aria-label="Lookbook: see the lookbook">
+        <div class="lf-blind__photos" aria-hidden="true"><span class="lf-blind__strip"><img src="images/lookbook/6a-6a-on-beach/cover.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/lookbook/6a-cool-goth/cover.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/lookbook/6a-rock-festa/cover.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/lookbook/akoihaus-housewear/cover.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/lookbook/cleartype-identity/cover.jpg" alt="" loading="lazy" decoding="async"></span><span class="lf-blind__strip"><img src="images/lookbook/coffery-cobalt/cover.jpg" alt="" loading="lazy" decoding="async"></span><p class="lf-blind__count" data-count="lookbook"></p></div>
+        <div class="lf-blind__top lf-label"><span>LF / LKB.EDT</span><span>02</span></div>
+        <h3 class="lf-blind__name">Lookbook</h3>
+        <p class="lf-blind__desc">A season of editorial images, no studio.</p>
+        <ul class="lf-list lf-list--ruled lf-blind__list">
+          <li>✓ [N] final images per collection</li>
+          <li>✓ Direction board before production</li>
+          <li>✓ Sized for your site, socials and print</li>
+        </ul>
+        <p class="lf-label lf-card__go">See the lookbook →</p>
       </a>
     </div>
   </div>

@@ -104,39 +104,21 @@ function tint() {
 addEventListener('scroll', () => { if (!tintQueued) { tintQueued = true; requestAnimationFrame(tint); } }, { passive: true });
 tint();
 
-// What we make: on hover each card shows a live, scaled-down view of the page it links to.
-// The real page loads in an iframe the first time the cursor enters the section (never on touch screens),
-// laid out at 1440px wide and scaled to the card; its header is hidden so the content fills the card.
-const liveCards = [...document.querySelectorAll('.lf-card--link')];
-const fitLive = () => liveCards.forEach((card) => card.style.setProperty('--s', card.clientWidth / 1440));
-if (liveCards.length && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-  fitLive();
-  addEventListener('resize', fitLive);
-  liveCards[0].closest('.lf-sec').addEventListener('pointerenter', () => {
-    liveCards.forEach((card) => {
-      const box = card.querySelector('.lf-live');
-      const frame = box && box.querySelector('iframe[data-src]');
-      if (!frame) return;
-      // Show it once the page's layout is ready (DOMContentLoaded), not after every image has loaded:
-      // the Meta Ads page has dozens of images, so its load event can take many seconds
-      let done = false;
-      const ready = () => {
-        let doc;
-        try { doc = frame.contentDocument; } catch (e) { doc = null; } // not same-origin: show the page as it is
-        if (doc && (doc.URL === 'about:blank' || doc.readyState === 'loading')) return false;
-        if (done) return true;
-        done = true;
-        if (doc) doc.documentElement.classList.add('is-embed'); // styles.css hides its header
-        box.classList.add('is-ready');
-        // The embedded pages focus their slider on load; hand focus back so arrow keys stay on this page
-        if (document.activeElement === frame) frame.blur();
-        setTimeout(() => { if (document.activeElement === frame) frame.blur(); }, 500);
-        return true;
-      };
-      const poll = setInterval(() => { if (ready()) clearInterval(poll); }, 100);
-      frame.addEventListener('load', () => { clearInterval(poll); ready(); if (document.activeElement === frame) frame.blur(); }, { once: true });
-      frame.src = frame.dataset.src;
-      frame.removeAttribute('data-src');
-    });
-  }, { once: true });
+// What we make blind cards: photo counts from site-data.js; on touch screens the strips rise once
+// when a card is 70% in view and drop again 1.5s after they are all up (a tap still follows the card's link)
+const blinds = [...document.querySelectorAll('.lf-blind')];
+if (typeof META_COLUMNS !== 'undefined') {
+  const ads = META_COLUMNS.reduce((n, c) => n + c.items.length, 0);
+  const setCount = (key, text) => document.querySelectorAll(`[data-count="${key}"]`).forEach((el) => (el.textContent = text));
+  setCount('meta', `${ads} ads · ${META_COLUMNS.length} formats`);
+  setCount('lookbook', `${LOOKBOOK_SETS.length} lookbooks`);
+}
+if (blinds.length && matchMedia('(hover: none)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+    if (!e.isIntersecting) return;
+    io.unobserve(e.target);
+    e.target.classList.add('is-open');
+    setTimeout(() => e.target.classList.remove('is-open'), 600 + 5 * 45 + 1500);
+  }), { threshold: 0.7 });
+  blinds.forEach((b) => io.observe(b));
 }
